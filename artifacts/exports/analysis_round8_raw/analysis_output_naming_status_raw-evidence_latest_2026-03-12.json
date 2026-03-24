@@ -1,0 +1,58 @@
+{
+  "report_type": "analysis_output_naming_status",
+  "analysis_mode": "raw-evidence",
+  "snapshot_date": "2026-03-12",
+  "policy_profile": "canonical_preferred",
+  "config_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/analysis_output_naming.json",
+  "canonical_default": true,
+  "compatibility_write_requested": true,
+  "compatibility_write_effective": true,
+  "disable_request_blocked": false,
+  "can_disable_now": false,
+  "checks": {
+    "pipeline_uses_canonical": true,
+    "quality_uses_canonical": true,
+    "canonical_outputs_present": true,
+    "canonical_manifests_present": true,
+    "baseline_uses_canonical": false,
+    "manual_consumer_clearance": false
+  },
+  "blockers": [
+    "baseline/reference 仍绑定 compatibility 文件名",
+    "全量分析/analysis_tables.xlsx 仍被人工/Excel 消费链直接打开",
+    "全量分析_round*_raw/time_chain_anomaly_report.xlsx 仍被人工/Excel 消费链直接打开"
+  ],
+  "required_actions": [
+    "将 baseline/reference 从 compatibility 名切换到 canonical 名",
+    "完成 Excel / 人工消费链对 canonical workbook / snapshot 的切换确认"
+  ],
+  "default_outputs": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round8_raw/analysis_workbook_raw-evidence_latest_2026-03-12.xlsx",
+    "anomaly_report": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round8_raw/analysis_anomaly_report_raw-evidence_latest_2026-03-12.xlsx",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round8_raw/analysis_snapshot_raw-evidence_latest_2026-03-12.csv"
+  },
+  "compatibility_outputs": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round8_raw/analysis_tables.xlsx",
+    "anomaly_report": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round8_raw/time_chain_anomaly_report.xlsx",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round8_raw/raw_analysis_snapshot_latest_2026-03-12.csv"
+  },
+  "default_manifests": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round8_raw/analysis_workbook_raw-evidence_latest_2026-03-12.manifest.json",
+    "anomaly_report": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round8_raw/analysis_anomaly_report_raw-evidence_latest_2026-03-12.manifest.json",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round8_raw/analysis_snapshot_raw-evidence_latest_2026-03-12.manifest.json"
+  },
+  "compatibility_manifests": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round8_raw/raw_analysis_workbook_latest_2026-03-12.manifest.json",
+    "anomaly_report": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round8_raw/raw_anomaly_report_latest_2026-03-12.manifest.json",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round8_raw/raw_analysis_snapshot_latest_2026-03-12.manifest.json"
+  },
+  "baseline_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/tests/baseline/reference_manifest.json",
+  "default_output_keys": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round8_raw/analysis_workbook_raw-evidence_latest_2026-03-12.xlsx",
+    "anomaly_report": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round8_raw/analysis_anomaly_report_raw-evidence_latest_2026-03-12.xlsx",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round8_raw/analysis_snapshot_raw-evidence_latest_2026-03-12.csv",
+    "workbook_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round8_raw/analysis_workbook_raw-evidence_latest_2026-03-12.manifest.json",
+    "anomaly_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round8_raw/analysis_anomaly_report_raw-evidence_latest_2026-03-12.manifest.json",
+    "snapshot_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round8_raw/analysis_snapshot_raw-evidence_latest_2026-03-12.manifest.json"
+  }
+}

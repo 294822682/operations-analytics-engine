@@ -1,0 +1,245 @@
+{
+  "report_type": "quality_report",
+  "report_scope": "raw-evidence-contract",
+  "run_id": "round7-raw-main",
+  "generated_at": "2026-03-15T11:11:40",
+  "overall_status": "pass",
+  "summary": {
+    "overall_status": "pass",
+    "operational_decision": "safe",
+    "threshold_breach_count": 0,
+    "threshold_profile": "",
+    "threshold_profiles": [],
+    "threshold_sources": [],
+    "configured_threshold_alerts": [],
+    "key_alerts": [],
+    "attention_items": [],
+    "safe_changes": [],
+    "metric_drift_summary": {
+      "fact": {},
+      "snapshot": {},
+      "ledger": {
+        "unique_scope_status": "unknown",
+        "required_fields_status": "unknown",
+        "reconcile_status": "unknown",
+        "duplicate_count": null,
+        "null_fields": null,
+        "mismatch_count": null,
+        "threshold_profile": null,
+        "threshold_source": null,
+        "threshold_rule": {
+          "unique_scope": null,
+          "required_fields": null,
+          "snapshot_reconcile": null
+        },
+        "threshold_breaches": []
+      },
+      "analysis": {
+        "subject_area_status": "unknown",
+        "row_count_status": "unknown",
+        "missing_subject_areas": null,
+        "subject_area_counts": null,
+        "raw_evidence_groups": null,
+        "threshold_profile": null,
+        "threshold_source": null,
+        "threshold_rule": {
+          "subject_areas": null,
+          "row_count": null
+        },
+        "threshold_breaches": []
+      }
+    }
+  },
+  "contract_checks": [
+    {
+      "name": "raw.contract.snapshot_schema",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "analysis snapshot contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round7_raw/raw_analysis_snapshot_latest_2026-03-12.csv",
+        "row_count": 5906,
+        "missing_fields": [],
+        "mismatches": {},
+        "truth_failures": [],
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.snapshot_manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "manifest contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round7_raw/raw_analysis_snapshot_latest_2026-03-12.manifest.json",
+        "missing_fields": [],
+        "mismatches": {},
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.workbook_manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "manifest contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round7_raw/raw_analysis_workbook_latest_2026-03-12.manifest.json",
+        "missing_fields": [],
+        "mismatches": {},
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.anomaly_manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "manifest contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round7_raw/raw_anomaly_report_latest_2026-03-12.manifest.json",
+        "missing_fields": [],
+        "mismatches": {},
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.workbook_alignment",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "workbook/anomaly 与 manifest 对齐",
+        "sheet_count": 27,
+        "manifest_row_count": 27,
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.anomaly_alignment",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "workbook/anomaly 与 manifest 对齐",
+        "sheet_count": 4,
+        "manifest_row_count": 4,
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.theme_manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "theme manifest contract 校验",
+        "missing_fields": [],
+        "threshold_breaches": []
+      }
+    }
+  ],
+  "metric_checks": [],
+  "structural_checks": [],
+  "pass_through_checks": [],
+  "files": [
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round7_raw/raw_analysis_snapshot_latest_2026-03-12.csv",
+      "exists": true,
+      "size_bytes": 1420197
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round7_raw/analysis_tables.xlsx",
+      "exists": true,
+      "size_bytes": 86423
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round7_raw/time_chain_anomaly_report.xlsx",
+      "exists": true,
+      "size_bytes": 46334
+    }
+  ],
+  "baseline": {},
+  "checks": [
+    {
+      "name": "raw.contract.snapshot_schema",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "analysis snapshot contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round7_raw/raw_analysis_snapshot_latest_2026-03-12.csv",
+        "row_count": 5906,
+        "missing_fields": [],
+        "mismatches": {},
+        "truth_failures": [],
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.snapshot_manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "manifest contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round7_raw/raw_analysis_snapshot_latest_2026-03-12.manifest.json",
+        "missing_fields": [],
+        "mismatches": {},
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.workbook_manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "manifest contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round7_raw/raw_analysis_workbook_latest_2026-03-12.manifest.json",
+        "missing_fields": [],
+        "mismatches": {},
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.anomaly_manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "manifest contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round7_raw/raw_anomaly_report_latest_2026-03-12.manifest.json",
+        "missing_fields": [],
+        "mismatches": {},
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.workbook_alignment",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "workbook/anomaly 与 manifest 对齐",
+        "sheet_count": 27,
+        "manifest_row_count": 27,
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.anomaly_alignment",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "workbook/anomaly 与 manifest 对齐",
+        "sheet_count": 4,
+        "manifest_row_count": 4,
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "raw.contract.theme_manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "theme manifest contract 校验",
+        "missing_fields": [],
+        "threshold_breaches": []
+      }
+    }
+  ],
+  "categories": {
+    "contract violation": 7
+  }
+}

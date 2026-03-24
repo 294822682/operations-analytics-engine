@@ -1,0 +1,83 @@
+{
+  "run_id": "run-20260320T094833Z",
+  "generated_at": "2026-03-20T17:48:43",
+  "source_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+  "issue_summary": {
+    "issue_count": 3,
+    "blocking_count": 0,
+    "warning_count": 0,
+    "info_count": 3,
+    "conflict_count": 0,
+    "unmatched_count": 0,
+    "partial_apply_count": 0,
+    "invalid_override_count": 0,
+    "risk_count": 3,
+    "top_blocking_messages": [],
+    "top_warning_messages": []
+  },
+  "issues": [
+    {
+      "issue_id": "manual-override-application-historical_only_risk-manual-override-20260315-17835126680",
+      "issue_type": "historical_only_risk",
+      "severity": "info",
+      "override_id": "manual-override-20260315-17835126680",
+      "business_subject_key": "PHONE:17835126680",
+      "phone": "17835126680",
+      "lead_id": "ID2033132100202205186",
+      "detected_stage": "application",
+      "message_cn": "该 override 只命中历史样本，会影响累计结果，但不一定改变今日 latest 面板标签解释。",
+      "suggested_action": "如业务上需要解释 latest 面板，请同步核对最新日期是否也需要专项确认。",
+      "status": "open",
+      "run_id": "run-20260320T094833Z",
+      "matched_rows": 1,
+      "conflict_override_ids": []
+    },
+    {
+      "issue_id": "manual-override-application-historical_only_risk-manual-override-20260317-18718861565",
+      "issue_type": "historical_only_risk",
+      "severity": "info",
+      "override_id": "manual-override-20260317-18718861565",
+      "business_subject_key": "PHONE:18718861565",
+      "phone": "18718861565",
+      "lead_id": "ID2033777602904121346",
+      "detected_stage": "application",
+      "message_cn": "该 override 只命中历史样本，会影响累计结果，但不一定改变今日 latest 面板标签解释。",
+      "suggested_action": "如业务上需要解释 latest 面板，请同步核对最新日期是否也需要专项确认。",
+      "status": "open",
+      "run_id": "run-20260320T094833Z",
+      "matched_rows": 1,
+      "conflict_override_ids": []
+    },
+    {
+      "issue_id": "manual-override-application-historical_only_risk-manual-override-20260317-18196548988",
+      "issue_type": "historical_only_risk",
+      "severity": "info",
+      "override_id": "manual-override-20260317-18196548988",
+      "business_subject_key": "PHONE:18196548988",
+      "phone": "18196548988",
+      "lead_id": "ID2033778358008864769",
+      "detected_stage": "application",
+      "message_cn": "该 override 只命中历史样本，会影响累计结果，但不一定改变今日 latest 面板标签解释。",
+      "suggested_action": "如业务上需要解释 latest 面板，请同步核对最新日期是否也需要专项确认。",
+      "status": "open",
+      "run_id": "run-20260320T094833Z",
+      "matched_rows": 1,
+      "conflict_override_ids": []
+    }
+  ],
+  "validation_summary": {
+    "summary": "专项人工确认归属校验通过",
+    "warnings": [],
+    "counts": {
+      "configured": 3,
+      "active": 3,
+      "inactive": 0,
+      "revoked": 0
+    }
+  },
+  "runtime_summary": {
+    "matched_override_count": 3,
+    "matched_sample_count": 3,
+    "latest_effective_date": "2026-03-19"
+  }
+}

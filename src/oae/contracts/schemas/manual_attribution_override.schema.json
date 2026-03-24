@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "ManualAttributionOverride",
+  "required": [
+    "override_id",
+    "business_subject_key",
+    "phone",
+    "lead_id",
+    "override_scope",
+    "target_account",
+    "target_host",
+    "reason",
+    "evidence_note",
+    "confirmed_by",
+    "confirmed_at",
+    "effective_from",
+    "effective_to",
+    "status",
+    "metric_version",
+    "run_id"
+  ],
+  "properties": {
+    "override_id": {
+      "type": "string"
+    },
+    "business_subject_key": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "lead_id": {
+      "type": "string"
+    },
+    "override_scope": {
+      "type": "string"
+    },
+    "target_account": {
+      "type": "string"
+    },
+    "target_host": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "evidence_note": {
+      "type": "string"
+    },
+    "confirmed_by": {
+      "type": "string"
+    },
+    "confirmed_at": {
+      "type": "string"
+    },
+    "effective_from": {
+      "type": "string"
+    },
+    "effective_to": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "metric_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    }
+  }
+}

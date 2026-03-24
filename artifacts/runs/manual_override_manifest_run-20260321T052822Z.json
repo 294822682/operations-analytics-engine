@@ -1,0 +1,239 @@
+{
+  "run_id": "run-20260321T052822Z",
+  "generated_at": "2026-03-21T13:28:42",
+  "source_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+  "configured_rows": 3,
+  "active_rows": 3,
+  "inactive_rows": 0,
+  "revoked_rows": 0,
+  "applied_override_count": 3,
+  "applied_row_count": 3,
+  "applied_business_subject_count": 3,
+  "affected_accounts": [
+    "抖音-星途汽车官方直播间",
+    "抖音-星途汽车直营中心"
+  ],
+  "affected_hosts": [
+    "丁俐佳",
+    "何雯"
+  ],
+  "unmatched_active_overrides": [],
+  "applied_details": [
+    {
+      "override_id": "manual-override-20260315-17835126680",
+      "override_scope": "account_host",
+      "reason": "主播自己挖潜",
+      "evidence_note": "抖音来客直播延迟核销后业务确认应归属本场",
+      "confirmed_by": "业务人工确认",
+      "confirmed_at": "2026-03-17 12:00:00",
+      "business_subject_key": "PHONE:17835126680",
+      "phone": "17835126680",
+      "lead_id": "ID2033132100202205186",
+      "target_account": "抖音-星途汽车直营中心",
+      "target_host": "丁俐佳",
+      "matched_rows": 1,
+      "matched_business_subject_keys": [
+        "PHONE:17835126680"
+      ],
+      "matched_lead_ids": [
+        "ID2033132100202205186"
+      ],
+      "original_auto": {
+        "standard_accounts": [
+          "抖音-星途汽车直营中心"
+        ],
+        "hosts": [
+          "【无主线索】"
+        ],
+        "statuses": [
+          "无主线索"
+        ],
+        "unmatched_reasons": [
+          "未命中直播时间窗"
+        ]
+      },
+      "final_consumer": {
+        "target_account": "抖音-星途汽车直营中心",
+        "target_host": "丁俐佳",
+        "final_status": "匹配成功",
+        "consumers": [
+          "daily_snapshot",
+          "analysis_snapshot",
+          "feishu_report",
+          "tsv_verify"
+        ]
+      }
+    },
+    {
+      "override_id": "manual-override-20260317-18718861565",
+      "override_scope": "account_host",
+      "reason": "主播自己挖潜",
+      "evidence_note": "业务人工确认：用户提供唯一线索ID 2033777602904120000，对应手机号 18718861565 归属何雯 / 抖音-星途汽车官方直播间",
+      "confirmed_by": "业务人工确认",
+      "confirmed_at": "2026-03-20 17:10:00",
+      "business_subject_key": "PHONE:18718861565",
+      "phone": "18718861565",
+      "lead_id": "ID2033777602904121346",
+      "target_account": "抖音-星途汽车官方直播间",
+      "target_host": "何雯",
+      "matched_rows": 1,
+      "matched_business_subject_keys": [
+        "PHONE:18718861565"
+      ],
+      "matched_lead_ids": [
+        "ID2033777602904121346"
+      ],
+      "original_auto": {
+        "standard_accounts": [
+          "抖音-星途汽车官方直播间"
+        ],
+        "hosts": [
+          "何雯"
+        ],
+        "statuses": [
+          "匹配成功"
+        ],
+        "unmatched_reasons": [
+          ""
+        ]
+      },
+      "final_consumer": {
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯",
+        "final_status": "匹配成功",
+        "consumers": [
+          "daily_snapshot",
+          "analysis_snapshot",
+          "feishu_report",
+          "tsv_verify"
+        ]
+      }
+    },
+    {
+      "override_id": "manual-override-20260317-18196548988",
+      "override_scope": "account_host",
+      "reason": "主播自己挖潜",
+      "evidence_note": "业务人工确认：用户提供唯一线索ID 2033778358008860000，对应手机号 18196548988 归属何雯 / 抖音-星途汽车官方直播间",
+      "confirmed_by": "业务人工确认",
+      "confirmed_at": "2026-03-20 17:10:00",
+      "business_subject_key": "PHONE:18196548988",
+      "phone": "18196548988",
+      "lead_id": "ID2033778358008864769",
+      "target_account": "抖音-星途汽车官方直播间",
+      "target_host": "何雯",
+      "matched_rows": 1,
+      "matched_business_subject_keys": [
+        "PHONE:18196548988"
+      ],
+      "matched_lead_ids": [
+        "ID2033778358008864769"
+      ],
+      "original_auto": {
+        "standard_accounts": [
+          "抖音-星途汽车官方直播间"
+        ],
+        "hosts": [
+          "何雯"
+        ],
+        "statuses": [
+          "匹配成功"
+        ],
+        "unmatched_reasons": [
+          ""
+        ]
+      },
+      "final_consumer": {
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯",
+        "final_status": "匹配成功",
+        "consumers": [
+          "daily_snapshot",
+          "analysis_snapshot",
+          "feishu_report",
+          "tsv_verify"
+        ]
+      }
+    }
+  ],
+  "final_consumer_scope": [
+    "daily_snapshot",
+    "analysis_snapshot",
+    "feishu_report",
+    "tsv_verify"
+  ],
+  "issues": [
+    {
+      "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260315-17835126680",
+      "issue_type": "historical_account_host_risk",
+      "severity": "info",
+      "override_id": "manual-override-20260315-17835126680",
+      "business_subject_key": "PHONE:17835126680",
+      "phone": "17835126680",
+      "lead_id": "ID2033132100202205186",
+      "detected_stage": "application",
+      "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+      "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+      "status": "open",
+      "run_id": "",
+      "matched_rows": 1,
+      "conflict_override_ids": [],
+      "target_account": "抖音-星途汽车直营中心",
+      "target_host": "丁俐佳"
+    },
+    {
+      "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260317-18718861565",
+      "issue_type": "historical_account_host_risk",
+      "severity": "info",
+      "override_id": "manual-override-20260317-18718861565",
+      "business_subject_key": "PHONE:18718861565",
+      "phone": "18718861565",
+      "lead_id": "ID2033777602904121346",
+      "detected_stage": "application",
+      "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+      "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+      "status": "open",
+      "run_id": "",
+      "matched_rows": 1,
+      "conflict_override_ids": [],
+      "target_account": "抖音-星途汽车官方直播间",
+      "target_host": "何雯"
+    },
+    {
+      "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260317-18196548988",
+      "issue_type": "historical_account_host_risk",
+      "severity": "info",
+      "override_id": "manual-override-20260317-18196548988",
+      "business_subject_key": "PHONE:18196548988",
+      "phone": "18196548988",
+      "lead_id": "ID2033778358008864769",
+      "detected_stage": "application",
+      "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+      "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+      "status": "open",
+      "run_id": "",
+      "matched_rows": 1,
+      "conflict_override_ids": [],
+      "target_account": "抖音-星途汽车官方直播间",
+      "target_host": "何雯"
+    }
+  ],
+  "issue_summary": {
+    "issue_count": 3,
+    "blocking_count": 0,
+    "warning_count": 0,
+    "info_count": 3,
+    "conflict_count": 0,
+    "unmatched_count": 0,
+    "unmatched_not_in_current_run_count": 0,
+    "unmatched_probable_misconfig_count": 0,
+    "unmatched_outside_effective_window_count": 0,
+    "unmatched_insufficient_locator_count": 0,
+    "unmatched_needs_manual_review_count": 0,
+    "partial_apply_count": 0,
+    "invalid_override_count": 0,
+    "risk_count": 3,
+    "top_blocking_messages": [],
+    "top_warning_messages": [],
+    "source_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv"
+  }
+}

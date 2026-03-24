@@ -1,0 +1,80 @@
+{
+  "report_type": "analysis_output_naming_status",
+  "analysis_mode": "raw-evidence",
+  "snapshot_date": "2026-03-12",
+  "policy_profile": "canonical_preferred",
+  "config_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/analysis_output_naming.json",
+  "canonical_default": true,
+  "compatibility_write_requested": false,
+  "compatibility_write_effective": false,
+  "disable_request_blocked": false,
+  "can_disable_now": true,
+  "dry_run_disable_compatibility": true,
+  "dry_run_result": {
+    "requested": true,
+    "status": "ready",
+    "would_disable": true,
+    "effective_compatibility_write_if_applied": false,
+    "blocked": false
+  },
+  "pre_disable_check": {
+    "ready": true,
+    "check_count": 8,
+    "blocker_count": 0,
+    "checks": {
+      "pipeline_uses_canonical": true,
+      "quality_uses_canonical": true,
+      "canonical_outputs_present": true,
+      "canonical_manifests_present": true,
+      "canonical_manifests_target_canonical_outputs": true,
+      "baseline_uses_canonical": true,
+      "manual_consumer_clearance": true,
+      "manual_consumer_clearance_doc_present": true
+    },
+    "blockers": [],
+    "required_actions": []
+  },
+  "disable_blockers_summary": "ready_to_disable",
+  "checks": {
+    "pipeline_uses_canonical": true,
+    "quality_uses_canonical": true,
+    "canonical_outputs_present": true,
+    "canonical_manifests_present": true,
+    "canonical_manifests_target_canonical_outputs": true,
+    "baseline_uses_canonical": true,
+    "manual_consumer_clearance": true,
+    "manual_consumer_clearance_doc_present": true
+  },
+  "blockers": [],
+  "required_actions": [],
+  "manual_consumer_clearance_doc": "/Users/ahs/Desktop/Operations Analytics Engine/docs/rules/analysis_manual_consumption.md",
+  "default_outputs": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round10_raw_test/analysis_workbook_raw-evidence_latest_2026-03-12.xlsx",
+    "anomaly_report": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round10_raw_test/analysis_anomaly_report_raw-evidence_latest_2026-03-12.xlsx",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round10_raw_test/analysis_snapshot_raw-evidence_latest_2026-03-12.csv"
+  },
+  "compatibility_outputs": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round10_raw_test/analysis_tables.xlsx",
+    "anomaly_report": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round10_raw_test/time_chain_anomaly_report.xlsx",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round10_raw_test/raw_analysis_snapshot_latest_2026-03-12.csv"
+  },
+  "default_manifests": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round10_raw_test/analysis_workbook_raw-evidence_latest_2026-03-12.manifest.json",
+    "anomaly_report": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round10_raw_test/analysis_anomaly_report_raw-evidence_latest_2026-03-12.manifest.json",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round10_raw_test/analysis_snapshot_raw-evidence_latest_2026-03-12.manifest.json"
+  },
+  "compatibility_manifests": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round10_raw_test/raw_analysis_workbook_latest_2026-03-12.manifest.json",
+    "anomaly_report": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round10_raw_test/raw_anomaly_report_latest_2026-03-12.manifest.json",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round10_raw_test/raw_analysis_snapshot_latest_2026-03-12.manifest.json"
+  },
+  "baseline_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/tests/baseline/reference_manifest.json",
+  "default_output_keys": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round10_raw_test/analysis_workbook_raw-evidence_latest_2026-03-12.xlsx",
+    "anomaly_report": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round10_raw_test/analysis_anomaly_report_raw-evidence_latest_2026-03-12.xlsx",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round10_raw_test/analysis_snapshot_raw-evidence_latest_2026-03-12.csv",
+    "workbook_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round10_raw_test/analysis_workbook_raw-evidence_latest_2026-03-12.manifest.json",
+    "anomaly_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round10_raw_test/analysis_anomaly_report_raw-evidence_latest_2026-03-12.manifest.json",
+    "snapshot_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis_round10_raw_test/analysis_snapshot_raw-evidence_latest_2026-03-12.manifest.json"
+  }
+}

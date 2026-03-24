@@ -1,0 +1,536 @@
+{
+  "analysis_mode": "unified-fact",
+  "migrated_topics": [
+    "funnel",
+    "sla",
+    "quality",
+    "host_anchor",
+    "channel",
+    "ops_review"
+  ],
+  "raw_evidence_topics": [
+    {
+      "topic": "process_sla",
+      "raw_evidence_required": true,
+      "migration_status": "partially_unified_capable",
+      "shared_components": [
+        "rate_within",
+        "SLA table assembly",
+        "渠道聚合规则"
+      ],
+      "unified_capable_parts": [
+        "SLA总览汇总口径",
+        "渠道级时效统计结构"
+      ],
+      "raw_required_parts": [
+        "创建/下发/首次跟进/到店 多节点原始时间链"
+      ],
+      "reason": "SLA 汇总结构已可模块化，但完整过程链仍依赖原始时间字段。"
+    },
+    {
+      "topic": "reactivation",
+      "raw_evidence_required": true,
+      "migration_status": "fully_raw_required",
+      "shared_components": [
+        "手机号标准化",
+        "原始时间解析"
+      ],
+      "unified_capable_parts": [],
+      "raw_required_parts": [
+        "战败时间",
+        "战败状态",
+        "再入池事件回放"
+      ],
+      "reason": "再激活识别依赖同手机号完整状态回放，统一事实层当前未保留战败后再激活事件链。"
+    },
+    {
+      "topic": "time_anomaly",
+      "raw_evidence_required": true,
+      "migration_status": "migration_candidate",
+      "shared_components": [
+        "异常聚合",
+        "责任归属汇总",
+        "风险等级规则"
+      ],
+      "unified_capable_parts": [
+        "异常聚合汇总",
+        "风险等级分层"
+      ],
+      "raw_required_parts": [
+        "逐节点原始时间字段",
+        "异常根因定位"
+      ],
+      "reason": "异常责任与风险分层逻辑可复用，但逐节点异常识别仍依赖原始时间链。"
+    },
+    {
+      "topic": "model_path",
+      "raw_evidence_required": true,
+      "migration_status": "partially_unified_capable",
+      "shared_components": [
+        "路径稳定率",
+        "跳转率",
+        "流失率计算"
+      ],
+      "unified_capable_parts": [
+        "车型路径总览和总体指标框架"
+      ],
+      "raw_required_parts": [
+        "首次意向车型",
+        "试驾车型",
+        "成交车型 的完整路径字段"
+      ],
+      "reason": "车型路径算法已可抽离，但统一事实层尚未沉淀完整车型演进链。"
+    },
+    {
+      "topic": "followup_intensity",
+      "raw_evidence_required": true,
+      "migration_status": "partially_unified_capable",
+      "shared_components": [
+        "跟进强度分桶",
+        "转化率汇总"
+      ],
+      "unified_capable_parts": [
+        "分桶规则和结果表结构"
+      ],
+      "raw_required_parts": [
+        "跟进次数",
+        "销售维度后端字段"
+      ],
+      "reason": "分桶和聚合逻辑可复用，但原始跟进次数和销售字段尚未进入统一事实层。"
+    }
+  ],
+  "raw_evidence_groups": {
+    "fully_raw_required": [
+      {
+        "topic": "reactivation",
+        "raw_evidence_required": true,
+        "migration_status": "fully_raw_required",
+        "shared_components": [
+          "手机号标准化",
+          "原始时间解析"
+        ],
+        "unified_capable_parts": [],
+        "raw_required_parts": [
+          "战败时间",
+          "战败状态",
+          "再入池事件回放"
+        ],
+        "reason": "再激活识别依赖同手机号完整状态回放，统一事实层当前未保留战败后再激活事件链。"
+      }
+    ],
+    "partially_unified_capable": [
+      {
+        "topic": "process_sla",
+        "raw_evidence_required": true,
+        "migration_status": "partially_unified_capable",
+        "shared_components": [
+          "rate_within",
+          "SLA table assembly",
+          "渠道聚合规则"
+        ],
+        "unified_capable_parts": [
+          "SLA总览汇总口径",
+          "渠道级时效统计结构"
+        ],
+        "raw_required_parts": [
+          "创建/下发/首次跟进/到店 多节点原始时间链"
+        ],
+        "reason": "SLA 汇总结构已可模块化，但完整过程链仍依赖原始时间字段。"
+      },
+      {
+        "topic": "model_path",
+        "raw_evidence_required": true,
+        "migration_status": "partially_unified_capable",
+        "shared_components": [
+          "路径稳定率",
+          "跳转率",
+          "流失率计算"
+        ],
+        "unified_capable_parts": [
+          "车型路径总览和总体指标框架"
+        ],
+        "raw_required_parts": [
+          "首次意向车型",
+          "试驾车型",
+          "成交车型 的完整路径字段"
+        ],
+        "reason": "车型路径算法已可抽离，但统一事实层尚未沉淀完整车型演进链。"
+      },
+      {
+        "topic": "followup_intensity",
+        "raw_evidence_required": true,
+        "migration_status": "partially_unified_capable",
+        "shared_components": [
+          "跟进强度分桶",
+          "转化率汇总"
+        ],
+        "unified_capable_parts": [
+          "分桶规则和结果表结构"
+        ],
+        "raw_required_parts": [
+          "跟进次数",
+          "销售维度后端字段"
+        ],
+        "reason": "分桶和聚合逻辑可复用，但原始跟进次数和销售字段尚未进入统一事实层。"
+      }
+    ],
+    "migration_candidate": [
+      {
+        "topic": "time_anomaly",
+        "raw_evidence_required": true,
+        "migration_status": "migration_candidate",
+        "shared_components": [
+          "异常聚合",
+          "责任归属汇总",
+          "风险等级规则"
+        ],
+        "unified_capable_parts": [
+          "异常聚合汇总",
+          "风险等级分层"
+        ],
+        "raw_required_parts": [
+          "逐节点原始时间字段",
+          "异常根因定位"
+        ],
+        "reason": "异常责任与风险分层逻辑可复用，但逐节点异常识别仍依赖原始时间链。"
+      }
+    ]
+  },
+  "default_outputs": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_workbook_unified-fact_latest_2026-03-23.xlsx",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-23.csv",
+    "workbook_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_workbook_unified-fact_latest_2026-03-23.manifest.json",
+    "snapshot_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_snapshot_unified-fact_latest_2026-03-23.manifest.json"
+  },
+  "manual_consumer_default": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_workbook_unified-fact_latest_2026-03-23.xlsx",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-23.csv"
+  },
+  "compatibility_outputs": {
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_tables.xlsx",
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_latest_2026-03-23.csv"
+  },
+  "compatibility_outputs_deprecated": true,
+  "compatibility_write_effective": false,
+  "naming_status_path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_output_naming_status_unified-fact_latest_2026-03-23.json",
+  "manual_override_summary": {
+    "source_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+    "generated_at": "2026-03-24T16:30:01",
+    "configured_rows": 5,
+    "active_rows": 5,
+    "inactive_rows": 0,
+    "revoked_rows": 0,
+    "applied_override_count": 4,
+    "applied_row_count": 4,
+    "applied_business_subject_count": 4,
+    "affected_accounts": [
+      "抖音-星途汽车官方直播间",
+      "抖音-星途汽车直营中心"
+    ],
+    "affected_hosts": [
+      "丁俐佳",
+      "何雯"
+    ],
+    "unmatched_active_overrides": [
+      {
+        "issue_id": "manual-override-application-unmatched_not_in_current_run-manual-override-20260323-17730142808",
+        "issue_type": "unmatched_not_in_current_run",
+        "severity": "info",
+        "override_id": "manual-override-20260323-17730142808",
+        "business_subject_key": "PHONE:17730142808",
+        "phone": "17730142808",
+        "lead_id": "ID2035910604917030914",
+        "detected_stage": "application",
+        "message_cn": "当前未命中，且所有定位字段都像是正常值，本轮大概率本来就没有这条业务样本。",
+        "suggested_action": "如果这是历史专项或未来专项，可先忽略；如果业务确认本轮应该存在，再回头核数据来源。",
+        "status": "open",
+        "run_id": "",
+        "matched_rows": 0,
+        "conflict_override_ids": [],
+        "target_account": "视频号-星途星纪元",
+        "target_host": "丁俐佳"
+      }
+    ],
+    "applied_details": [
+      {
+        "override_id": "manual-override-20260315-17835126680",
+        "override_scope": "account_host",
+        "reason": "主播自己挖潜",
+        "evidence_note": "抖音来客直播延迟核销后业务确认应归属本场",
+        "confirmed_by": "业务人工确认",
+        "confirmed_at": "2026-03-17 12:00:00",
+        "business_subject_key": "PHONE:17835126680",
+        "phone": "17835126680",
+        "lead_id": "ID2033132100202205186",
+        "target_account": "抖音-星途汽车直营中心",
+        "target_host": "丁俐佳",
+        "matched_rows": 1,
+        "matched_business_subject_keys": [
+          "PHONE:17835126680"
+        ],
+        "matched_lead_ids": [
+          "ID2033132100202205186"
+        ],
+        "original_auto": {
+          "standard_accounts": [
+            "抖音-星途汽车直营中心"
+          ],
+          "hosts": [
+            "【无主线索】"
+          ],
+          "statuses": [
+            "无主线索"
+          ],
+          "unmatched_reasons": [
+            "未命中直播时间窗"
+          ]
+        },
+        "final_consumer": {
+          "target_account": "抖音-星途汽车直营中心",
+          "target_host": "丁俐佳",
+          "final_status": "匹配成功",
+          "consumers": [
+            "daily_snapshot",
+            "analysis_snapshot",
+            "feishu_report",
+            "tsv_verify"
+          ]
+        }
+      },
+      {
+        "override_id": "manual-override-20260317-18718861565",
+        "override_scope": "account_host",
+        "reason": "主播自己挖潜",
+        "evidence_note": "业务人工确认：用户提供唯一线索ID 2033777602904120000，对应手机号 18718861565 归属何雯 / 抖音-星途汽车官方直播间",
+        "confirmed_by": "业务人工确认",
+        "confirmed_at": "2026-03-20 17:10:00",
+        "business_subject_key": "PHONE:18718861565",
+        "phone": "18718861565",
+        "lead_id": "ID2033777602904121346",
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯",
+        "matched_rows": 1,
+        "matched_business_subject_keys": [
+          "PHONE:18718861565"
+        ],
+        "matched_lead_ids": [
+          "ID2033777602904121346"
+        ],
+        "original_auto": {
+          "standard_accounts": [
+            "抖音-星途汽车官方直播间"
+          ],
+          "hosts": [
+            "何雯"
+          ],
+          "statuses": [
+            "匹配成功"
+          ],
+          "unmatched_reasons": [
+            ""
+          ]
+        },
+        "final_consumer": {
+          "target_account": "抖音-星途汽车官方直播间",
+          "target_host": "何雯",
+          "final_status": "匹配成功",
+          "consumers": [
+            "daily_snapshot",
+            "analysis_snapshot",
+            "feishu_report",
+            "tsv_verify"
+          ]
+        }
+      },
+      {
+        "override_id": "manual-override-20260317-18196548988",
+        "override_scope": "account_host",
+        "reason": "主播自己挖潜",
+        "evidence_note": "业务人工确认：用户提供唯一线索ID 2033778358008860000，对应手机号 18196548988 归属何雯 / 抖音-星途汽车官方直播间",
+        "confirmed_by": "业务人工确认",
+        "confirmed_at": "2026-03-20 17:10:00",
+        "business_subject_key": "PHONE:18196548988",
+        "phone": "18196548988",
+        "lead_id": "ID2033778358008864769",
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯",
+        "matched_rows": 1,
+        "matched_business_subject_keys": [
+          "PHONE:18196548988"
+        ],
+        "matched_lead_ids": [
+          "ID2033778358008864769"
+        ],
+        "original_auto": {
+          "standard_accounts": [
+            "抖音-星途汽车官方直播间"
+          ],
+          "hosts": [
+            "何雯"
+          ],
+          "statuses": [
+            "匹配成功"
+          ],
+          "unmatched_reasons": [
+            ""
+          ]
+        },
+        "final_consumer": {
+          "target_account": "抖音-星途汽车官方直播间",
+          "target_host": "何雯",
+          "final_status": "匹配成功",
+          "consumers": [
+            "daily_snapshot",
+            "analysis_snapshot",
+            "feishu_report",
+            "tsv_verify"
+          ]
+        }
+      },
+      {
+        "override_id": "manual-override-20260324-13418617050",
+        "override_scope": "account_host",
+        "reason": "主播自己挖潜",
+        "evidence_note": "业务人工确认：用户提供唯一线索ID 2035977601726013442，对应手机号 13418617050 归属何雯 / 抖音-星途汽车直营中心",
+        "confirmed_by": "业务人工确认",
+        "confirmed_at": "2026-03-24 16:10:00",
+        "business_subject_key": "PHONE:13418617050",
+        "phone": "13418617050",
+        "lead_id": "ID2035977601726013442",
+        "target_account": "抖音-星途汽车直营中心",
+        "target_host": "何雯",
+        "matched_rows": 1,
+        "matched_business_subject_keys": [
+          "PHONE:13418617050"
+        ],
+        "matched_lead_ids": [
+          "ID2035977601726013442"
+        ],
+        "original_auto": {
+          "standard_accounts": [
+            "抖音-星途汽车直营中心"
+          ],
+          "hosts": [
+            "何雯"
+          ],
+          "statuses": [
+            "匹配成功"
+          ],
+          "unmatched_reasons": [
+            ""
+          ]
+        },
+        "final_consumer": {
+          "target_account": "抖音-星途汽车直营中心",
+          "target_host": "何雯",
+          "final_status": "匹配成功",
+          "consumers": [
+            "daily_snapshot",
+            "analysis_snapshot",
+            "feishu_report",
+            "tsv_verify"
+          ]
+        }
+      }
+    ],
+    "final_consumer_scope": [
+      "daily_snapshot",
+      "analysis_snapshot",
+      "feishu_report",
+      "tsv_verify"
+    ],
+    "issues": [
+      {
+        "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260315-17835126680",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260315-17835126680",
+        "business_subject_key": "PHONE:17835126680",
+        "phone": "17835126680",
+        "lead_id": "ID2033132100202205186",
+        "detected_stage": "application",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+        "status": "open",
+        "run_id": "",
+        "matched_rows": 1,
+        "conflict_override_ids": [],
+        "target_account": "抖音-星途汽车直营中心",
+        "target_host": "丁俐佳"
+      },
+      {
+        "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260317-18718861565",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260317-18718861565",
+        "business_subject_key": "PHONE:18718861565",
+        "phone": "18718861565",
+        "lead_id": "ID2033777602904121346",
+        "detected_stage": "application",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+        "status": "open",
+        "run_id": "",
+        "matched_rows": 1,
+        "conflict_override_ids": [],
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯"
+      },
+      {
+        "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260317-18196548988",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260317-18196548988",
+        "business_subject_key": "PHONE:18196548988",
+        "phone": "18196548988",
+        "lead_id": "ID2033778358008864769",
+        "detected_stage": "application",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+        "status": "open",
+        "run_id": "",
+        "matched_rows": 1,
+        "conflict_override_ids": [],
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯"
+      },
+      {
+        "issue_id": "manual-override-application-unmatched_not_in_current_run-manual-override-20260323-17730142808",
+        "issue_type": "unmatched_not_in_current_run",
+        "severity": "info",
+        "override_id": "manual-override-20260323-17730142808",
+        "business_subject_key": "PHONE:17730142808",
+        "phone": "17730142808",
+        "lead_id": "ID2035910604917030914",
+        "detected_stage": "application",
+        "message_cn": "当前未命中，且所有定位字段都像是正常值，本轮大概率本来就没有这条业务样本。",
+        "suggested_action": "如果这是历史专项或未来专项，可先忽略；如果业务确认本轮应该存在，再回头核数据来源。",
+        "status": "open",
+        "run_id": "",
+        "matched_rows": 0,
+        "conflict_override_ids": [],
+        "target_account": "视频号-星途星纪元",
+        "target_host": "丁俐佳"
+      }
+    ],
+    "issue_summary": {
+      "issue_count": 4,
+      "blocking_count": 0,
+      "warning_count": 0,
+      "info_count": 4,
+      "conflict_count": 0,
+      "unmatched_count": 1,
+      "unmatched_not_in_current_run_count": 1,
+      "unmatched_probable_misconfig_count": 0,
+      "unmatched_outside_effective_window_count": 0,
+      "unmatched_insufficient_locator_count": 0,
+      "unmatched_needs_manual_review_count": 0,
+      "partial_apply_count": 0,
+      "invalid_override_count": 0,
+      "risk_count": 3,
+      "top_blocking_messages": [],
+      "top_warning_messages": [],
+      "source_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv"
+    }
+  }
+}

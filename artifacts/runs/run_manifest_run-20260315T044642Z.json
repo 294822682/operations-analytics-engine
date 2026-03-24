@@ -1,0 +1,243 @@
+{
+  "run_id": "run-20260315T044642Z",
+  "schema_version": "1.0.0",
+  "metric_version": "metric-v1",
+  "template_version": "excel-tsv-v1",
+  "freeze_id": "provisional-full-chain-test",
+  "quality_threshold_profile": "operational",
+  "analysis_output_default_paths": {
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-12.csv",
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_workbook_unified-fact_latest_2026-03-12.xlsx",
+    "snapshot_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_snapshot_unified-fact_latest_2026-03-12.manifest.json",
+    "workbook_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_workbook_unified-fact_latest_2026-03-12.manifest.json"
+  },
+  "analysis_naming_status_path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_output_naming_status_unified-fact_latest_2026-03-12.json",
+  "analysis_naming_status": {
+    "report_type": "analysis_output_naming_status",
+    "analysis_mode": "unified-fact",
+    "snapshot_date": "2026-03-12",
+    "policy_profile": "canonical_preferred",
+    "config_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/analysis_output_naming.json",
+    "canonical_default": true,
+    "compatibility_write_requested": false,
+    "compatibility_write_effective": false,
+    "disable_request_blocked": false,
+    "can_disable_now": true,
+    "dry_run_disable_compatibility": true,
+    "dry_run_result": {
+      "requested": true,
+      "status": "ready",
+      "would_disable": true,
+      "effective_compatibility_write_if_applied": false,
+      "blocked": false
+    },
+    "pre_disable_check": {
+      "ready": true,
+      "check_count": 8,
+      "blocker_count": 0,
+      "checks": {
+        "pipeline_uses_canonical": true,
+        "quality_uses_canonical": true,
+        "canonical_outputs_present": true,
+        "canonical_manifests_present": true,
+        "canonical_manifests_target_canonical_outputs": true,
+        "baseline_uses_canonical": true,
+        "manual_consumer_clearance": true,
+        "manual_consumer_clearance_doc_present": true
+      },
+      "blockers": [],
+      "required_actions": []
+    },
+    "disable_blockers_summary": "ready_to_disable",
+    "checks": {
+      "pipeline_uses_canonical": true,
+      "quality_uses_canonical": true,
+      "canonical_outputs_present": true,
+      "canonical_manifests_present": true,
+      "canonical_manifests_target_canonical_outputs": true,
+      "baseline_uses_canonical": true,
+      "manual_consumer_clearance": true,
+      "manual_consumer_clearance_doc_present": true
+    },
+    "blockers": [],
+    "required_actions": [],
+    "manual_consumer_clearance_doc": "/Users/ahs/Desktop/Operations Analytics Engine/docs/rules/analysis_manual_consumption.md",
+    "default_outputs": {
+      "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_workbook_unified-fact_latest_2026-03-12.xlsx",
+      "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-12.csv"
+    },
+    "compatibility_outputs": {
+      "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_tables.xlsx",
+      "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_latest_2026-03-12.csv"
+    },
+    "default_manifests": {
+      "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_workbook_unified-fact_latest_2026-03-12.manifest.json",
+      "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_snapshot_unified-fact_latest_2026-03-12.manifest.json"
+    },
+    "compatibility_manifests": {
+      "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_workbook_latest_2026-03-12.manifest.json",
+      "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_snapshot_latest_2026-03-12.manifest.json"
+    },
+    "baseline_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/tests/baseline/reference_manifest.json",
+    "default_output_keys": {
+      "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_workbook_unified-fact_latest_2026-03-12.xlsx",
+      "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-12.csv",
+      "workbook_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_workbook_unified-fact_latest_2026-03-12.manifest.json",
+      "snapshot_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_snapshot_unified-fact_latest_2026-03-12.manifest.json"
+    }
+  },
+  "analysis_disable_gate": {
+    "ready": true,
+    "check_count": 8,
+    "blocker_count": 0,
+    "checks": {
+      "pipeline_uses_canonical": true,
+      "quality_uses_canonical": true,
+      "canonical_outputs_present": true,
+      "canonical_manifests_present": true,
+      "canonical_manifests_target_canonical_outputs": true,
+      "baseline_uses_canonical": true,
+      "manual_consumer_clearance": true,
+      "manual_consumer_clearance_doc_present": true
+    },
+    "blockers": [],
+    "required_actions": []
+  },
+  "analysis_disable_dry_run": {
+    "requested": true,
+    "status": "ready",
+    "would_disable": true,
+    "effective_compatibility_write_if_applied": false,
+    "blocked": false
+  },
+  "workspace": "/Users/ahs/Desktop/Operations Analytics Engine",
+  "steps": [
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.build_fact",
+      "--workspace",
+      "/Users/ahs/Desktop/Operations Analytics Engine",
+      "--data-dir",
+      ".",
+      "--live-file",
+      "2026年直播进度表3月.xlsx",
+      "--match-mode",
+      "process_deal_data",
+      "--output-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output",
+      "--run-id",
+      "run-20260315T044642Z",
+      "--schema-version",
+      "1.0.0",
+      "--metric-version",
+      "metric-v1"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.build_sqlite_db",
+      "--csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "--db",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/lead_daily.db"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.export_sql_daily",
+      "--db",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/lead_daily.db",
+      "--output-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.export_target_daily",
+      "--fact-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "--targets-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/config/monthly_targets.csv",
+      "--spend-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/config/daily_spend.csv",
+      "--live-file",
+      "2026年直播进度表3月.xlsx",
+      "--spend-source",
+      "auto",
+      "--output-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports",
+      "--snapshot-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots",
+      "--run-id",
+      "run-20260315T044642Z",
+      "--schema-version",
+      "1.0.0",
+      "--metric-version",
+      "metric-v1",
+      "--template-version",
+      "excel-tsv-v1",
+      "--freeze-id",
+      "provisional-full-chain-test"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.run_analysis",
+      "--analysis-mode",
+      "unified-fact",
+      "--fact-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "--output-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/全量分析",
+      "--snapshot-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots",
+      "--run-id",
+      "run-20260315T044642Z",
+      "--schema-version",
+      "1.0.0",
+      "--metric-version",
+      "metric-v1"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.export_feishu_report",
+      "--reports-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports",
+      "--fact-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "--snapshot-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/daily_performance_snapshot_latest_2026-03-12.csv",
+      "--ledger-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/compensation_ledger_2026-03_2026-03-12.csv",
+      "--analysis-snapshot-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-12.csv",
+      "--export-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports",
+      "--run-id",
+      "run-20260315T044642Z",
+      "--schema-version",
+      "1.0.0",
+      "--metric-version",
+      "metric-v1",
+      "--template-version",
+      "excel-tsv-v1",
+      "--freeze-id",
+      "provisional-full-chain-test",
+      "--report-date",
+      "2026-03-12"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.verify_report_tsv",
+      "--reports-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports",
+      "--fact-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "--tsv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports/feishu_table_latest_2026-03-12.tsv"
+    ]
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "export_name": "analysis_anomaly_report",
+  "snapshot_date": "2026-03-12",
+  "schema_version": "1.0.0",
+  "metric_version": "metric-v1",
+  "run_id": "round7-raw-main",
+  "template_version": "",
+  "freeze_id": "",
+  "source_tables": [
+    "raw_time_anomaly"
+  ],
+  "row_count": 4,
+  "generated_at": "2026-03-15T11:11:40",
+  "consumer": "excel_workbook.raw-evidence",
+  "output_path": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round7_raw/time_chain_anomaly_report.xlsx"
+}

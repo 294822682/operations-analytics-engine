@@ -1,0 +1,16 @@
+{
+  "export_name": "analysis_workbook",
+  "snapshot_date": "2026-03-12",
+  "schema_version": "1.0.0",
+  "metric_version": "metric-v1",
+  "run_id": "round6-raw-main",
+  "template_version": "",
+  "freeze_id": "",
+  "source_tables": [
+    "raw_evidence_tables"
+  ],
+  "row_count": 27,
+  "generated_at": "2026-03-15T10:55:49",
+  "consumer": "excel_workbook.raw-evidence",
+  "output_path": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析_round6_raw/analysis_tables.xlsx"
+}

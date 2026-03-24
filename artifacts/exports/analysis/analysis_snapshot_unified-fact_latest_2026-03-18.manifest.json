@@ -1,0 +1,16 @@
+{
+  "export_name": "analysis_snapshot",
+  "snapshot_date": "2026-03-18",
+  "schema_version": "1.0.0",
+  "metric_version": "metric-v1",
+  "run_id": "run-20260320T063411Z",
+  "template_version": "",
+  "freeze_id": "",
+  "source_tables": [
+    "analysis_snapshot"
+  ],
+  "row_count": 125,
+  "generated_at": "2026-03-20T14:34:25",
+  "consumer": "analysis-snapshot.unified-fact",
+  "output_path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-18.csv"
+}

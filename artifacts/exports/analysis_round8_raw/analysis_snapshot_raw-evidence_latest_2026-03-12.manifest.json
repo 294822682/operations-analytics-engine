@@ -1,0 +1,16 @@
+{
+  "export_name": "analysis_snapshot",
+  "snapshot_date": "2026-03-12",
+  "schema_version": "1.0.0",
+  "metric_version": "metric-v1",
+  "run_id": "round8-raw-main",
+  "template_version": "",
+  "freeze_id": "",
+  "source_tables": [
+    "analysis_snapshot"
+  ],
+  "row_count": 5906,
+  "generated_at": "2026-03-15T11:31:49",
+  "consumer": "analysis-snapshot.raw-evidence",
+  "output_path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round8_raw/analysis_snapshot_raw-evidence_latest_2026-03-12.csv"
+}

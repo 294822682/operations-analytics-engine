@@ -1,0 +1,118 @@
+{
+  "run_id": "run-20260324T075612Z",
+  "summary_status": "info_only",
+  "blocking_count": 0,
+  "warning_count": 0,
+  "info_count": 4,
+  "top_priority_issues": [
+    {
+      "rank": 1,
+      "priority_bucket_cn": "今日可延后关注问题",
+      "issue_type": "unmatched_not_in_current_run",
+      "severity": "info",
+      "override_id": "manual-override-20260323-17730142808",
+      "phone": "17730142808",
+      "lead_id": "ID2035910604917030914",
+      "target_account": "视频号-星途星纪元",
+      "target_host": "丁俐佳",
+      "matched_rows": 0,
+      "impact_scope_cn": "本轮样本本来不存在，可延后处理",
+      "message_cn": "当前未命中，且所有定位字段都像是正常值，本轮大概率本来就没有这条业务样本。",
+      "suggested_action": "如果这是历史专项或未来专项，可先忽略；如果业务确认本轮应该存在，再回头核数据来源。"
+    },
+    {
+      "rank": 2,
+      "priority_bucket_cn": "今日可延后关注问题",
+      "issue_type": "historical_account_host_risk",
+      "severity": "info",
+      "override_id": "manual-override-20260315-17835126680",
+      "phone": "17835126680",
+      "lead_id": "ID2033132100202205186",
+      "target_account": "抖音-星途汽车直营中心",
+      "target_host": "丁俐佳",
+      "matched_rows": 1,
+      "impact_scope_cn": "同时影响累计口径和主播 latest 解释",
+      "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+      "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。"
+    },
+    {
+      "rank": 3,
+      "priority_bucket_cn": "今日可延后关注问题",
+      "issue_type": "historical_account_host_risk",
+      "severity": "info",
+      "override_id": "manual-override-20260317-18718861565",
+      "phone": "18718861565",
+      "lead_id": "ID2033777602904121346",
+      "target_account": "抖音-星途汽车官方直播间",
+      "target_host": "何雯",
+      "matched_rows": 1,
+      "impact_scope_cn": "同时影响累计口径和主播 latest 解释",
+      "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+      "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。"
+    }
+  ],
+  "account_impact_summary": [
+    "抖音-星途汽车官方直播间：已命中 2 条专项归属，更偏累计口径影响，同时要注意主播 latest 解释。",
+    "抖音-星途汽车直营中心：已命中 1 条专项归属，更偏累计口径影响，同时要注意主播 latest 解释。"
+  ],
+  "host_impact_summary": [
+    "何雯：已命中 2 条专项归属，需要注意主播 latest 标签解释。",
+    "丁俐佳：已命中 1 条专项归属，需要注意主播 latest 标签解释。"
+  ],
+  "latest_panel_risk_summary": [
+    "何雯：2 条专项只命中历史样本，累计口径已修正，但今天解释主播 latest 面板时建议顺手复核。",
+    "丁俐佳：1 条专项只命中历史样本，累计口径已修正，但今天解释主播 latest 面板时建议顺手复核。"
+  ],
+  "suggested_actions": [
+    "今天没有阻断项和高优先级错误，专项归属可以继续使用，重点是解释历史样本风险。",
+    "今天存在本轮本来不存在的 unmatched，可先忽略，不必当天打断正式出数。",
+    "如果这是历史专项或未来专项，可先忽略；如果业务确认本轮应该存在，再回头核数据来源。",
+    "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+    "如果今天要解释主播 latest 面板，请优先核对摘要里提到的历史专项样本。"
+  ],
+  "generated_at": "2026-03-24T15:57:03",
+  "applied_override_count": 3,
+  "applied_row_count": 3,
+  "changed_final_consumer_scope": true,
+  "configured_override_count": 4,
+  "active_override_count": 4,
+  "affected_accounts": [
+    "抖音-星途汽车官方直播间",
+    "抖音-星途汽车直营中心"
+  ],
+  "affected_hosts": [
+    "丁俐佳",
+    "何雯"
+  ],
+  "final_consumer_scope": [
+    "daily_snapshot",
+    "analysis_snapshot",
+    "feishu_report",
+    "tsv_verify"
+  ],
+  "issue_counts": {
+    "issue_count": 4,
+    "conflict_count": 0,
+    "unmatched_total": 1,
+    "unmatched_not_in_current_run_count": 1,
+    "unmatched_probable_misconfig_count": 0,
+    "unmatched_outside_effective_window_count": 0,
+    "unmatched_insufficient_locator_count": 0,
+    "unmatched_needs_manual_review_count": 0,
+    "partial_apply_count": 0,
+    "invalid_override_count": 0,
+    "risk_count": 3
+  },
+  "application_summary": {
+    "description_cn": "今天共有 3 条专项人工确认归属生效，影响 3 行样本；主要影响账号=抖音-星途汽车官方直播间、抖音-星途汽车直营中心，主播=丁俐佳、何雯。",
+    "changes_final_consumer_scope": true,
+    "affected_accounts": [
+      "抖音-星途汽车官方直播间",
+      "抖音-星途汽车直营中心"
+    ],
+    "affected_hosts": [
+      "丁俐佳",
+      "何雯"
+    ]
+  }
+}

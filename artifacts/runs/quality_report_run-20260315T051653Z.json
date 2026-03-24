@@ -1,0 +1,1762 @@
+{
+  "report_type": "quality_report",
+  "report_scope": "pipeline",
+  "run_id": "run-20260315T051653Z",
+  "generated_at": "2026-03-15T13:16:57",
+  "overall_status": "pass",
+  "summary": {
+    "overall_status": "pass",
+    "operational_decision": "safe",
+    "threshold_breach_count": 0,
+    "threshold_profile": "operational",
+    "threshold_profiles": [
+      "operational"
+    ],
+    "threshold_sources": [
+      "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json"
+    ],
+    "configured_threshold_alerts": [],
+    "key_alerts": [],
+    "attention_items": [],
+    "safe_changes": [
+      "fact_attribution.csv: 结构变化，但关键经营指标稳定",
+      "analysis_workbook_unified-fact_latest_2026-03-12.xlsx: 仅元数据变化，业务结果安全"
+    ],
+    "metric_drift_summary": {
+      "fact": {
+        "status": "pass",
+        "summary": "事实层核心经营指标对比 baseline",
+        "threshold_breaches": [],
+        "threshold_profile": "operational",
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_rule": {
+          "row_count": {
+            "mode": "relative",
+            "warning": 0.02,
+            "fail": 0.05
+          },
+          "phone_missing_rate": {
+            "mode": "absolute",
+            "warning": 0.01,
+            "fail": 0.02
+          },
+          "unowned_ratio": {
+            "mode": "absolute",
+            "warning": 0.03,
+            "fail": 0.05
+          },
+          "attribution_success_rate": {
+            "mode": "absolute",
+            "warning": 0.03,
+            "fail": 0.05
+          }
+        },
+        "drift_metrics": {
+          "row_count": {
+            "baseline": 1412.0,
+            "current": 1412.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "relative",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.02,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          },
+          "phone_missing_rate": {
+            "baseline": 0.0,
+            "current": 0.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.01,
+            "fail_threshold": 0.02,
+            "breach_level": "pass"
+          },
+          "unowned_ratio": {
+            "baseline": 0.19688385269121814,
+            "current": 0.19688385269121814,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.03,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          },
+          "attribution_success_rate": {
+            "baseline": 0.8031161473087819,
+            "current": 0.8031161473087819,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.03,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          }
+        },
+        "current_metrics": {
+          "row_count": 1412,
+          "unique_lead_key_count": 1412,
+          "business_subject_key_coverage": 1.0,
+          "phone_missing_rate": 0.0,
+          "unowned_ratio": 0.19688385269121814,
+          "attribution_success_rate": 0.8031161473087819
+        },
+        "baseline_metrics": {
+          "row_count": 1412,
+          "phone_missing_rate": 0.0,
+          "unowned_ratio": 0.19688385269121814,
+          "attribution_success_rate": 0.8031161473087819
+        }
+      },
+      "snapshot": {
+        "status": "pass",
+        "summary": "日报快照核心经营指标对比 baseline",
+        "threshold_breaches": [],
+        "threshold_profile": "operational",
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_rule": {
+          "total_mtd_leads": {
+            "mode": "relative",
+            "warning": 0.05,
+            "fail": 0.1
+          },
+          "total_mtd_deals": {
+            "mode": "absolute",
+            "warning": 1.0,
+            "fail": 3.0
+          },
+          "total_mtd_spend": {
+            "mode": "relative",
+            "warning": 0.05,
+            "fail": 0.1
+          },
+          "mtd_lead_attain": {
+            "mode": "absolute",
+            "warning": 0.02,
+            "fail": 0.05
+          },
+          "mtd_deal_attain": {
+            "mode": "absolute",
+            "warning": 0.02,
+            "fail": 0.05
+          }
+        },
+        "drift_metrics": {
+          "total_mtd_leads": {
+            "baseline": 1300.0,
+            "current": 1300.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "relative",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.05,
+            "fail_threshold": 0.1,
+            "breach_level": "pass"
+          },
+          "total_mtd_deals": {
+            "baseline": 6.0,
+            "current": 6.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 1.0,
+            "fail_threshold": 3.0,
+            "breach_level": "pass"
+          },
+          "total_mtd_spend": {
+            "baseline": 48925.64,
+            "current": 48925.64,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "relative",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.05,
+            "fail_threshold": 0.1,
+            "breach_level": "pass"
+          },
+          "mtd_lead_attain": {
+            "baseline": 0.1829439909935266,
+            "current": 0.1829439909935266,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.02,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          },
+          "mtd_deal_attain": {
+            "baseline": 0.1,
+            "current": 0.1,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.02,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          }
+        },
+        "current_metrics": {
+          "total_mtd_leads": 1300.0,
+          "total_mtd_deals": 6.0,
+          "total_mtd_spend": 48925.64,
+          "mtd_lead_attain": 0.1829439909935266,
+          "mtd_deal_attain": 0.1
+        },
+        "baseline_metrics": {
+          "total_mtd_leads": 1300.0,
+          "total_mtd_deals": 6.0,
+          "total_mtd_spend": 48925.64,
+          "mtd_lead_attain": 0.1829439909935266,
+          "mtd_deal_attain": 0.1
+        }
+      },
+      "ledger": {
+        "unique_scope_status": "pass",
+        "required_fields_status": "pass",
+        "reconcile_status": "pass",
+        "duplicate_count": 0,
+        "null_fields": {},
+        "mismatch_count": 0,
+        "threshold_profile": "operational",
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_rule": {
+          "unique_scope": {
+            "duplicate_count": {
+              "mode": "absolute",
+              "warning": 0.0,
+              "fail": 0.0
+            }
+          },
+          "required_fields": {
+            "null_field_count": {
+              "mode": "absolute",
+              "warning": 0.0,
+              "fail": 0.0
+            }
+          },
+          "snapshot_reconcile": {
+            "mismatch_count": {
+              "mode": "absolute",
+              "warning": 0.0,
+              "fail": 0.0
+            }
+          }
+        },
+        "threshold_breaches": []
+      },
+      "analysis": {
+        "subject_area_status": "pass",
+        "row_count_status": "pass",
+        "missing_subject_areas": [],
+        "subject_area_counts": [
+          {
+            "subject_area": "channel",
+            "row_count": 8
+          },
+          {
+            "subject_area": "funnel",
+            "row_count": 10
+          },
+          {
+            "subject_area": "host_anchor",
+            "row_count": 28
+          },
+          {
+            "subject_area": "ops_review",
+            "row_count": 20
+          },
+          {
+            "subject_area": "quality",
+            "row_count": 28
+          },
+          {
+            "subject_area": "sla",
+            "row_count": 16
+          }
+        ],
+        "raw_evidence_groups": {
+          "fully_raw_required": [
+            {
+              "topic": "reactivation",
+              "raw_evidence_required": true,
+              "migration_status": "fully_raw_required",
+              "shared_components": [
+                "手机号标准化",
+                "原始时间解析"
+              ],
+              "unified_capable_parts": [],
+              "raw_required_parts": [
+                "战败时间",
+                "战败状态",
+                "再入池事件回放"
+              ],
+              "reason": "再激活识别依赖同手机号完整状态回放，统一事实层当前未保留战败后再激活事件链。"
+            }
+          ],
+          "partially_unified_capable": [
+            {
+              "topic": "process_sla",
+              "raw_evidence_required": true,
+              "migration_status": "partially_unified_capable",
+              "shared_components": [
+                "rate_within",
+                "SLA table assembly",
+                "渠道聚合规则"
+              ],
+              "unified_capable_parts": [
+                "SLA总览汇总口径",
+                "渠道级时效统计结构"
+              ],
+              "raw_required_parts": [
+                "创建/下发/首次跟进/到店 多节点原始时间链"
+              ],
+              "reason": "SLA 汇总结构已可模块化，但完整过程链仍依赖原始时间字段。"
+            },
+            {
+              "topic": "model_path",
+              "raw_evidence_required": true,
+              "migration_status": "partially_unified_capable",
+              "shared_components": [
+                "路径稳定率",
+                "跳转率",
+                "流失率计算"
+              ],
+              "unified_capable_parts": [
+                "车型路径总览和总体指标框架"
+              ],
+              "raw_required_parts": [
+                "首次意向车型",
+                "试驾车型",
+                "成交车型 的完整路径字段"
+              ],
+              "reason": "车型路径算法已可抽离，但统一事实层尚未沉淀完整车型演进链。"
+            },
+            {
+              "topic": "followup_intensity",
+              "raw_evidence_required": true,
+              "migration_status": "partially_unified_capable",
+              "shared_components": [
+                "跟进强度分桶",
+                "转化率汇总"
+              ],
+              "unified_capable_parts": [
+                "分桶规则和结果表结构"
+              ],
+              "raw_required_parts": [
+                "跟进次数",
+                "销售维度后端字段"
+              ],
+              "reason": "分桶和聚合逻辑可复用，但原始跟进次数和销售字段尚未进入统一事实层。"
+            }
+          ],
+          "migration_candidate": [
+            {
+              "topic": "time_anomaly",
+              "raw_evidence_required": true,
+              "migration_status": "migration_candidate",
+              "shared_components": [
+                "异常聚合",
+                "责任归属汇总",
+                "风险等级规则"
+              ],
+              "unified_capable_parts": [
+                "异常聚合汇总",
+                "风险等级分层"
+              ],
+              "raw_required_parts": [
+                "逐节点原始时间字段",
+                "异常根因定位"
+              ],
+              "reason": "异常责任与风险分层逻辑可复用，但逐节点异常识别仍依赖原始时间链。"
+            }
+          ]
+        },
+        "threshold_profile": "operational",
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_rule": {
+          "subject_areas": {
+            "missing_subject_area_count": {
+              "mode": "absolute",
+              "warning": 0.0,
+              "fail": 0.0
+            }
+          },
+          "row_count": {
+            "min_total_row_count": {
+              "mode": "minimum",
+              "warning": 1.0,
+              "fail": 1.0
+            }
+          }
+        },
+        "threshold_breaches": []
+      }
+    }
+  },
+  "contract_checks": [
+    {
+      "name": "ledger.required_fields",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "台账关键字段非空检查",
+        "null_fields": {},
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "null_field_count": {
+            "mode": "absolute",
+            "warning": 0.0,
+            "fail": 0.0
+          }
+        }
+      }
+    },
+    {
+      "name": "contract.feishu_report_latest_2026-03-12.manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "manifest contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/feishu_report_latest_2026-03-12.manifest.json",
+        "missing_fields": [],
+        "mismatches": {},
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "contract.feishu_table_latest_2026-03-12.manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "manifest contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/feishu_table_latest_2026-03-12.manifest.json",
+        "missing_fields": [],
+        "mismatches": {},
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "analysis.subject_areas",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "分析主题完整性检查",
+        "actual_subject_areas": [
+          "channel",
+          "funnel",
+          "host_anchor",
+          "ops_review",
+          "quality",
+          "sla"
+        ],
+        "missing_subject_areas": [],
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "missing_subject_area_count": {
+            "mode": "absolute",
+            "warning": 0.0,
+            "fail": 0.0
+          }
+        }
+      }
+    }
+  ],
+  "metric_checks": [
+    {
+      "name": "fact.baseline_metrics",
+      "category": "metric drift",
+      "status": "pass",
+      "details": {
+        "summary": "事实层核心经营指标对比 baseline",
+        "current_metrics": {
+          "row_count": 1412,
+          "unique_lead_key_count": 1412,
+          "business_subject_key_coverage": 1.0,
+          "phone_missing_rate": 0.0,
+          "unowned_ratio": 0.19688385269121814,
+          "attribution_success_rate": 0.8031161473087819
+        },
+        "baseline_metrics": {
+          "row_count": 1412,
+          "phone_missing_rate": 0.0,
+          "unowned_ratio": 0.19688385269121814,
+          "attribution_success_rate": 0.8031161473087819
+        },
+        "drift_metrics": {
+          "row_count": {
+            "baseline": 1412.0,
+            "current": 1412.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "relative",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.02,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          },
+          "phone_missing_rate": {
+            "baseline": 0.0,
+            "current": 0.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.01,
+            "fail_threshold": 0.02,
+            "breach_level": "pass"
+          },
+          "unowned_ratio": {
+            "baseline": 0.19688385269121814,
+            "current": 0.19688385269121814,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.03,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          },
+          "attribution_success_rate": {
+            "baseline": 0.8031161473087819,
+            "current": 0.8031161473087819,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.03,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          }
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "row_count": {
+            "mode": "relative",
+            "warning": 0.02,
+            "fail": 0.05
+          },
+          "phone_missing_rate": {
+            "mode": "absolute",
+            "warning": 0.01,
+            "fail": 0.02
+          },
+          "unowned_ratio": {
+            "mode": "absolute",
+            "warning": 0.03,
+            "fail": 0.05
+          },
+          "attribution_success_rate": {
+            "mode": "absolute",
+            "warning": 0.03,
+            "fail": 0.05
+          }
+        }
+      }
+    },
+    {
+      "name": "snapshot.baseline_metrics",
+      "category": "metric drift",
+      "status": "pass",
+      "details": {
+        "summary": "日报快照核心经营指标对比 baseline",
+        "current_metrics": {
+          "total_mtd_leads": 1300.0,
+          "total_mtd_deals": 6.0,
+          "total_mtd_spend": 48925.64,
+          "mtd_lead_attain": 0.1829439909935266,
+          "mtd_deal_attain": 0.1
+        },
+        "baseline_metrics": {
+          "total_mtd_leads": 1300.0,
+          "total_mtd_deals": 6.0,
+          "total_mtd_spend": 48925.64,
+          "mtd_lead_attain": 0.1829439909935266,
+          "mtd_deal_attain": 0.1
+        },
+        "drift_metrics": {
+          "total_mtd_leads": {
+            "baseline": 1300.0,
+            "current": 1300.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "relative",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.05,
+            "fail_threshold": 0.1,
+            "breach_level": "pass"
+          },
+          "total_mtd_deals": {
+            "baseline": 6.0,
+            "current": 6.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 1.0,
+            "fail_threshold": 3.0,
+            "breach_level": "pass"
+          },
+          "total_mtd_spend": {
+            "baseline": 48925.64,
+            "current": 48925.64,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "relative",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.05,
+            "fail_threshold": 0.1,
+            "breach_level": "pass"
+          },
+          "mtd_lead_attain": {
+            "baseline": 0.1829439909935266,
+            "current": 0.1829439909935266,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.02,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          },
+          "mtd_deal_attain": {
+            "baseline": 0.1,
+            "current": 0.1,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.02,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          }
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "total_mtd_leads": {
+            "mode": "relative",
+            "warning": 0.05,
+            "fail": 0.1
+          },
+          "total_mtd_deals": {
+            "mode": "absolute",
+            "warning": 1.0,
+            "fail": 3.0
+          },
+          "total_mtd_spend": {
+            "mode": "relative",
+            "warning": 0.05,
+            "fail": 0.1
+          },
+          "mtd_lead_attain": {
+            "mode": "absolute",
+            "warning": 0.02,
+            "fail": 0.05
+          },
+          "mtd_deal_attain": {
+            "mode": "absolute",
+            "warning": 0.02,
+            "fail": 0.05
+          }
+        }
+      }
+    },
+    {
+      "name": "ledger.snapshot_reconcile",
+      "category": "metric drift",
+      "status": "pass",
+      "details": {
+        "summary": "台账与日报快照关键指标对账",
+        "mismatch_count": 0,
+        "sample_mismatches": [],
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "mismatch_count": {
+            "mode": "absolute",
+            "warning": 0.0,
+            "fail": 0.0
+          }
+        }
+      }
+    }
+  ],
+  "structural_checks": [
+    {
+      "name": "fact.structural",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "summary": "事实层结构完整性检查",
+        "metrics": {
+          "row_count": 1412,
+          "unique_lead_key_count": 1412,
+          "business_subject_key_coverage": 1.0,
+          "phone_missing_rate": 0.0,
+          "unowned_ratio": 0.19688385269121814,
+          "attribution_success_rate": 0.8031161473087819
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational"
+      }
+    },
+    {
+      "name": "snapshot.account_total_reconcile",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "summary": "账号层汇总与总计行对账",
+        "metrics": {
+          "total_mtd_leads": 1300.0,
+          "total_mtd_deals": 6.0,
+          "total_mtd_spend": 48925.64,
+          "target_account_mtd_leads_sum": 1300.0,
+          "target_account_mtd_deals_sum": 6.0,
+          "target_account_mtd_spend_sum": 48925.64,
+          "anchor_mtd_leads_sum": 1099.74,
+          "anchor_mtd_deals_sum": 5.98,
+          "anchor_mtd_spend_sum": 48925.64,
+          "mtd_lead_attain": 0.1829439909935266,
+          "mtd_deal_attain": 0.1
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational"
+      }
+    },
+    {
+      "name": "snapshot.anchor_rollup",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "summary": "主播层覆盖率检查",
+        "metrics": {
+          "anchor_lead_coverage": 0.8459538461538462,
+          "anchor_deal_coverage": 0.9966666666666667,
+          "anchor_spend_coverage": 1.0
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational"
+      }
+    },
+    {
+      "name": "ledger.unique_scope",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "summary": "台账唯一键检查",
+        "metrics": {
+          "row_count": 14,
+          "duplicate_count": 0
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "duplicate_count": {
+            "mode": "absolute",
+            "warning": 0.0,
+            "fail": 0.0
+          }
+        }
+      }
+    },
+    {
+      "name": "analysis.row_count",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "summary": "分析快照行数与主题覆盖检查",
+        "row_count": 110,
+        "subject_area_counts": [
+          {
+            "subject_area": "channel",
+            "row_count": 8
+          },
+          {
+            "subject_area": "funnel",
+            "row_count": 10
+          },
+          {
+            "subject_area": "host_anchor",
+            "row_count": 28
+          },
+          {
+            "subject_area": "ops_review",
+            "row_count": 20
+          },
+          {
+            "subject_area": "quality",
+            "row_count": 28
+          },
+          {
+            "subject_area": "sla",
+            "row_count": 16
+          }
+        ],
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "min_total_row_count": {
+            "mode": "minimum",
+            "warning": 1.0,
+            "fail": 1.0
+          }
+        }
+      }
+    }
+  ],
+  "pass_through_checks": [
+    {
+      "name": "analysis.raw_evidence_topics",
+      "category": "pass",
+      "status": "pass",
+      "details": {
+        "summary": "raw-evidence 主题迁移状态",
+        "raw_evidence_topics": [
+          {
+            "topic": "process_sla",
+            "raw_evidence_required": true,
+            "migration_status": "partially_unified_capable",
+            "shared_components": [
+              "rate_within",
+              "SLA table assembly",
+              "渠道聚合规则"
+            ],
+            "unified_capable_parts": [
+              "SLA总览汇总口径",
+              "渠道级时效统计结构"
+            ],
+            "raw_required_parts": [
+              "创建/下发/首次跟进/到店 多节点原始时间链"
+            ],
+            "reason": "SLA 汇总结构已可模块化，但完整过程链仍依赖原始时间字段。"
+          },
+          {
+            "topic": "reactivation",
+            "raw_evidence_required": true,
+            "migration_status": "fully_raw_required",
+            "shared_components": [
+              "手机号标准化",
+              "原始时间解析"
+            ],
+            "unified_capable_parts": [],
+            "raw_required_parts": [
+              "战败时间",
+              "战败状态",
+              "再入池事件回放"
+            ],
+            "reason": "再激活识别依赖同手机号完整状态回放，统一事实层当前未保留战败后再激活事件链。"
+          },
+          {
+            "topic": "time_anomaly",
+            "raw_evidence_required": true,
+            "migration_status": "migration_candidate",
+            "shared_components": [
+              "异常聚合",
+              "责任归属汇总",
+              "风险等级规则"
+            ],
+            "unified_capable_parts": [
+              "异常聚合汇总",
+              "风险等级分层"
+            ],
+            "raw_required_parts": [
+              "逐节点原始时间字段",
+              "异常根因定位"
+            ],
+            "reason": "异常责任与风险分层逻辑可复用，但逐节点异常识别仍依赖原始时间链。"
+          },
+          {
+            "topic": "model_path",
+            "raw_evidence_required": true,
+            "migration_status": "partially_unified_capable",
+            "shared_components": [
+              "路径稳定率",
+              "跳转率",
+              "流失率计算"
+            ],
+            "unified_capable_parts": [
+              "车型路径总览和总体指标框架"
+            ],
+            "raw_required_parts": [
+              "首次意向车型",
+              "试驾车型",
+              "成交车型 的完整路径字段"
+            ],
+            "reason": "车型路径算法已可抽离，但统一事实层尚未沉淀完整车型演进链。"
+          },
+          {
+            "topic": "followup_intensity",
+            "raw_evidence_required": true,
+            "migration_status": "partially_unified_capable",
+            "shared_components": [
+              "跟进强度分桶",
+              "转化率汇总"
+            ],
+            "unified_capable_parts": [
+              "分桶规则和结果表结构"
+            ],
+            "raw_required_parts": [
+              "跟进次数",
+              "销售维度后端字段"
+            ],
+            "reason": "分桶和聚合逻辑可复用，但原始跟进次数和销售字段尚未进入统一事实层。"
+          }
+        ],
+        "raw_evidence_groups": {
+          "fully_raw_required": [
+            {
+              "topic": "reactivation",
+              "raw_evidence_required": true,
+              "migration_status": "fully_raw_required",
+              "shared_components": [
+                "手机号标准化",
+                "原始时间解析"
+              ],
+              "unified_capable_parts": [],
+              "raw_required_parts": [
+                "战败时间",
+                "战败状态",
+                "再入池事件回放"
+              ],
+              "reason": "再激活识别依赖同手机号完整状态回放，统一事实层当前未保留战败后再激活事件链。"
+            }
+          ],
+          "partially_unified_capable": [
+            {
+              "topic": "process_sla",
+              "raw_evidence_required": true,
+              "migration_status": "partially_unified_capable",
+              "shared_components": [
+                "rate_within",
+                "SLA table assembly",
+                "渠道聚合规则"
+              ],
+              "unified_capable_parts": [
+                "SLA总览汇总口径",
+                "渠道级时效统计结构"
+              ],
+              "raw_required_parts": [
+                "创建/下发/首次跟进/到店 多节点原始时间链"
+              ],
+              "reason": "SLA 汇总结构已可模块化，但完整过程链仍依赖原始时间字段。"
+            },
+            {
+              "topic": "model_path",
+              "raw_evidence_required": true,
+              "migration_status": "partially_unified_capable",
+              "shared_components": [
+                "路径稳定率",
+                "跳转率",
+                "流失率计算"
+              ],
+              "unified_capable_parts": [
+                "车型路径总览和总体指标框架"
+              ],
+              "raw_required_parts": [
+                "首次意向车型",
+                "试驾车型",
+                "成交车型 的完整路径字段"
+              ],
+              "reason": "车型路径算法已可抽离，但统一事实层尚未沉淀完整车型演进链。"
+            },
+            {
+              "topic": "followup_intensity",
+              "raw_evidence_required": true,
+              "migration_status": "partially_unified_capable",
+              "shared_components": [
+                "跟进强度分桶",
+                "转化率汇总"
+              ],
+              "unified_capable_parts": [
+                "分桶规则和结果表结构"
+              ],
+              "raw_required_parts": [
+                "跟进次数",
+                "销售维度后端字段"
+              ],
+              "reason": "分桶和聚合逻辑可复用，但原始跟进次数和销售字段尚未进入统一事实层。"
+            }
+          ],
+          "migration_candidate": [
+            {
+              "topic": "time_anomaly",
+              "raw_evidence_required": true,
+              "migration_status": "migration_candidate",
+              "shared_components": [
+                "异常聚合",
+                "责任归属汇总",
+                "风险等级规则"
+              ],
+              "unified_capable_parts": [
+                "异常聚合汇总",
+                "风险等级分层"
+              ],
+              "raw_required_parts": [
+                "逐节点原始时间字段",
+                "异常根因定位"
+              ],
+              "reason": "异常责任与风险分层逻辑可复用，但逐节点异常识别仍依赖原始时间链。"
+            }
+          ]
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational"
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "exists": true,
+      "size_bytes": 392962
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports/daily_goal_account_latest_2026-03-12.csv",
+      "exists": true,
+      "size_bytes": 2188
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports/feishu_table_latest_2026-03-12.tsv",
+      "exists": true,
+      "size_bytes": 3405
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_workbook_unified-fact_latest_2026-03-12.xlsx",
+      "exists": true,
+      "size_bytes": 16185
+    }
+  ],
+  "baseline": {
+    "status": "warning",
+    "details": [
+      {
+        "name": "fact_attribution.csv",
+        "status": "structural change",
+        "category": "structural change",
+        "baseline_core_columns": [
+          "线索ID",
+          "手机号",
+          "线索创建时间",
+          "date",
+          "标准账号",
+          "本场主播",
+          "同手机号线索数",
+          "是否手机号折叠",
+          "权重",
+          "归属状态",
+          "无匹配原因",
+          "report_bucket",
+          "订单状态",
+          "成交时间",
+          "主播人数",
+          "成交分摊权重",
+          "is_order",
+          "is_deal",
+          "渠道",
+          "成交车型",
+          "orders_contrib",
+          "deals_contrib",
+          "_lead_key",
+          "线索ID_norm",
+          "命中场次数量",
+          "成交_账号"
+        ],
+        "current_core_columns": [
+          "线索ID",
+          "手机号",
+          "线索创建时间",
+          "date",
+          "标准账号",
+          "本场主播",
+          "同手机号线索数",
+          "是否手机号折叠",
+          "权重",
+          "归属状态",
+          "无匹配原因",
+          "report_bucket",
+          "订单状态",
+          "成交时间",
+          "主播人数",
+          "成交分摊权重",
+          "is_order",
+          "is_deal",
+          "渠道",
+          "成交车型",
+          "orders_contrib",
+          "deals_contrib",
+          "business_subject_key",
+          "_lead_key",
+          "线索ID_norm",
+          "命中场次数量",
+          "成交_账号"
+        ],
+        "baseline_row_count": 1412,
+        "current_row_count": 1412
+      },
+      {
+        "name": "daily_goal_account_latest_2026-03-12.csv",
+        "status": "match",
+        "category": "pass"
+      },
+      {
+        "name": "feishu_table_latest_2026-03-12.tsv",
+        "status": "match",
+        "category": "pass"
+      },
+      {
+        "name": "analysis_workbook_unified-fact_latest_2026-03-12.xlsx",
+        "status": "metadata-only change",
+        "category": "metadata-only change",
+        "baseline_sha256": "7c168bb41dd3ec3040763ca0e2d9fdb7cb5f93c220d52ed088153cb524c20eff",
+        "current_sha256": "900ad3fd9869cdfc665cfa00fd383c2db7ab943d059a9a4dd053550ec0f039c9"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "fact.structural",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "summary": "事实层结构完整性检查",
+        "metrics": {
+          "row_count": 1412,
+          "unique_lead_key_count": 1412,
+          "business_subject_key_coverage": 1.0,
+          "phone_missing_rate": 0.0,
+          "unowned_ratio": 0.19688385269121814,
+          "attribution_success_rate": 0.8031161473087819
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational"
+      }
+    },
+    {
+      "name": "fact.baseline_metrics",
+      "category": "metric drift",
+      "status": "pass",
+      "details": {
+        "summary": "事实层核心经营指标对比 baseline",
+        "current_metrics": {
+          "row_count": 1412,
+          "unique_lead_key_count": 1412,
+          "business_subject_key_coverage": 1.0,
+          "phone_missing_rate": 0.0,
+          "unowned_ratio": 0.19688385269121814,
+          "attribution_success_rate": 0.8031161473087819
+        },
+        "baseline_metrics": {
+          "row_count": 1412,
+          "phone_missing_rate": 0.0,
+          "unowned_ratio": 0.19688385269121814,
+          "attribution_success_rate": 0.8031161473087819
+        },
+        "drift_metrics": {
+          "row_count": {
+            "baseline": 1412.0,
+            "current": 1412.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "relative",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.02,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          },
+          "phone_missing_rate": {
+            "baseline": 0.0,
+            "current": 0.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.01,
+            "fail_threshold": 0.02,
+            "breach_level": "pass"
+          },
+          "unowned_ratio": {
+            "baseline": 0.19688385269121814,
+            "current": 0.19688385269121814,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.03,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          },
+          "attribution_success_rate": {
+            "baseline": 0.8031161473087819,
+            "current": 0.8031161473087819,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.03,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          }
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "row_count": {
+            "mode": "relative",
+            "warning": 0.02,
+            "fail": 0.05
+          },
+          "phone_missing_rate": {
+            "mode": "absolute",
+            "warning": 0.01,
+            "fail": 0.02
+          },
+          "unowned_ratio": {
+            "mode": "absolute",
+            "warning": 0.03,
+            "fail": 0.05
+          },
+          "attribution_success_rate": {
+            "mode": "absolute",
+            "warning": 0.03,
+            "fail": 0.05
+          }
+        }
+      }
+    },
+    {
+      "name": "snapshot.account_total_reconcile",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "summary": "账号层汇总与总计行对账",
+        "metrics": {
+          "total_mtd_leads": 1300.0,
+          "total_mtd_deals": 6.0,
+          "total_mtd_spend": 48925.64,
+          "target_account_mtd_leads_sum": 1300.0,
+          "target_account_mtd_deals_sum": 6.0,
+          "target_account_mtd_spend_sum": 48925.64,
+          "anchor_mtd_leads_sum": 1099.74,
+          "anchor_mtd_deals_sum": 5.98,
+          "anchor_mtd_spend_sum": 48925.64,
+          "mtd_lead_attain": 0.1829439909935266,
+          "mtd_deal_attain": 0.1
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational"
+      }
+    },
+    {
+      "name": "snapshot.anchor_rollup",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "summary": "主播层覆盖率检查",
+        "metrics": {
+          "anchor_lead_coverage": 0.8459538461538462,
+          "anchor_deal_coverage": 0.9966666666666667,
+          "anchor_spend_coverage": 1.0
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational"
+      }
+    },
+    {
+      "name": "snapshot.baseline_metrics",
+      "category": "metric drift",
+      "status": "pass",
+      "details": {
+        "summary": "日报快照核心经营指标对比 baseline",
+        "current_metrics": {
+          "total_mtd_leads": 1300.0,
+          "total_mtd_deals": 6.0,
+          "total_mtd_spend": 48925.64,
+          "mtd_lead_attain": 0.1829439909935266,
+          "mtd_deal_attain": 0.1
+        },
+        "baseline_metrics": {
+          "total_mtd_leads": 1300.0,
+          "total_mtd_deals": 6.0,
+          "total_mtd_spend": 48925.64,
+          "mtd_lead_attain": 0.1829439909935266,
+          "mtd_deal_attain": 0.1
+        },
+        "drift_metrics": {
+          "total_mtd_leads": {
+            "baseline": 1300.0,
+            "current": 1300.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "relative",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.05,
+            "fail_threshold": 0.1,
+            "breach_level": "pass"
+          },
+          "total_mtd_deals": {
+            "baseline": 6.0,
+            "current": 6.0,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 1.0,
+            "fail_threshold": 3.0,
+            "breach_level": "pass"
+          },
+          "total_mtd_spend": {
+            "baseline": 48925.64,
+            "current": 48925.64,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "relative",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.05,
+            "fail_threshold": 0.1,
+            "breach_level": "pass"
+          },
+          "mtd_lead_attain": {
+            "baseline": 0.1829439909935266,
+            "current": 0.1829439909935266,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.02,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          },
+          "mtd_deal_attain": {
+            "baseline": 0.1,
+            "current": 0.1,
+            "delta": 0.0,
+            "delta_ratio": 0.0,
+            "threshold_mode": "absolute",
+            "value_for_threshold": 0.0,
+            "warning_threshold": 0.02,
+            "fail_threshold": 0.05,
+            "breach_level": "pass"
+          }
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "total_mtd_leads": {
+            "mode": "relative",
+            "warning": 0.05,
+            "fail": 0.1
+          },
+          "total_mtd_deals": {
+            "mode": "absolute",
+            "warning": 1.0,
+            "fail": 3.0
+          },
+          "total_mtd_spend": {
+            "mode": "relative",
+            "warning": 0.05,
+            "fail": 0.1
+          },
+          "mtd_lead_attain": {
+            "mode": "absolute",
+            "warning": 0.02,
+            "fail": 0.05
+          },
+          "mtd_deal_attain": {
+            "mode": "absolute",
+            "warning": 0.02,
+            "fail": 0.05
+          }
+        }
+      }
+    },
+    {
+      "name": "ledger.unique_scope",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "summary": "台账唯一键检查",
+        "metrics": {
+          "row_count": 14,
+          "duplicate_count": 0
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "duplicate_count": {
+            "mode": "absolute",
+            "warning": 0.0,
+            "fail": 0.0
+          }
+        }
+      }
+    },
+    {
+      "name": "ledger.required_fields",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "台账关键字段非空检查",
+        "null_fields": {},
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "null_field_count": {
+            "mode": "absolute",
+            "warning": 0.0,
+            "fail": 0.0
+          }
+        }
+      }
+    },
+    {
+      "name": "ledger.snapshot_reconcile",
+      "category": "metric drift",
+      "status": "pass",
+      "details": {
+        "summary": "台账与日报快照关键指标对账",
+        "mismatch_count": 0,
+        "sample_mismatches": [],
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "mismatch_count": {
+            "mode": "absolute",
+            "warning": 0.0,
+            "fail": 0.0
+          }
+        }
+      }
+    },
+    {
+      "name": "contract.feishu_report_latest_2026-03-12.manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "manifest contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/feishu_report_latest_2026-03-12.manifest.json",
+        "missing_fields": [],
+        "mismatches": {},
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "contract.feishu_table_latest_2026-03-12.manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "manifest contract 校验",
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/feishu_table_latest_2026-03-12.manifest.json",
+        "missing_fields": [],
+        "mismatches": {},
+        "threshold_breaches": []
+      }
+    },
+    {
+      "name": "analysis.subject_areas",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "summary": "分析主题完整性检查",
+        "actual_subject_areas": [
+          "channel",
+          "funnel",
+          "host_anchor",
+          "ops_review",
+          "quality",
+          "sla"
+        ],
+        "missing_subject_areas": [],
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "missing_subject_area_count": {
+            "mode": "absolute",
+            "warning": 0.0,
+            "fail": 0.0
+          }
+        }
+      }
+    },
+    {
+      "name": "analysis.row_count",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "summary": "分析快照行数与主题覆盖检查",
+        "row_count": 110,
+        "subject_area_counts": [
+          {
+            "subject_area": "channel",
+            "row_count": 8
+          },
+          {
+            "subject_area": "funnel",
+            "row_count": 10
+          },
+          {
+            "subject_area": "host_anchor",
+            "row_count": 28
+          },
+          {
+            "subject_area": "ops_review",
+            "row_count": 20
+          },
+          {
+            "subject_area": "quality",
+            "row_count": 28
+          },
+          {
+            "subject_area": "sla",
+            "row_count": 16
+          }
+        ],
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational",
+        "threshold_rule": {
+          "min_total_row_count": {
+            "mode": "minimum",
+            "warning": 1.0,
+            "fail": 1.0
+          }
+        }
+      }
+    },
+    {
+      "name": "analysis.raw_evidence_topics",
+      "category": "pass",
+      "status": "pass",
+      "details": {
+        "summary": "raw-evidence 主题迁移状态",
+        "raw_evidence_topics": [
+          {
+            "topic": "process_sla",
+            "raw_evidence_required": true,
+            "migration_status": "partially_unified_capable",
+            "shared_components": [
+              "rate_within",
+              "SLA table assembly",
+              "渠道聚合规则"
+            ],
+            "unified_capable_parts": [
+              "SLA总览汇总口径",
+              "渠道级时效统计结构"
+            ],
+            "raw_required_parts": [
+              "创建/下发/首次跟进/到店 多节点原始时间链"
+            ],
+            "reason": "SLA 汇总结构已可模块化，但完整过程链仍依赖原始时间字段。"
+          },
+          {
+            "topic": "reactivation",
+            "raw_evidence_required": true,
+            "migration_status": "fully_raw_required",
+            "shared_components": [
+              "手机号标准化",
+              "原始时间解析"
+            ],
+            "unified_capable_parts": [],
+            "raw_required_parts": [
+              "战败时间",
+              "战败状态",
+              "再入池事件回放"
+            ],
+            "reason": "再激活识别依赖同手机号完整状态回放，统一事实层当前未保留战败后再激活事件链。"
+          },
+          {
+            "topic": "time_anomaly",
+            "raw_evidence_required": true,
+            "migration_status": "migration_candidate",
+            "shared_components": [
+              "异常聚合",
+              "责任归属汇总",
+              "风险等级规则"
+            ],
+            "unified_capable_parts": [
+              "异常聚合汇总",
+              "风险等级分层"
+            ],
+            "raw_required_parts": [
+              "逐节点原始时间字段",
+              "异常根因定位"
+            ],
+            "reason": "异常责任与风险分层逻辑可复用，但逐节点异常识别仍依赖原始时间链。"
+          },
+          {
+            "topic": "model_path",
+            "raw_evidence_required": true,
+            "migration_status": "partially_unified_capable",
+            "shared_components": [
+              "路径稳定率",
+              "跳转率",
+              "流失率计算"
+            ],
+            "unified_capable_parts": [
+              "车型路径总览和总体指标框架"
+            ],
+            "raw_required_parts": [
+              "首次意向车型",
+              "试驾车型",
+              "成交车型 的完整路径字段"
+            ],
+            "reason": "车型路径算法已可抽离，但统一事实层尚未沉淀完整车型演进链。"
+          },
+          {
+            "topic": "followup_intensity",
+            "raw_evidence_required": true,
+            "migration_status": "partially_unified_capable",
+            "shared_components": [
+              "跟进强度分桶",
+              "转化率汇总"
+            ],
+            "unified_capable_parts": [
+              "分桶规则和结果表结构"
+            ],
+            "raw_required_parts": [
+              "跟进次数",
+              "销售维度后端字段"
+            ],
+            "reason": "分桶和聚合逻辑可复用，但原始跟进次数和销售字段尚未进入统一事实层。"
+          }
+        ],
+        "raw_evidence_groups": {
+          "fully_raw_required": [
+            {
+              "topic": "reactivation",
+              "raw_evidence_required": true,
+              "migration_status": "fully_raw_required",
+              "shared_components": [
+                "手机号标准化",
+                "原始时间解析"
+              ],
+              "unified_capable_parts": [],
+              "raw_required_parts": [
+                "战败时间",
+                "战败状态",
+                "再入池事件回放"
+              ],
+              "reason": "再激活识别依赖同手机号完整状态回放，统一事实层当前未保留战败后再激活事件链。"
+            }
+          ],
+          "partially_unified_capable": [
+            {
+              "topic": "process_sla",
+              "raw_evidence_required": true,
+              "migration_status": "partially_unified_capable",
+              "shared_components": [
+                "rate_within",
+                "SLA table assembly",
+                "渠道聚合规则"
+              ],
+              "unified_capable_parts": [
+                "SLA总览汇总口径",
+                "渠道级时效统计结构"
+              ],
+              "raw_required_parts": [
+                "创建/下发/首次跟进/到店 多节点原始时间链"
+              ],
+              "reason": "SLA 汇总结构已可模块化，但完整过程链仍依赖原始时间字段。"
+            },
+            {
+              "topic": "model_path",
+              "raw_evidence_required": true,
+              "migration_status": "partially_unified_capable",
+              "shared_components": [
+                "路径稳定率",
+                "跳转率",
+                "流失率计算"
+              ],
+              "unified_capable_parts": [
+                "车型路径总览和总体指标框架"
+              ],
+              "raw_required_parts": [
+                "首次意向车型",
+                "试驾车型",
+                "成交车型 的完整路径字段"
+              ],
+              "reason": "车型路径算法已可抽离，但统一事实层尚未沉淀完整车型演进链。"
+            },
+            {
+              "topic": "followup_intensity",
+              "raw_evidence_required": true,
+              "migration_status": "partially_unified_capable",
+              "shared_components": [
+                "跟进强度分桶",
+                "转化率汇总"
+              ],
+              "unified_capable_parts": [
+                "分桶规则和结果表结构"
+              ],
+              "raw_required_parts": [
+                "跟进次数",
+                "销售维度后端字段"
+              ],
+              "reason": "分桶和聚合逻辑可复用，但原始跟进次数和销售字段尚未进入统一事实层。"
+            }
+          ],
+          "migration_candidate": [
+            {
+              "topic": "time_anomaly",
+              "raw_evidence_required": true,
+              "migration_status": "migration_candidate",
+              "shared_components": [
+                "异常聚合",
+                "责任归属汇总",
+                "风险等级规则"
+              ],
+              "unified_capable_parts": [
+                "异常聚合汇总",
+                "风险等级分层"
+              ],
+              "raw_required_parts": [
+                "逐节点原始时间字段",
+                "异常根因定位"
+              ],
+              "reason": "异常责任与风险分层逻辑可复用，但逐节点异常识别仍依赖原始时间链。"
+            }
+          ]
+        },
+        "threshold_breaches": [],
+        "threshold_source": "/Users/ahs/Desktop/Operations Analytics Engine/config/quality_thresholds.json",
+        "threshold_profile": "operational"
+      }
+    }
+  ],
+  "categories": {
+    "structural change": 6,
+    "pass": 3,
+    "metadata-only change": 1,
+    "metric drift": 3,
+    "contract violation": 4
+  }
+}

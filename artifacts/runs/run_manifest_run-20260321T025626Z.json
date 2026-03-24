@@ -1,0 +1,1036 @@
+{
+  "run_id": "run-20260321T025626Z",
+  "schema_version": "1.0.0",
+  "metric_version": "metric-v1",
+  "template_version": "excel-tsv-v1",
+  "freeze_id": "provisional-target-reset-202603",
+  "quality_threshold_profile": "operational",
+  "analysis_output_default_paths": {
+    "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-19.csv",
+    "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_workbook_unified-fact_latest_2026-03-19.xlsx",
+    "snapshot_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_snapshot_unified-fact_latest_2026-03-19.manifest.json",
+    "workbook_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_workbook_unified-fact_latest_2026-03-19.manifest.json"
+  },
+  "analysis_naming_status_path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_output_naming_status_unified-fact_latest_2026-03-19.json",
+  "analysis_naming_status": {
+    "report_type": "analysis_output_naming_status",
+    "analysis_mode": "unified-fact",
+    "snapshot_date": "2026-03-19",
+    "policy_profile": "canonical_preferred",
+    "config_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/analysis_output_naming.json",
+    "canonical_default": true,
+    "compatibility_write_requested": false,
+    "compatibility_write_effective": false,
+    "disable_request_blocked": false,
+    "can_disable_now": true,
+    "dry_run_disable_compatibility": true,
+    "dry_run_result": {
+      "requested": true,
+      "status": "ready",
+      "would_disable": true,
+      "effective_compatibility_write_if_applied": false,
+      "blocked": false
+    },
+    "pre_disable_check": {
+      "ready": true,
+      "check_count": 8,
+      "blocker_count": 0,
+      "checks": {
+        "pipeline_uses_canonical": true,
+        "quality_uses_canonical": true,
+        "canonical_outputs_present": true,
+        "canonical_manifests_present": true,
+        "canonical_manifests_target_canonical_outputs": true,
+        "baseline_uses_canonical": true,
+        "manual_consumer_clearance": true,
+        "manual_consumer_clearance_doc_present": true
+      },
+      "blockers": [],
+      "required_actions": []
+    },
+    "disable_blockers_summary": "ready_to_disable",
+    "checks": {
+      "pipeline_uses_canonical": true,
+      "quality_uses_canonical": true,
+      "canonical_outputs_present": true,
+      "canonical_manifests_present": true,
+      "canonical_manifests_target_canonical_outputs": true,
+      "baseline_uses_canonical": true,
+      "manual_consumer_clearance": true,
+      "manual_consumer_clearance_doc_present": true
+    },
+    "blockers": [],
+    "required_actions": [],
+    "manual_consumer_clearance_doc": "/Users/ahs/Desktop/Operations Analytics Engine/docs/rules/analysis_manual_consumption.md",
+    "default_outputs": {
+      "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_workbook_unified-fact_latest_2026-03-19.xlsx",
+      "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-19.csv"
+    },
+    "compatibility_outputs": {
+      "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_tables.xlsx",
+      "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_latest_2026-03-19.csv"
+    },
+    "default_manifests": {
+      "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_workbook_unified-fact_latest_2026-03-19.manifest.json",
+      "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_snapshot_unified-fact_latest_2026-03-19.manifest.json"
+    },
+    "compatibility_manifests": {
+      "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_workbook_latest_2026-03-19.manifest.json",
+      "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_snapshot_latest_2026-03-19.manifest.json"
+    },
+    "baseline_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/tests/baseline/reference_manifest.json",
+    "default_output_keys": {
+      "workbook": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_workbook_unified-fact_latest_2026-03-19.xlsx",
+      "snapshot": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-19.csv",
+      "workbook_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_workbook_unified-fact_latest_2026-03-19.manifest.json",
+      "snapshot_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/analysis/analysis_snapshot_unified-fact_latest_2026-03-19.manifest.json"
+    }
+  },
+  "analysis_disable_gate": {
+    "ready": true,
+    "check_count": 8,
+    "blocker_count": 0,
+    "checks": {
+      "pipeline_uses_canonical": true,
+      "quality_uses_canonical": true,
+      "canonical_outputs_present": true,
+      "canonical_manifests_present": true,
+      "canonical_manifests_target_canonical_outputs": true,
+      "baseline_uses_canonical": true,
+      "manual_consumer_clearance": true,
+      "manual_consumer_clearance_doc_present": true
+    },
+    "blockers": [],
+    "required_actions": []
+  },
+  "analysis_disable_dry_run": {
+    "requested": true,
+    "status": "ready",
+    "would_disable": true,
+    "effective_compatibility_write_if_applied": false,
+    "blocked": false
+  },
+  "workspace": "/Users/ahs/Desktop/Operations Analytics Engine",
+  "input_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/runs/input_manifest_run-20260321T025626Z.json",
+  "inputs": [
+    {
+      "source_key": "live_schedule",
+      "label": "直播进度表",
+      "kind": "dynamic",
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/源文件/2026年直播进度表3月.xlsx",
+      "filename": "2026年直播进度表3月.xlsx",
+      "directory": "/Users/ahs/Desktop/Operations Analytics Engine/源文件",
+      "last_modified_at": "2026-03-20T14:26:17",
+      "business_date": "2026-03",
+      "selected_by": "auto_discovery",
+      "selection_basis": "按文件名中的业务月份优先；若业务月份相同则视为冲突并中止；本次选中业务日期 2026-03",
+      "allow_multiple_versions": true,
+      "candidate_count": 1,
+      "candidates": [
+        "2026年直播进度表3月.xlsx"
+      ],
+      "naming_status": "pass",
+      "naming_anomalies": [],
+      "validation_status": "pass",
+      "validation_summary": "字段校验通过",
+      "sheet_name": "Sheet1",
+      "matched_fields": {
+        "live_date": "日期",
+        "live_account": "开播账号",
+        "live_host": "本场主播",
+        "live_start": "开播时间",
+        "live_end": "下播时间"
+      },
+      "header_columns": [
+        "日期",
+        "开播账号",
+        "开播时间",
+        "下播时间",
+        "本场主播",
+        "全场景线索人数",
+        "消耗"
+      ],
+      "validation_warnings": []
+    },
+    {
+      "source_key": "leads_detail",
+      "label": "线索明细",
+      "kind": "dynamic",
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/源文件/总部新媒体线索2026-03-20.csv",
+      "filename": "总部新媒体线索2026-03-20.csv",
+      "directory": "/Users/ahs/Desktop/Operations Analytics Engine/源文件",
+      "last_modified_at": "2026-03-20T14:36:29",
+      "business_date": "2026-03-20",
+      "selected_by": "auto_discovery",
+      "selection_basis": "按文件名中的业务日期优先；若业务日期相同则视为冲突并中止；本次选中业务日期 2026-03-20",
+      "allow_multiple_versions": true,
+      "candidate_count": 1,
+      "candidates": [
+        "总部新媒体线索2026-03-20.csv"
+      ],
+      "naming_status": "pass",
+      "naming_anomalies": [],
+      "validation_status": "pass",
+      "validation_summary": "字段校验通过",
+      "sheet_name": "",
+      "matched_fields": {
+        "lead_id": "线索ID",
+        "lead_time": "创建时间",
+        "lead_account": "渠道2",
+        "lead_phone": "手机号",
+        "lead_channel3": "渠道3"
+      },
+      "header_columns": [
+        "序列",
+        "线索创建人",
+        "线索ID",
+        "客户姓名",
+        "手机号",
+        "责任部门",
+        "渠道1",
+        "渠道2",
+        "渠道3",
+        "活动",
+        "创建时间",
+        "下发时间",
+        "到店时间",
+        "试驾时间",
+        "下订时间",
+        "成交时间",
+        "首次跟进时间",
+        "战败时间",
+        "创建日期",
+        "下发日期",
+        "到店日期",
+        "试驾日期",
+        "下订日期",
+        "成交日期",
+        "首次跟进日期",
+        "战败日期",
+        "首次意向车型",
+        "意向车型",
+        "试驾车型",
+        "下订车型",
+        "成交车型",
+        "车系",
+        "大区",
+        "省份",
+        "城市",
+        "ERP",
+        "店名",
+        "线索状态",
+        "线索等级",
+        "销售姓名",
+        "销售手机号",
+        "跟进次数",
+        "直播间ID",
+        "源ERP",
+        "源线索ID",
+        "源订单编号",
+        "组合"
+      ],
+      "validation_warnings": []
+    },
+    {
+      "source_key": "deals_detail",
+      "label": "成交明细",
+      "kind": "dynamic",
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/源文件/总部新媒体成交2026-03-20.csv",
+      "filename": "总部新媒体成交2026-03-20.csv",
+      "directory": "/Users/ahs/Desktop/Operations Analytics Engine/源文件",
+      "last_modified_at": "2026-03-20T14:36:27",
+      "business_date": "2026-03-20",
+      "selected_by": "auto_discovery",
+      "selection_basis": "按文件名中的业务日期优先；若业务日期相同则视为冲突并中止；本次选中业务日期 2026-03-20",
+      "allow_multiple_versions": true,
+      "candidate_count": 1,
+      "candidates": [
+        "总部新媒体成交2026-03-20.csv"
+      ],
+      "naming_status": "pass",
+      "naming_anomalies": [],
+      "validation_status": "pass",
+      "validation_summary": "字段校验通过",
+      "sheet_name": "",
+      "matched_fields": {
+        "deal_id": "线索ID",
+        "deal_status": "订单状态",
+        "deal_time": "成交时间",
+        "deal_account": "渠道2",
+        "deal_channel": "渠道3",
+        "deal_model": "成交车型",
+        "deal_phone": "手机号"
+      },
+      "header_columns": [
+        "序列",
+        "线索ID",
+        "订单编号",
+        "订单状态",
+        "客户姓名",
+        "手机号",
+        "责任部门",
+        "渠道1",
+        "渠道2",
+        "渠道3",
+        "下订时间",
+        "下订日期",
+        "成交时间",
+        "成交日期",
+        "下订车型",
+        "成交车型",
+        "VIN",
+        "车系",
+        "大区",
+        "省份",
+        "城市",
+        "ERP",
+        "店名",
+        "直播间ID",
+        "销售姓名",
+        "组合"
+      ],
+      "validation_warnings": []
+    },
+    {
+      "source_key": "monthly_targets",
+      "label": "月目标配置",
+      "kind": "fixed",
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/config/monthly_targets.csv",
+      "filename": "monthly_targets.csv",
+      "directory": "/Users/ahs/Desktop/Operations Analytics Engine/config",
+      "last_modified_at": "2026-03-21T10:56:14",
+      "business_date": "",
+      "selected_by": "fixed_path",
+      "selection_basis": "固定路径",
+      "allow_multiple_versions": false,
+      "candidate_count": 1,
+      "candidates": [
+        "monthly_targets.csv"
+      ],
+      "naming_status": "pass",
+      "naming_anomalies": [],
+      "validation_status": "pass",
+      "validation_summary": "字段校验通过",
+      "sheet_name": "",
+      "matched_fields": {},
+      "header_columns": [
+        "month",
+        "scope_type",
+        "scope_name",
+        "parent_account",
+        "lead_target_month",
+        "deal_target_month",
+        "lead_cost_target_month",
+        "cpl_target",
+        "cps_target",
+        "target_pool"
+      ],
+      "validation_warnings": []
+    },
+    {
+      "source_key": "daily_spend",
+      "label": "消耗配置",
+      "kind": "fixed",
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/config/daily_spend.csv",
+      "filename": "daily_spend.csv",
+      "directory": "/Users/ahs/Desktop/Operations Analytics Engine/config",
+      "last_modified_at": "2026-03-09T16:03:36",
+      "business_date": "",
+      "selected_by": "fixed_path",
+      "selection_basis": "固定路径",
+      "allow_multiple_versions": false,
+      "candidate_count": 1,
+      "candidates": [
+        "daily_spend.csv"
+      ],
+      "naming_status": "pass",
+      "naming_anomalies": [],
+      "validation_status": "pass",
+      "validation_summary": "字段校验通过",
+      "sheet_name": "",
+      "matched_fields": {},
+      "header_columns": [
+        "date",
+        "account",
+        "actual_spend"
+      ],
+      "validation_warnings": []
+    },
+    {
+      "source_key": "manual_attribution_overrides",
+      "label": "专项人工确认归属",
+      "kind": "fixed",
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+      "filename": "manual_attribution_overrides.csv",
+      "directory": "/Users/ahs/Desktop/Operations Analytics Engine/config",
+      "last_modified_at": "2026-03-20T14:34:00",
+      "business_date": "",
+      "selected_by": "fixed_path",
+      "selection_basis": "固定路径",
+      "allow_multiple_versions": false,
+      "candidate_count": 1,
+      "candidates": [
+        "manual_attribution_overrides.csv"
+      ],
+      "naming_status": "pass",
+      "naming_anomalies": [],
+      "validation_status": "pass",
+      "validation_summary": "字段校验通过",
+      "sheet_name": "",
+      "matched_fields": {},
+      "header_columns": [
+        "override_id",
+        "business_subject_key",
+        "phone",
+        "lead_id",
+        "override_scope",
+        "target_account",
+        "target_host",
+        "reason",
+        "evidence_note",
+        "confirmed_by",
+        "confirmed_at",
+        "effective_from",
+        "effective_to",
+        "status",
+        "metric_version",
+        "run_id"
+      ],
+      "validation_warnings": []
+    }
+  ],
+  "manual_override_input": {
+    "source_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+    "summary": "专项人工确认归属校验通过",
+    "warnings": [],
+    "counts": {
+      "configured": 3,
+      "active": 3,
+      "inactive": 0,
+      "revoked": 0
+    },
+    "columns": [
+      "override_id",
+      "business_subject_key",
+      "phone",
+      "lead_id",
+      "override_scope",
+      "target_account",
+      "target_host",
+      "reason",
+      "evidence_note",
+      "confirmed_by",
+      "confirmed_at",
+      "effective_from",
+      "effective_to",
+      "status",
+      "metric_version",
+      "run_id"
+    ],
+    "issues": [],
+    "issue_summary": {
+      "issue_count": 0,
+      "blocking_count": 0,
+      "warning_count": 0,
+      "info_count": 0,
+      "blocking_issue_ids": []
+    }
+  },
+  "manual_override_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/runs/manual_override_manifest_run-20260321T025626Z.json",
+  "manual_overrides": {
+    "run_id": "run-20260321T025626Z",
+    "generated_at": "2026-03-21T10:56:46",
+    "source_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+    "configured_rows": 3,
+    "active_rows": 3,
+    "inactive_rows": 0,
+    "revoked_rows": 0,
+    "applied_override_count": 3,
+    "applied_row_count": 3,
+    "applied_business_subject_count": 3,
+    "affected_accounts": [
+      "抖音-星途汽车官方直播间",
+      "抖音-星途汽车直营中心"
+    ],
+    "affected_hosts": [
+      "丁俐佳",
+      "何雯"
+    ],
+    "unmatched_active_overrides": [],
+    "applied_details": [
+      {
+        "override_id": "manual-override-20260315-17835126680",
+        "override_scope": "account_host",
+        "reason": "主播自己挖潜",
+        "evidence_note": "抖音来客直播延迟核销后业务确认应归属本场",
+        "confirmed_by": "业务人工确认",
+        "confirmed_at": "2026-03-17 12:00:00",
+        "business_subject_key": "PHONE:17835126680",
+        "phone": "17835126680",
+        "lead_id": "ID2033132100202205186",
+        "target_account": "抖音-星途汽车直营中心",
+        "target_host": "丁俐佳",
+        "matched_rows": 1,
+        "matched_business_subject_keys": [
+          "PHONE:17835126680"
+        ],
+        "matched_lead_ids": [
+          "ID2033132100202205186"
+        ],
+        "original_auto": {
+          "standard_accounts": [
+            "抖音-星途汽车直营中心"
+          ],
+          "hosts": [
+            "【无主线索】"
+          ],
+          "statuses": [
+            "无主线索"
+          ],
+          "unmatched_reasons": [
+            "未命中直播时间窗"
+          ]
+        },
+        "final_consumer": {
+          "target_account": "抖音-星途汽车直营中心",
+          "target_host": "丁俐佳",
+          "final_status": "匹配成功",
+          "consumers": [
+            "daily_snapshot",
+            "analysis_snapshot",
+            "feishu_report",
+            "tsv_verify"
+          ]
+        }
+      },
+      {
+        "override_id": "manual-override-20260317-18718861565",
+        "override_scope": "account_host",
+        "reason": "主播自己挖潜",
+        "evidence_note": "业务人工确认：用户提供唯一线索ID 2033777602904120000，对应手机号 18718861565 归属何雯 / 抖音-星途汽车官方直播间",
+        "confirmed_by": "业务人工确认",
+        "confirmed_at": "2026-03-20 17:10:00",
+        "business_subject_key": "PHONE:18718861565",
+        "phone": "18718861565",
+        "lead_id": "ID2033777602904121346",
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯",
+        "matched_rows": 1,
+        "matched_business_subject_keys": [
+          "PHONE:18718861565"
+        ],
+        "matched_lead_ids": [
+          "ID2033777602904121346"
+        ],
+        "original_auto": {
+          "standard_accounts": [
+            "抖音-星途汽车官方直播间"
+          ],
+          "hosts": [
+            "何雯"
+          ],
+          "statuses": [
+            "匹配成功"
+          ],
+          "unmatched_reasons": [
+            ""
+          ]
+        },
+        "final_consumer": {
+          "target_account": "抖音-星途汽车官方直播间",
+          "target_host": "何雯",
+          "final_status": "匹配成功",
+          "consumers": [
+            "daily_snapshot",
+            "analysis_snapshot",
+            "feishu_report",
+            "tsv_verify"
+          ]
+        }
+      },
+      {
+        "override_id": "manual-override-20260317-18196548988",
+        "override_scope": "account_host",
+        "reason": "主播自己挖潜",
+        "evidence_note": "业务人工确认：用户提供唯一线索ID 2033778358008860000，对应手机号 18196548988 归属何雯 / 抖音-星途汽车官方直播间",
+        "confirmed_by": "业务人工确认",
+        "confirmed_at": "2026-03-20 17:10:00",
+        "business_subject_key": "PHONE:18196548988",
+        "phone": "18196548988",
+        "lead_id": "ID2033778358008864769",
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯",
+        "matched_rows": 1,
+        "matched_business_subject_keys": [
+          "PHONE:18196548988"
+        ],
+        "matched_lead_ids": [
+          "ID2033778358008864769"
+        ],
+        "original_auto": {
+          "standard_accounts": [
+            "抖音-星途汽车官方直播间"
+          ],
+          "hosts": [
+            "何雯"
+          ],
+          "statuses": [
+            "匹配成功"
+          ],
+          "unmatched_reasons": [
+            ""
+          ]
+        },
+        "final_consumer": {
+          "target_account": "抖音-星途汽车官方直播间",
+          "target_host": "何雯",
+          "final_status": "匹配成功",
+          "consumers": [
+            "daily_snapshot",
+            "analysis_snapshot",
+            "feishu_report",
+            "tsv_verify"
+          ]
+        }
+      }
+    ],
+    "final_consumer_scope": [
+      "daily_snapshot",
+      "analysis_snapshot",
+      "feishu_report",
+      "tsv_verify"
+    ],
+    "issues": [
+      {
+        "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260315-17835126680",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260315-17835126680",
+        "business_subject_key": "PHONE:17835126680",
+        "phone": "17835126680",
+        "lead_id": "ID2033132100202205186",
+        "detected_stage": "application",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+        "status": "open",
+        "run_id": "",
+        "matched_rows": 1,
+        "conflict_override_ids": [],
+        "target_account": "抖音-星途汽车直营中心",
+        "target_host": "丁俐佳"
+      },
+      {
+        "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260317-18718861565",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260317-18718861565",
+        "business_subject_key": "PHONE:18718861565",
+        "phone": "18718861565",
+        "lead_id": "ID2033777602904121346",
+        "detected_stage": "application",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+        "status": "open",
+        "run_id": "",
+        "matched_rows": 1,
+        "conflict_override_ids": [],
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯"
+      },
+      {
+        "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260317-18196548988",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260317-18196548988",
+        "business_subject_key": "PHONE:18196548988",
+        "phone": "18196548988",
+        "lead_id": "ID2033778358008864769",
+        "detected_stage": "application",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+        "status": "open",
+        "run_id": "",
+        "matched_rows": 1,
+        "conflict_override_ids": [],
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯"
+      }
+    ],
+    "issue_summary": {
+      "issue_count": 3,
+      "blocking_count": 0,
+      "warning_count": 0,
+      "info_count": 3,
+      "conflict_count": 0,
+      "unmatched_count": 0,
+      "unmatched_not_in_current_run_count": 0,
+      "unmatched_probable_misconfig_count": 0,
+      "unmatched_outside_effective_window_count": 0,
+      "unmatched_insufficient_locator_count": 0,
+      "unmatched_needs_manual_review_count": 0,
+      "partial_apply_count": 0,
+      "invalid_override_count": 0,
+      "risk_count": 3,
+      "top_blocking_messages": [],
+      "top_warning_messages": [],
+      "source_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv"
+    }
+  },
+  "manual_override_issue_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/runs/manual_override_issue_manifest_run-20260321T025626Z.json",
+  "manual_override_issues": {
+    "run_id": "run-20260321T025626Z",
+    "generated_at": "2026-03-21T10:56:36",
+    "source_path": "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+    "issue_summary": {
+      "issue_count": 3,
+      "blocking_count": 0,
+      "warning_count": 0,
+      "info_count": 3,
+      "conflict_count": 0,
+      "unmatched_count": 0,
+      "unmatched_not_in_current_run_count": 0,
+      "unmatched_probable_misconfig_count": 0,
+      "unmatched_outside_effective_window_count": 0,
+      "unmatched_insufficient_locator_count": 0,
+      "unmatched_needs_manual_review_count": 0,
+      "partial_apply_count": 0,
+      "invalid_override_count": 0,
+      "risk_count": 3,
+      "top_blocking_messages": [],
+      "top_warning_messages": []
+    },
+    "issues": [
+      {
+        "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260315-17835126680",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260315-17835126680",
+        "business_subject_key": "PHONE:17835126680",
+        "phone": "17835126680",
+        "lead_id": "ID2033132100202205186",
+        "detected_stage": "application",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+        "status": "open",
+        "run_id": "run-20260321T025626Z",
+        "matched_rows": 1,
+        "conflict_override_ids": [],
+        "target_account": "抖音-星途汽车直营中心",
+        "target_host": "丁俐佳"
+      },
+      {
+        "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260317-18718861565",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260317-18718861565",
+        "business_subject_key": "PHONE:18718861565",
+        "phone": "18718861565",
+        "lead_id": "ID2033777602904121346",
+        "detected_stage": "application",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+        "status": "open",
+        "run_id": "run-20260321T025626Z",
+        "matched_rows": 1,
+        "conflict_override_ids": [],
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯"
+      },
+      {
+        "issue_id": "manual-override-application-historical_account_host_risk-manual-override-20260317-18196548988",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260317-18196548988",
+        "business_subject_key": "PHONE:18196548988",
+        "phone": "18196548988",
+        "lead_id": "ID2033778358008864769",
+        "detected_stage": "application",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+        "status": "open",
+        "run_id": "run-20260321T025626Z",
+        "matched_rows": 1,
+        "conflict_override_ids": [],
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯"
+      }
+    ],
+    "validation_summary": {
+      "summary": "专项人工确认归属校验通过",
+      "warnings": [],
+      "counts": {
+        "configured": 3,
+        "active": 3,
+        "inactive": 0,
+        "revoked": 0
+      }
+    },
+    "runtime_summary": {
+      "matched_override_count": 3,
+      "matched_sample_count": 3,
+      "latest_effective_date": "2026-03-19"
+    }
+  },
+  "manual_override_daily_digest_manifest": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/runs/manual_override_daily_digest_run-20260321T025626Z.json",
+  "manual_override_daily_digest": {
+    "run_id": "run-20260321T025626Z",
+    "summary_status": "info_only",
+    "blocking_count": 0,
+    "warning_count": 0,
+    "info_count": 3,
+    "top_priority_issues": [
+      {
+        "rank": 1,
+        "priority_bucket_cn": "今日可延后关注问题",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260315-17835126680",
+        "phone": "17835126680",
+        "lead_id": "ID2033132100202205186",
+        "target_account": "抖音-星途汽车直营中心",
+        "target_host": "丁俐佳",
+        "matched_rows": 1,
+        "impact_scope_cn": "同时影响累计口径和主播 latest 解释",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。"
+      },
+      {
+        "rank": 2,
+        "priority_bucket_cn": "今日可延后关注问题",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260317-18718861565",
+        "phone": "18718861565",
+        "lead_id": "ID2033777602904121346",
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯",
+        "matched_rows": 1,
+        "impact_scope_cn": "同时影响累计口径和主播 latest 解释",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。"
+      },
+      {
+        "rank": 3,
+        "priority_bucket_cn": "今日可延后关注问题",
+        "issue_type": "historical_account_host_risk",
+        "severity": "info",
+        "override_id": "manual-override-20260317-18196548988",
+        "phone": "18196548988",
+        "lead_id": "ID2033778358008864769",
+        "target_account": "抖音-星途汽车官方直播间",
+        "target_host": "何雯",
+        "matched_rows": 1,
+        "impact_scope_cn": "同时影响累计口径和主播 latest 解释",
+        "message_cn": "该 override 只命中历史样本，会改动账号/主播累计口径，同时需要注意主播 latest 标签解释风险。",
+        "suggested_action": "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。"
+      }
+    ],
+    "account_impact_summary": [
+      "抖音-星途汽车官方直播间：已命中 2 条专项归属，更偏累计口径影响，同时要注意主播 latest 解释。",
+      "抖音-星途汽车直营中心：已命中 1 条专项归属，更偏累计口径影响，同时要注意主播 latest 解释。"
+    ],
+    "host_impact_summary": [
+      "何雯：已命中 2 条专项归属，需要注意主播 latest 标签解释。",
+      "丁俐佳：已命中 1 条专项归属，需要注意主播 latest 标签解释。"
+    ],
+    "latest_panel_risk_summary": [
+      "何雯：2 条专项只命中历史样本，累计口径已修正，但今天解释主播 latest 面板时建议顺手复核。",
+      "丁俐佳：1 条专项只命中历史样本，累计口径已修正，但今天解释主播 latest 面板时建议顺手复核。"
+    ],
+    "suggested_actions": [
+      "今天没有阻断项和高优先级错误，专项归属可以继续使用，重点是解释历史样本风险。",
+      "如果今天需要解释账号累计变化和主播 latest 标签，请同步核对最新日期是否也需要补专项归属。",
+      "如果今天要解释主播 latest 面板，请优先核对摘要里提到的历史专项样本。"
+    ],
+    "generated_at": "2026-03-21T10:56:46",
+    "applied_override_count": 3,
+    "applied_row_count": 3,
+    "changed_final_consumer_scope": true,
+    "configured_override_count": 3,
+    "active_override_count": 3,
+    "affected_accounts": [
+      "抖音-星途汽车官方直播间",
+      "抖音-星途汽车直营中心"
+    ],
+    "affected_hosts": [
+      "丁俐佳",
+      "何雯"
+    ],
+    "final_consumer_scope": [
+      "daily_snapshot",
+      "analysis_snapshot",
+      "feishu_report",
+      "tsv_verify"
+    ],
+    "issue_counts": {
+      "issue_count": 3,
+      "conflict_count": 0,
+      "unmatched_total": 0,
+      "unmatched_not_in_current_run_count": 0,
+      "unmatched_probable_misconfig_count": 0,
+      "unmatched_outside_effective_window_count": 0,
+      "unmatched_insufficient_locator_count": 0,
+      "unmatched_needs_manual_review_count": 0,
+      "partial_apply_count": 0,
+      "invalid_override_count": 0,
+      "risk_count": 3
+    },
+    "application_summary": {
+      "description_cn": "今天共有 3 条专项人工确认归属生效，影响 3 行样本；主要影响账号=抖音-星途汽车官方直播间、抖音-星途汽车直营中心，主播=丁俐佳、何雯。",
+      "changes_final_consumer_scope": true,
+      "affected_accounts": [
+        "抖音-星途汽车官方直播间",
+        "抖音-星途汽车直营中心"
+      ],
+      "affected_hosts": [
+        "丁俐佳",
+        "何雯"
+      ]
+    }
+  },
+  "steps": [
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.build_fact",
+      "--workspace",
+      "/Users/ahs/Desktop/Operations Analytics Engine",
+      "--data-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/源文件",
+      "--live-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/源文件/2026年直播进度表3月.xlsx",
+      "--leads-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/源文件/总部新媒体线索2026-03-20.csv",
+      "--deals-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/源文件/总部新媒体成交2026-03-20.csv",
+      "--match-mode",
+      "process_deal_data",
+      "--output-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output",
+      "--run-id",
+      "run-20260321T025626Z",
+      "--schema-version",
+      "1.0.0",
+      "--metric-version",
+      "metric-v1"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.build_sqlite_db",
+      "--csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "--db",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/lead_daily.db"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.export_sql_daily",
+      "--db",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/lead_daily.db",
+      "--output-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.export_target_daily",
+      "--fact-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "--manual-override-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+      "--targets-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/config/monthly_targets.csv",
+      "--spend-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/config/daily_spend.csv",
+      "--live-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/源文件/2026年直播进度表3月.xlsx",
+      "--spend-source",
+      "auto",
+      "--output-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports",
+      "--snapshot-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots",
+      "--run-id",
+      "run-20260321T025626Z",
+      "--schema-version",
+      "1.0.0",
+      "--metric-version",
+      "metric-v1",
+      "--template-version",
+      "excel-tsv-v1",
+      "--freeze-id",
+      "provisional-target-reset-202603"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.run_analysis",
+      "--analysis-mode",
+      "unified-fact",
+      "--fact-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "--manual-override-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+      "--output-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/全量分析",
+      "--snapshot-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots",
+      "--run-id",
+      "run-20260321T025626Z",
+      "--schema-version",
+      "1.0.0",
+      "--metric-version",
+      "metric-v1"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.export_feishu_report",
+      "--reports-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports",
+      "--fact-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "--manual-override-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+      "--live-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/源文件/2026年直播进度表3月.xlsx",
+      "--snapshot-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/daily_performance_snapshot_latest_2026-03-19.csv",
+      "--ledger-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/compensation_ledger_2026-03_2026-03-19.csv",
+      "--analysis-snapshot-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-03-19.csv",
+      "--export-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports",
+      "--run-id",
+      "run-20260321T025626Z",
+      "--schema-version",
+      "1.0.0",
+      "--metric-version",
+      "metric-v1",
+      "--template-version",
+      "excel-tsv-v1",
+      "--freeze-id",
+      "provisional-target-reset-202603",
+      "--report-date",
+      "2026-03-19"
+    ],
+    [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-m",
+      "oae.cli.verify_report_tsv",
+      "--reports-dir",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports",
+      "--fact-csv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "--manual-override-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/config/manual_attribution_overrides.csv",
+      "--live-file",
+      "/Users/ahs/Desktop/Operations Analytics Engine/源文件/2026年直播进度表3月.xlsx",
+      "--tsv",
+      "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports/feishu_table_latest_2026-03-19.tsv"
+    ]
+  ]
+}

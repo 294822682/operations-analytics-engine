@@ -1,0 +1,252 @@
+{
+  "run_id": "run-20260313T133136Z",
+  "generated_at": "2026-03-13T21:31:41",
+  "overall_status": "warning",
+  "files": [
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "exists": true,
+      "size_bytes": 392962
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports/daily_goal_account_latest_2026-03-12.csv",
+      "exists": true,
+      "size_bytes": 2188
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports/feishu_table_latest_2026-03-12.tsv",
+      "exists": true,
+      "size_bytes": 3405
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_tables.xlsx",
+      "exists": true,
+      "size_bytes": 16185
+    }
+  ],
+  "baseline": {
+    "status": "warning",
+    "details": [
+      {
+        "name": "fact_attribution.csv",
+        "status": "structural change",
+        "category": "structural change",
+        "baseline_sha256": "6f20217c7028dd3e24dadb9d780535f960a4f1650b40b2b2264866f18de86333",
+        "current_sha256": "0a41013a1b181eea0cca6fb0b6b252f4afb92a423c5395ba72418b669511ab07"
+      },
+      {
+        "name": "daily_goal_account_latest_2026-03-12.csv",
+        "status": "match",
+        "category": "pass"
+      },
+      {
+        "name": "feishu_table_latest_2026-03-12.tsv",
+        "status": "match",
+        "category": "pass"
+      },
+      {
+        "name": "analysis_tables.xlsx",
+        "status": "structural change",
+        "category": "structural change",
+        "baseline_sha256": "69db526194a1f35f9b3ea984a2424f0d9caa1ec6b53b2fd42057ca822a047994",
+        "current_sha256": "2c82943f719340e9a2c6653bc8e7d46a1b4f6e5e51436c490f24e583c4eda62e"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "fact.structural",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "row_count": 1412,
+        "unique_lead_key_count": 1412,
+        "business_subject_key_coverage": 1.0,
+        "phone_missing_rate": 0.0,
+        "unowned_ratio": 0.19688385269121814,
+        "attribution_success_rate": 0.8031161473087819
+      }
+    },
+    {
+      "name": "fact.baseline_metrics",
+      "category": "metric drift",
+      "status": "pass",
+      "details": {
+        "row_count": 1412,
+        "phone_missing_rate": 0.0,
+        "unowned_ratio": 0.19688385269121814,
+        "attribution_success_rate": 0.8031161473087819
+      }
+    },
+    {
+      "name": "snapshot.account_total_reconcile",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "total_mtd_leads": 1300.0,
+        "total_mtd_deals": 6.0,
+        "total_mtd_spend": 48925.64,
+        "target_account_mtd_leads_sum": 1300.0,
+        "target_account_mtd_deals_sum": 6.0,
+        "target_account_mtd_spend_sum": 48925.64,
+        "anchor_mtd_leads_sum": 1099.74,
+        "anchor_mtd_deals_sum": 5.98,
+        "anchor_mtd_spend_sum": 48925.64
+      }
+    },
+    {
+      "name": "snapshot.anchor_rollup",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "anchor_lead_coverage": 0.8459538461538462,
+        "anchor_deal_coverage": 0.9966666666666667,
+        "anchor_spend_coverage": 1.0
+      }
+    },
+    {
+      "name": "snapshot.baseline_metrics",
+      "category": "metric drift",
+      "status": "pass",
+      "details": {
+        "total_mtd_leads": 1300.0,
+        "total_mtd_deals": 6.0,
+        "total_mtd_spend": 48925.64,
+        "target_account_mtd_leads_sum": 1300.0,
+        "target_account_mtd_deals_sum": 6.0,
+        "target_account_mtd_spend_sum": 48925.64,
+        "anchor_mtd_leads_sum": 1099.74,
+        "anchor_mtd_deals_sum": 5.98,
+        "anchor_mtd_spend_sum": 48925.64
+      }
+    },
+    {
+      "name": "ledger.unique_scope",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "duplicate_count": 0
+      }
+    },
+    {
+      "name": "ledger.required_fields",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {}
+    },
+    {
+      "name": "ledger.snapshot_reconcile",
+      "category": "metric drift",
+      "status": "pass",
+      "details": []
+    },
+    {
+      "name": "contract.feishu_report_latest_2026-03-12.manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/feishu_report_latest_2026-03-12.manifest.json",
+        "missing_fields": []
+      }
+    },
+    {
+      "name": "contract.feishu_table_latest_2026-03-12.manifest",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/exports/feishu_table_latest_2026-03-12.manifest.json",
+        "missing_fields": []
+      }
+    },
+    {
+      "name": "analysis.subject_areas",
+      "category": "contract violation",
+      "status": "pass",
+      "details": {
+        "actual_subject_areas": [
+          "channel",
+          "funnel",
+          "host_anchor",
+          "ops_review",
+          "quality",
+          "sla"
+        ],
+        "missing_subject_areas": []
+      }
+    },
+    {
+      "name": "analysis.row_count",
+      "category": "structural change",
+      "status": "pass",
+      "details": {
+        "row_count": 110,
+        "subject_area_counts": [
+          {
+            "subject_area": "channel",
+            "row_count": 8
+          },
+          {
+            "subject_area": "funnel",
+            "row_count": 10
+          },
+          {
+            "subject_area": "host_anchor",
+            "row_count": 28
+          },
+          {
+            "subject_area": "ops_review",
+            "row_count": 20
+          },
+          {
+            "subject_area": "quality",
+            "row_count": 28
+          },
+          {
+            "subject_area": "sla",
+            "row_count": 16
+          }
+        ]
+      }
+    },
+    {
+      "name": "analysis.raw_evidence_topics",
+      "category": "pass",
+      "status": "pass",
+      "details": {
+        "raw_evidence_topics": [
+          {
+            "topic": "process_sla",
+            "raw_evidence_required": true,
+            "reason": "依赖 创建/下发/首次跟进/到店 多节点原始时间链，事实层当前未保留这些过程字段。"
+          },
+          {
+            "topic": "reactivation",
+            "raw_evidence_required": true,
+            "reason": "依赖 战败时间、战败状态与后续再激活事件链，统一事实层当前未保留完整状态回放。"
+          },
+          {
+            "topic": "time_anomaly",
+            "raw_evidence_required": true,
+            "reason": "需要逐条原始时间字段判定异常责任，事实层只有归因与成交结果，不够做根因诊断。"
+          },
+          {
+            "topic": "model_path",
+            "raw_evidence_required": true,
+            "reason": "依赖 首次意向车型/试驾车型/成交车型 的全路径字段，统一事实层未完整沉淀。"
+          },
+          {
+            "topic": "followup_intensity",
+            "raw_evidence_required": true,
+            "reason": "依赖 跟进次数、销售维度等原始后端字段，事实层当前未暴露。"
+          }
+        ]
+      }
+    }
+  ],
+  "categories": {
+    "structural change": 7,
+    "pass": 3,
+    "metric drift": 3,
+    "contract violation": 4
+  }
+}

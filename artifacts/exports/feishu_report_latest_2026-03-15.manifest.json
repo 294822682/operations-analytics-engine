@@ -1,0 +1,17 @@
+{
+  "export_name": "feishu_report_latest",
+  "snapshot_date": "2026-03-15",
+  "schema_version": "1.0.0",
+  "metric_version": "metric-v1",
+  "run_id": "run-20260316T094718Z",
+  "template_version": "excel-tsv-v1",
+  "freeze_id": "provisional-manual-owner-report",
+  "source_tables": [
+    "daily_performance_snapshot",
+    "fact_attribution"
+  ],
+  "row_count": 12,
+  "generated_at": "2026-03-16T17:47:22",
+  "consumer": "feishu_markdown_reader",
+  "output_path": "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports/feishu_report_latest_2026-03-15.md"
+}

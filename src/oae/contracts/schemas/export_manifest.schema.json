@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "ExportManifest",
+  "required": [
+    "schema_version",
+    "metric_version",
+    "run_id",
+    "export_name",
+    "snapshot_date",
+    "template_version",
+    "freeze_id",
+    "source_tables",
+    "row_count",
+    "generated_at",
+    "consumer",
+    "output_path"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "metric_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "export_name": {
+      "type": "string"
+    },
+    "snapshot_date": {
+      "type": "string"
+    },
+    "template_version": {
+      "type": "string"
+    },
+    "freeze_id": {
+      "type": "string"
+    },
+    "source_tables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "row_count": {
+      "type": "integer"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "consumer": {
+      "type": "string"
+    },
+    "output_path": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "export_name": "raw_analysis_snapshot",
+  "snapshot_date": "2026-03-12",
+  "schema_version": "1.0.0",
+  "metric_version": "metric-v1",
+  "run_id": "round4-raw-main",
+  "template_version": "",
+  "freeze_id": "",
+  "source_tables": [
+    "raw_analysis_snapshot"
+  ],
+  "row_count": 5906,
+  "generated_at": "2026-03-13T22:24:30",
+  "consumer": "raw-analysis-snapshot",
+  "output_path": "/Users/ahs/Desktop/Operations Analytics Engine/artifacts/snapshots/round4_raw/raw_analysis_snapshot_latest_2026-03-12.csv"
+}

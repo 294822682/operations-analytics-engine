@@ -1,0 +1,198 @@
+{
+  "default_dynamic_input_dir": "源文件",
+  "sources": {
+    "live_schedule": {
+      "label": "直播进度表",
+      "kind": "dynamic",
+      "directory": "源文件",
+      "glob_patterns": [
+        "*直播进度表*月.xlsx",
+        "*直播进度表*月.xls",
+        "*直播进度表*.xlsx",
+        "*直播进度表*.xls"
+      ],
+      "naming_regex": "^20\\d{2}年直播进度表[0-1]?\\d月\\.(xlsx|xls)$",
+      "file_types": [
+        ".xlsx",
+        ".xls"
+      ],
+      "business_date_type": "month",
+      "allow_multiple_versions": true,
+      "selection_rule": "按文件名中的业务月份优先；若业务月份相同则视为冲突并中止",
+      "required_alias_keys": [
+        "live_date",
+        "live_account",
+        "live_host"
+      ],
+      "required_exact_fields": [
+        "全场景线索人数"
+      ],
+      "optional_alias_keys": [
+        "live_start",
+        "live_end"
+      ],
+      "recommended_exact_fields": [
+        "消耗"
+      ],
+      "preferred_sheets": []
+    },
+    "leads_detail": {
+      "label": "线索明细",
+      "kind": "dynamic",
+      "directory": "源文件",
+      "glob_patterns": [
+        "总部新媒体线索20??-??-??.csv",
+        "总部新媒体线索20??-??-??.xlsx",
+        "总部新媒体线索*.csv",
+        "总部新媒体线索*.xlsx"
+      ],
+      "naming_regex": "^总部新媒体线索20\\d{2}-\\d{2}-\\d{2}\\.(csv|xlsx|xls)$",
+      "file_types": [
+        ".csv",
+        ".xlsx",
+        ".xls"
+      ],
+      "business_date_type": "date",
+      "allow_multiple_versions": true,
+      "selection_rule": "按文件名中的业务日期优先；若业务日期相同则视为冲突并中止",
+      "required_alias_keys": [
+        "lead_id",
+        "lead_time",
+        "lead_account",
+        "lead_phone",
+        "lead_channel3"
+      ],
+      "required_exact_fields": [],
+      "optional_alias_keys": [],
+      "recommended_exact_fields": [],
+      "preferred_sheets": [
+        "总部新媒体线索",
+        "线索",
+        "Sheet1"
+      ]
+    },
+    "deals_detail": {
+      "label": "成交明细",
+      "kind": "dynamic",
+      "directory": "源文件",
+      "glob_patterns": [
+        "总部新媒体成交20??-??-??.csv",
+        "总部新媒体成交20??-??-??.xlsx",
+        "总部新媒体成交*.csv",
+        "总部新媒体成交*.xlsx"
+      ],
+      "naming_regex": "^总部新媒体成交20\\d{2}-\\d{2}-\\d{2}\\.(csv|xlsx|xls)$",
+      "file_types": [
+        ".csv",
+        ".xlsx",
+        ".xls"
+      ],
+      "business_date_type": "date",
+      "allow_multiple_versions": true,
+      "selection_rule": "按文件名中的业务日期优先；若业务日期相同则视为冲突并中止",
+      "required_alias_keys": [
+        "deal_id",
+        "deal_status"
+      ],
+      "required_exact_fields": [],
+      "optional_alias_keys": [
+        "deal_time",
+        "deal_account",
+        "deal_channel",
+        "deal_model",
+        "deal_phone"
+      ],
+      "recommended_exact_fields": [],
+      "preferred_sheets": [
+        "成交",
+        "Sheet1"
+      ]
+    },
+    "monthly_targets": {
+      "label": "月目标配置",
+      "kind": "fixed",
+      "path": "config/monthly_targets.csv",
+      "naming_exact": "monthly_targets.csv",
+      "file_types": [
+        ".csv"
+      ],
+      "business_date_type": "none",
+      "allow_multiple_versions": false,
+      "selection_rule": "固定路径，不参与最新文件选择",
+      "required_alias_keys": [],
+      "required_exact_fields": [
+        "month",
+        "scope_type",
+        "scope_name",
+        "parent_account",
+        "lead_target_month",
+        "deal_target_month"
+      ],
+      "optional_alias_keys": [],
+      "recommended_exact_fields": [
+        "lead_cost_target_month",
+        "cpl_target",
+        "cps_target",
+        "target_pool"
+      ],
+      "preferred_sheets": []
+    },
+    "daily_spend": {
+      "label": "消耗配置",
+      "kind": "fixed",
+      "path": "config/daily_spend.csv",
+      "naming_exact": "daily_spend.csv",
+      "file_types": [
+        ".csv"
+      ],
+      "business_date_type": "none",
+      "allow_multiple_versions": false,
+      "selection_rule": "固定路径，不参与最新文件选择",
+      "required_alias_keys": [],
+      "required_exact_fields": [
+        "date",
+        "account",
+        "actual_spend"
+      ],
+      "optional_alias_keys": [],
+      "recommended_exact_fields": [],
+      "preferred_sheets": []
+    },
+    "manual_attribution_overrides": {
+      "label": "专项人工确认归属",
+      "kind": "fixed",
+      "path": "config/manual_attribution_overrides.csv",
+      "naming_exact": "manual_attribution_overrides.csv",
+      "file_types": [
+        ".csv",
+        ".xlsx",
+        ".xls"
+      ],
+      "business_date_type": "none",
+      "allow_multiple_versions": false,
+      "selection_rule": "固定路径，不参与最新文件选择",
+      "required_alias_keys": [],
+      "required_exact_fields": [
+        "override_id",
+        "business_subject_key",
+        "phone",
+        "lead_id",
+        "override_scope",
+        "target_account",
+        "target_host",
+        "reason",
+        "evidence_note",
+        "confirmed_by",
+        "confirmed_at",
+        "effective_from",
+        "effective_to",
+        "status",
+        "metric_version",
+        "run_id"
+      ],
+      "optional_alias_keys": [],
+      "recommended_exact_fields": [],
+      "preferred_sheets": []
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "export_name": "feishu_table_latest",
+  "snapshot_date": "2026-03-12",
+  "schema_version": "1.0.0",
+  "metric_version": "metric-v1",
+  "run_id": "run-20260315T053110Z",
+  "template_version": "excel-tsv-v1",
+  "freeze_id": "provisional-post-legacy-clean",
+  "source_tables": [
+    "daily_performance_snapshot",
+    "compensation_ledger",
+    "analysis_snapshot",
+    "fact_attribution"
+  ],
+  "row_count": 12,
+  "generated_at": "2026-03-15T13:31:13",
+  "consumer": "excel_template_v1",
+  "output_path": "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports/feishu_table_latest_2026-03-12.tsv"
+}

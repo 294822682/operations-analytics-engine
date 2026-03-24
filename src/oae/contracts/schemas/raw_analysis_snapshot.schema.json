@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "RawAnalysisSnapshot",
+  "required": [
+    "schema_version",
+    "metric_version",
+    "run_id",
+    "snapshot_date",
+    "analysis_mode",
+    "evidence_mode",
+    "subject_area",
+    "topic_name",
+    "table_name",
+    "grain",
+    "dimension_key",
+    "metric_name",
+    "metric_value",
+    "raw_evidence_required",
+    "source_scope"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "metric_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "snapshot_date": {
+      "type": "string"
+    },
+    "analysis_mode": {
+      "type": "string"
+    },
+    "evidence_mode": {
+      "type": "string"
+    },
+    "subject_area": {
+      "type": "string"
+    },
+    "topic_name": {
+      "type": "string"
+    },
+    "table_name": {
+      "type": "string"
+    },
+    "grain": {
+      "type": "string"
+    },
+    "dimension_key": {
+      "type": "string"
+    },
+    "metric_name": {
+      "type": "string"
+    },
+    "metric_value": {
+      "type": "number"
+    },
+    "raw_evidence_required": {
+      "type": "boolean"
+    },
+    "source_scope": {
+      "type": "string"
+    },
+    "migration_status": {
+      "type": "string"
+    }
+  }
+}

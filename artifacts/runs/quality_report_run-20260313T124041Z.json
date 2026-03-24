@@ -1,0 +1,55 @@
+{
+  "run_id": "run-20260313T124041Z",
+  "generated_at": "2026-03-13T20:40:45",
+  "files": [
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/output/fact_attribution.csv",
+      "exists": true,
+      "size_bytes": 387866
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports/daily_goal_account_latest_2026-03-12.csv",
+      "exists": true,
+      "size_bytes": 2188
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/output/sql_reports/feishu_table_latest_2026-03-13.tsv",
+      "exists": true,
+      "size_bytes": 3267
+    },
+    {
+      "path": "/Users/ahs/Desktop/Operations Analytics Engine/全量分析/analysis_tables.xlsx",
+      "exists": true,
+      "size_bytes": 10332
+    }
+  ],
+  "baseline": {
+    "status": "warning",
+    "details": [
+      {
+        "name": "fact_attribution.csv",
+        "status": "changed",
+        "baseline_sha256": "6f20217c7028dd3e24dadb9d780535f960a4f1650b40b2b2264866f18de86333",
+        "current_sha256": "beacbcff88ad9735f36d0c0e37190b66876a0ceee6607ad45cef3fb9a4089ed7"
+      },
+      {
+        "name": "daily_goal_account_latest_2026-03-12.csv",
+        "status": "match",
+        "baseline_sha256": "7eac54433827536c7043677ecafea7a6c274ef37fce3b5a40f71c744af3635bd",
+        "current_sha256": "7eac54433827536c7043677ecafea7a6c274ef37fce3b5a40f71c744af3635bd"
+      },
+      {
+        "name": "feishu_table_latest_2026-03-13.tsv",
+        "status": "new-file",
+        "sha256": "8968c64cb9152322a1a639713cef6a23cc37b5bad41a7a3cb8f119d07e45007f"
+      },
+      {
+        "name": "analysis_tables.xlsx",
+        "status": "changed",
+        "baseline_sha256": "69db526194a1f35f9b3ea984a2424f0d9caa1ec6b53b2fd42057ca822a047994",
+        "current_sha256": "4a8b9f69754e6356cf13fc6038effcf7fe4a4efb0613a58bd02f295c45fb9e32"
+      }
+    ]
+  },
+  "checks": []
+}
