@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "CompensationLedger",
+  "required": [
+    "schema_version",
+    "metric_version",
+    "run_id",
+    "settlement_period",
+    "freeze_id",
+    "scope_type",
+    "scope_name",
+    "parent_account",
+    "snapshot_start",
+    "snapshot_end",
+    "mtd_leads",
+    "mtd_deals",
+    "mtd_spend",
+    "mtd_cpl",
+    "mtd_cps",
+    "lead_target_month",
+    "deal_target_month",
+    "lead_attain_pct",
+    "deal_attain_pct",
+    "formula_name",
+    "formula_inputs_json",
+    "ledger_status"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "metric_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "settlement_period": {
+      "type": "string"
+    },
+    "freeze_id": {
+      "type": "string"
+    },
+    "scope_type": {
+      "type": "string"
+    },
+    "scope_name": {
+      "type": "string"
+    },
+    "parent_account": {
+      "type": "string"
+    },
+    "snapshot_start": {
+      "type": "string"
+    },
+    "snapshot_end": {
+      "type": "string"
+    },
+    "mtd_leads": {
+      "type": "number"
+    },
+    "mtd_deals": {
+      "type": "number"
+    },
+    "mtd_spend": {
+      "type": "number"
+    },
+    "mtd_cpl": {
+      "type": "number"
+    },
+    "mtd_cps": {
+      "type": "number"
+    },
+    "lead_target_month": {
+      "type": "number"
+    },
+    "deal_target_month": {
+      "type": "number"
+    },
+    "lead_attain_pct": {
+      "type": "number"
+    },
+    "deal_attain_pct": {
+      "type": "number"
+    },
+    "formula_name": {
+      "type": "string"
+    },
+    "formula_inputs_json": {
+      "type": "string"
+    },
+    "ledger_status": {
+      "type": "string"
+    }
+  }
+}

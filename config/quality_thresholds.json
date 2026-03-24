@@ -1,0 +1,76 @@
+{
+  "profiles": {
+    "regression": {
+      "fact": {
+        "row_count": { "mode": "relative", "warning": 0.005, "fail": 0.02 },
+        "phone_missing_rate": { "mode": "absolute", "warning": 0.005, "fail": 0.01 },
+        "unowned_ratio": { "mode": "absolute", "warning": 0.02, "fail": 0.03 },
+        "attribution_success_rate": { "mode": "absolute", "warning": 0.02, "fail": 0.03 }
+      },
+      "snapshot": {
+        "total_mtd_leads": { "mode": "relative", "warning": 0.02, "fail": 0.05 },
+        "total_mtd_deals": { "mode": "absolute", "warning": 1.0, "fail": 2.0 },
+        "total_mtd_spend": { "mode": "relative", "warning": 0.02, "fail": 0.05 },
+        "mtd_lead_attain": { "mode": "absolute", "warning": 0.01, "fail": 0.03 },
+        "mtd_deal_attain": { "mode": "absolute", "warning": 0.01, "fail": 0.03 }
+      },
+      "ledger": {
+        "duplicate_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 },
+        "null_field_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 },
+        "mismatch_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 }
+      },
+      "analysis": {
+        "missing_subject_area_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 },
+        "min_total_row_count": { "mode": "minimum", "warning": 1.0, "fail": 1.0 }
+      }
+    },
+    "operational": {
+      "fact": {
+        "row_count": { "mode": "relative", "warning": 0.02, "fail": 0.05 },
+        "phone_missing_rate": { "mode": "absolute", "warning": 0.01, "fail": 0.02 },
+        "unowned_ratio": { "mode": "absolute", "warning": 0.03, "fail": 0.05 },
+        "attribution_success_rate": { "mode": "absolute", "warning": 0.03, "fail": 0.05 }
+      },
+      "snapshot": {
+        "total_mtd_leads": { "mode": "relative", "warning": 0.05, "fail": 0.1 },
+        "total_mtd_deals": { "mode": "absolute", "warning": 1.0, "fail": 3.0 },
+        "total_mtd_spend": { "mode": "relative", "warning": 0.05, "fail": 0.1 },
+        "mtd_lead_attain": { "mode": "absolute", "warning": 0.02, "fail": 0.05 },
+        "mtd_deal_attain": { "mode": "absolute", "warning": 0.02, "fail": 0.05 }
+      },
+      "ledger": {
+        "duplicate_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 },
+        "null_field_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 },
+        "mismatch_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 }
+      },
+      "analysis": {
+        "missing_subject_area_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 },
+        "min_total_row_count": { "mode": "minimum", "warning": 1.0, "fail": 1.0 }
+      }
+    },
+    "settlement": {
+      "fact": {
+        "row_count": { "mode": "relative", "warning": 0.01, "fail": 0.02 },
+        "phone_missing_rate": { "mode": "absolute", "warning": 0.005, "fail": 0.01 },
+        "unowned_ratio": { "mode": "absolute", "warning": 0.02, "fail": 0.03 },
+        "attribution_success_rate": { "mode": "absolute", "warning": 0.02, "fail": 0.03 }
+      },
+      "snapshot": {
+        "total_mtd_leads": { "mode": "relative", "warning": 0.02, "fail": 0.05 },
+        "total_mtd_deals": { "mode": "absolute", "warning": 1.0, "fail": 2.0 },
+        "total_mtd_spend": { "mode": "relative", "warning": 0.02, "fail": 0.05 },
+        "mtd_lead_attain": { "mode": "absolute", "warning": 0.01, "fail": 0.03 },
+        "mtd_deal_attain": { "mode": "absolute", "warning": 0.01, "fail": 0.03 }
+      },
+      "ledger": {
+        "duplicate_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 },
+        "null_field_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 },
+        "mismatch_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 }
+      },
+      "analysis": {
+        "missing_subject_area_count": { "mode": "absolute", "warning": 0.0, "fail": 0.0 },
+        "min_total_row_count": { "mode": "minimum", "warning": 1.0, "fail": 1.0 }
+      }
+    }
+  }
+}

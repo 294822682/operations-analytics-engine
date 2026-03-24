@@ -1,0 +1,828 @@
+{
+  "files": [
+    {
+      "path": "tests/baseline/reference/fact_attribution.csv",
+      "name": "fact_attribution.csv",
+      "sha256": "6f20217c7028dd3e24dadb9d780535f960a4f1650b40b2b2264866f18de86333",
+      "size_bytes": 310148,
+      "kind": "tabular",
+      "delimiter": ",",
+      "row_count": 1412,
+      "columns": [
+        "线索ID",
+        "手机号",
+        "线索创建时间",
+        "date",
+        "标准账号",
+        "本场主播",
+        "同手机号线索数",
+        "是否手机号折叠",
+        "权重",
+        "归属状态",
+        "无匹配原因",
+        "report_bucket",
+        "订单状态",
+        "成交时间",
+        "主播人数",
+        "成交分摊权重",
+        "is_order",
+        "is_deal",
+        "渠道",
+        "成交车型",
+        "orders_contrib",
+        "deals_contrib",
+        "_lead_key",
+        "线索ID_norm",
+        "命中场次数量",
+        "成交_账号"
+      ],
+      "core_columns": [
+        "线索ID",
+        "手机号",
+        "线索创建时间",
+        "date",
+        "标准账号",
+        "本场主播",
+        "同手机号线索数",
+        "是否手机号折叠",
+        "权重",
+        "归属状态",
+        "无匹配原因",
+        "report_bucket",
+        "订单状态",
+        "成交时间",
+        "主播人数",
+        "成交分摊权重",
+        "is_order",
+        "is_deal",
+        "渠道",
+        "成交车型",
+        "orders_contrib",
+        "deals_contrib",
+        "_lead_key",
+        "线索ID_norm",
+        "命中场次数量",
+        "成交_账号"
+      ],
+      "core_sha256": "ded826344a59fee73bc8d23a96f08e2cc86ddabf23dab17f108dd517507b9840"
+    },
+    {
+      "path": "tests/baseline/reference/daily_goal_account_latest_2026-03-12.csv",
+      "name": "daily_goal_account_latest_2026-03-12.csv",
+      "sha256": "7eac54433827536c7043677ecafea7a6c274ef37fce3b5a40f71c744af3635bd",
+      "size_bytes": 2188,
+      "kind": "tabular",
+      "delimiter": ",",
+      "row_count": 6,
+      "columns": [
+        "report_month",
+        "date",
+        "scope_type",
+        "scope_name",
+        "parent_account",
+        "lead_target_month",
+        "deal_target_month",
+        "lead_cost_target_month",
+        "lead_cost_target_month_disp",
+        "cpl_target",
+        "cpl_target_disp",
+        "cps_target",
+        "cps_target_disp",
+        "daily_leads",
+        "daily_lead_target",
+        "daily_lead_attain",
+        "daily_lead_attain_pct",
+        "mtd_leads",
+        "mtd_lead_attain",
+        "mtd_lead_attain_pct",
+        "daily_deals",
+        "daily_deal_target",
+        "daily_deal_attain",
+        "daily_deal_attain_pct",
+        "mtd_deals",
+        "mtd_deal_attain",
+        "mtd_deal_attain_pct",
+        "daily_spend",
+        "mtd_spend",
+        "daily_cpl",
+        "daily_cpl_disp",
+        "mtd_cpl",
+        "mtd_cpl_disp",
+        "daily_cps",
+        "daily_cps_disp",
+        "mtd_cps",
+        "mtd_cps_disp",
+        "target_pool"
+      ],
+      "core_columns": [
+        "report_month",
+        "date",
+        "scope_type",
+        "scope_name",
+        "parent_account",
+        "lead_target_month",
+        "deal_target_month",
+        "lead_cost_target_month",
+        "lead_cost_target_month_disp",
+        "cpl_target",
+        "cpl_target_disp",
+        "cps_target",
+        "cps_target_disp",
+        "daily_leads",
+        "daily_lead_target",
+        "daily_lead_attain",
+        "daily_lead_attain_pct",
+        "mtd_leads",
+        "mtd_lead_attain",
+        "mtd_lead_attain_pct",
+        "daily_deals",
+        "daily_deal_target",
+        "daily_deal_attain",
+        "daily_deal_attain_pct",
+        "mtd_deals",
+        "mtd_deal_attain",
+        "mtd_deal_attain_pct",
+        "daily_spend",
+        "mtd_spend",
+        "daily_cpl",
+        "daily_cpl_disp",
+        "mtd_cpl",
+        "mtd_cpl_disp",
+        "daily_cps",
+        "daily_cps_disp",
+        "mtd_cps",
+        "mtd_cps_disp",
+        "target_pool"
+      ],
+      "core_sha256": "b08cec008b7f9a9c6f47ba0f4d4818b1864e8cb75bd68f26f20f9567ef8187eb"
+    },
+    {
+      "path": "tests/baseline/reference/feishu_table_latest_2026-03-12.tsv",
+      "name": "feishu_table_latest_2026-03-12.tsv",
+      "sha256": "bca97b7aa5319d8a61df8087369989a147cba49307bfc77de2b44678396c1ab0",
+      "size_bytes": 3405,
+      "signature_error": "Error tokenizing data. C error: Expected 2 fields in line 4, saw 4\n"
+    },
+    {
+      "path": "tests/baseline/reference/analysis_workbook_unified-fact_latest_2026-03-12.xlsx",
+      "name": "analysis_workbook_unified-fact_latest_2026-03-12.xlsx",
+      "sha256": "7c168bb41dd3ec3040763ca0e2d9fdb7cb5f93c220d52ed088153cb524c20eff",
+      "size_bytes": 16185,
+      "kind": "excel",
+      "sheets": [
+        {
+          "sheet_name": "漏斗总览",
+          "row_count": 5,
+          "columns": [
+            "stage",
+            "count",
+            "rate_vs_total",
+            "snapshot_date"
+          ],
+          "core_sha256": "2596515046347bfa4965539d793ca90212bcef1c49e61610481d1ab8f0dac9ff"
+        },
+        {
+          "sheet_name": "成交周期总览",
+          "row_count": 4,
+          "columns": [
+            "metric",
+            "value"
+          ],
+          "core_sha256": "4e47735c648da7f8497fdd2ebf6cc9422876add6079e7bd514febadb7c257dfe"
+        },
+        {
+          "sheet_name": "成交周期_账号",
+          "row_count": 4,
+          "columns": [
+            "标准账号",
+            "deal_subjects",
+            "avg_create_to_deal_days",
+            "p50_create_to_deal_days"
+          ],
+          "core_sha256": "6b059378671d07d5e4d40133afbd2455a515c48d6a82ec31ea39ce2604197370"
+        },
+        {
+          "sheet_name": "质量_账号",
+          "row_count": 7,
+          "columns": [
+            "标准账号",
+            "unique_subjects",
+            "phone_missing_rate",
+            "unowned_ratio",
+            "deal_subjects",
+            "deal_rate"
+          ],
+          "core_sha256": "8d04f5aa4bb1b6af7f70e3db1c0303c7825bc02f9914bfb1434be20b0496fcac"
+        },
+        {
+          "sheet_name": "主播贡献汇总",
+          "row_count": 14,
+          "columns": [
+            "标准账号",
+            "主播",
+            "weighted_leads",
+            "weighted_deals"
+          ],
+          "core_sha256": "1fbdf2d69eb632a44fba254c0e7896e50d6899e4cd6cfee69f1294a335de55c0"
+        },
+        {
+          "sheet_name": "主播贡献日趋势",
+          "row_count": 54,
+          "columns": [
+            "date",
+            "标准账号",
+            "主播",
+            "weighted_leads",
+            "weighted_deals"
+          ],
+          "core_sha256": "b74e914f74a835e69971bce8ecaa8cb081141a994f778fc63700b12db8d851e4"
+        },
+        {
+          "sheet_name": "渠道_报告桶",
+          "row_count": 2,
+          "columns": [
+            "report_bucket",
+            "unique_subjects",
+            "order_subjects",
+            "deal_subjects",
+            "deal_rate"
+          ],
+          "core_sha256": "9aca4fe59208f92320db7343de58eba0e30b9542e96238494391f6cf4217506b"
+        },
+        {
+          "sheet_name": "渠道_成交渠道",
+          "row_count": 5,
+          "columns": [
+            "成交渠道",
+            "unique_subjects",
+            "deal_subjects"
+          ],
+          "core_sha256": "de001eb0925a7b369caf3f19654751126bc9bd7fdd42bb212e085ef0f8aedf7f"
+        },
+        {
+          "sheet_name": "运营复盘_账号日趋势",
+          "row_count": 91,
+          "columns": [
+            "date",
+            "标准账号",
+            "unique_subjects",
+            "orders_contrib",
+            "deals_contrib",
+            "unowned_subjects",
+            "deal_rate"
+          ],
+          "core_sha256": "cf4aa5c81566a095b6ca7faf1080015171f585a6c422ce86ec85e730ade7d049"
+        },
+        {
+          "sheet_name": "运营复盘_最新日",
+          "row_count": 4,
+          "columns": [
+            "date",
+            "标准账号",
+            "unique_subjects",
+            "orders_contrib",
+            "deals_contrib",
+            "unowned_subjects",
+            "deal_rate"
+          ],
+          "core_sha256": "0da9f6e63f0dfce28358b21596adafe168e310e4f75c80bae3ee14e8754fa0ab"
+        }
+      ]
+    },
+    {
+      "path": "tests/baseline/reference/analysis_workbook_raw-evidence_latest_2026-03-12.xlsx",
+      "name": "analysis_workbook_raw-evidence_latest_2026-03-12.xlsx",
+      "sha256": "41b7bf6bfdbd29da9827cc65a45e9bfbf822acca0a892e153e37fce1e2f0d9ca",
+      "size_bytes": 86420,
+      "kind": "excel",
+      "sheets": [
+        {
+          "sheet_name": "整体漏斗",
+          "row_count": 6,
+          "columns": [
+            "阶段",
+            "人数",
+            "阶段转化率(%)",
+            "累计转化率(%)"
+          ],
+          "core_sha256": "6dbba9f4fced2ab3e2355ae58a5c8dc99b6e08386b465c4dcc26ac3605ec7e90"
+        },
+        {
+          "sheet_name": "渠道表现",
+          "row_count": 17,
+          "columns": [
+            "渠道2",
+            "渠道3",
+            "线索量",
+            "到店率",
+            "试驾率",
+            "成交率",
+            "平均成交周期",
+            "平均跟进次数"
+          ],
+          "core_sha256": "935e26c6c504b53fc93a5aec9e9838d2b3639bb9d63d13ec8ccb36eb69251ef7"
+        },
+        {
+          "sheet_name": "SLA时效维度",
+          "row_count": 3,
+          "columns": [
+            "环节",
+            "样本N",
+            "平均时长",
+            "P50时长",
+            "P90时长",
+            "单位",
+            "<=5分钟达标率(%)",
+            "<=15分钟达标率(%)",
+            "<=60分钟达标率(%)",
+            "<=24小时达标率(%)",
+            "<=1小时达标率(%)",
+            "<=6小时达标率(%)",
+            "<=72小时达标率(%)"
+          ],
+          "core_sha256": "aa1c5fa5972402c7ce4dd991df0ab33231d59167e5ea9f7c507e6b0015cdda5d"
+        },
+        {
+          "sheet_name": "SLA时效_渠道3",
+          "row_count": 8,
+          "columns": [
+            "渠道3",
+            "线索量",
+            "平均创建到下发_分钟",
+            "创建到下发_15分钟达标率",
+            "平均下发到首次跟进_分钟",
+            "下发到首次跟进_15分钟达标率",
+            "下发到首次跟进_60分钟达标率",
+            "平均首次跟进到到店_小时",
+            "首次跟进到到店_24小时达标率",
+            "到店率",
+            "试驾率",
+            "成交率"
+          ],
+          "core_sha256": "ead9fc27e99072b9bf38c188ce4472d7f9df8603d750f79f0293e08d743b103a"
+        },
+        {
+          "sheet_name": "渠道质量评分",
+          "row_count": 17,
+          "columns": [
+            "质量评分排名",
+            "渠道2",
+            "渠道3",
+            "线索量",
+            "有效率",
+            "无效战败率",
+            "创建到下发_15分钟达标率",
+            "下发到首次跟进_60分钟达标率",
+            "到店率",
+            "试驾率",
+            "成交率",
+            "平均响应延迟_分钟",
+            "质量评分"
+          ],
+          "core_sha256": "f527712ea922f0ef1aafad64305db889031244fd5441fecef45e783347882f8e"
+        },
+        {
+          "sheet_name": "账号层级漏斗",
+          "row_count": 6,
+          "columns": [
+            "标准账号",
+            "创建量",
+            "下发量",
+            "到店量",
+            "试驾量",
+            "下订量",
+            "成交量",
+            "平均响应延迟_分钟",
+            "平均转化周期_天",
+            "下发率(创建->下发)%",
+            "到店率(下发->到店)%",
+            "试驾率(到店->试驾)%",
+            "下订率(试驾->下订)%",
+            "成交率(下订->成交)%",
+            "总转化率(创建->成交)%"
+          ],
+          "core_sha256": "73013fdf07ac0024328f1cb632fb5e14b101bcabc6e533d37bbef45c447d9e18"
+        },
+        {
+          "sheet_name": "主播追踪_累计",
+          "row_count": 12,
+          "columns": [
+            "本场主播",
+            "标准账号",
+            "累计线索量_加权",
+            "累计到店量_加权",
+            "累计试驾量_加权",
+            "累计成交量_加权",
+            "累计到店率(创建->到店)%",
+            "累计试驾率(创建->试驾)%",
+            "累计成交率(创建->成交)%"
+          ],
+          "core_sha256": "d5b89394c963d8d206903b5075a7ab37af1573f2efe541358d8a55ecb32bdbd2"
+        },
+        {
+          "sheet_name": "直播运营_账号主播时段",
+          "row_count": 26,
+          "columns": [
+            "标准账号",
+            "本场主播",
+            "时段",
+            "加权线索量",
+            "到店率(创建->到店)%",
+            "试驾率(创建->试驾)%",
+            "成交率(试驾->成交)%",
+            "总转化率(创建->成交)%"
+          ],
+          "core_sha256": "5da599e0ee7a2098ac15c607c9b07ee63483200afa09d4374ab23f216cab9db1"
+        },
+        {
+          "sheet_name": "车型路径总览",
+          "row_count": 22,
+          "columns": [
+            "首次意向车型_标准",
+            "线索量",
+            "到店量",
+            "试驾量",
+            "成交量",
+            "意向成交可比样本N",
+            "意向到成交稳定量",
+            "意向试驾可比样本N",
+            "意向到试驾跳转量",
+            "到店率(创建->到店)%",
+            "试驾率(创建->试驾)%",
+            "成交率(创建->成交)%",
+            "意向到成交稳定率(%)",
+            "意向到试驾跳转率(%)",
+            "无成交占比(%)"
+          ],
+          "core_sha256": "257450b37750d157034984965a43fa05d0f96f0965cffc87a65cbea0e58cfb4e"
+        },
+        {
+          "sheet_name": "车型路径明细",
+          "row_count": 51,
+          "columns": [
+            "首次意向车型_标准",
+            "车型路径",
+            "线索量",
+            "到店量",
+            "试驾量",
+            "成交量",
+            "全链路可比样本N",
+            "全链路稳定量",
+            "路径成交率(创建->成交)%",
+            "全链路稳定率(%)"
+          ],
+          "core_sha256": "6f0e0bfd4fe0bdcd4875655ea987dc2c40318c2dfa8ae159c1571040d719de2c"
+        },
+        {
+          "sheet_name": "车型路径指标_总体",
+          "row_count": 7,
+          "columns": [
+            "指标",
+            "分子",
+            "分母",
+            "数值"
+          ],
+          "core_sha256": "3041ac36a58fb9b767b4b6cd2eca5c5444a90c79d3a2d3a435ffccdd1e33c5d9"
+        },
+        {
+          "sheet_name": "车型路径指标_分车型",
+          "row_count": 22,
+          "columns": [
+            "首次意向车型_标准",
+            "意向样本N",
+            "到店N",
+            "试驾N",
+            "成交N",
+            "意向试驾可比样本N",
+            "意向到试驾跳转N",
+            "试驾成交可比样本N",
+            "试驾到成交跳转N",
+            "意向成交可比样本N",
+            "意向到成交稳定N",
+            "意向->到店流失率(%)",
+            "到店->试驾流失率(%)",
+            "试驾->成交流失率(%)",
+            "意向->试驾跳转率(%)",
+            "试驾->成交跳转率(%)",
+            "意向->成交稳定率(%)"
+          ],
+          "core_sha256": "a3c8bb4d7685dc49c132f7e69a1f072ef513bba2e81396f99ab49e98827677fa"
+        },
+        {
+          "sheet_name": "线索新鲜度",
+          "row_count": 5,
+          "columns": [
+            "线索新鲜度分层",
+            "线索量",
+            "线索占比(%)",
+            "平均响应延迟_小时",
+            "P50响应延迟_小时",
+            "到店率",
+            "试驾率",
+            "成交率"
+          ],
+          "core_sha256": "ac9fdea1bcc1e77ccb4709d607d6a0d057a07c55c82e46be2920b09f03b703fa"
+        },
+        {
+          "sheet_name": "跟进强度",
+          "row_count": 5,
+          "columns": [
+            "跟进强度分桶",
+            "线索量",
+            "线索占比(%)",
+            "平均跟进次数",
+            "平均响应延迟_小时",
+            "无效战败率",
+            "到店率",
+            "试驾率",
+            "成交率"
+          ],
+          "core_sha256": "f453abf5a02b9393a815b27dbf25799af523e9dec4fd89ffc4b696ad30f8abae"
+        },
+        {
+          "sheet_name": "区域潜力_省份",
+          "row_count": 31,
+          "columns": [
+            "大区",
+            "省份",
+            "线索量",
+            "到店率",
+            "试驾率",
+            "成交率",
+            "平均响应延迟_分钟",
+            "线索占比(%)",
+            "区域潜力指数"
+          ],
+          "core_sha256": "dcb9b1b9b15b245c7da00bebff87fe9a5bcbc5b813df0f7e4199f3eec0de3e40"
+        },
+        {
+          "sheet_name": "区域潜力_城市",
+          "row_count": 186,
+          "columns": [
+            "省份",
+            "城市",
+            "线索量",
+            "到店率",
+            "试驾率",
+            "成交率",
+            "线索占比(%)"
+          ],
+          "core_sha256": "d55f8c32db66174f30adf4e0279497f827330a9da7929957c727c2961f516de9"
+        },
+        {
+          "sheet_name": "战败回收总览",
+          "row_count": 6,
+          "columns": [
+            "指标",
+            "数值"
+          ],
+          "core_sha256": "3eaf2fe4d382e9f7f838498b16ede24e9a5a0bb861b81b32c9b748c5e75c594d"
+        },
+        {
+          "sheet_name": "战败回收_渠道3",
+          "row_count": 2,
+          "columns": [
+            "渠道3",
+            "再激活线索量",
+            "再激活后到店率",
+            "再激活后成交率"
+          ],
+          "core_sha256": "25c22da90b76be8a8b2f25c33136b934e030872a4ea7e4655ca202458bb01b8a"
+        },
+        {
+          "sheet_name": "数据质量总览",
+          "row_count": 5,
+          "columns": [
+            "指标",
+            "数值"
+          ],
+          "core_sha256": "1405deaafcbdd3263323f3500327d57a54d402e0e3ffa7726ec024ded947c9fa"
+        },
+        {
+          "sheet_name": "数据质量_关键字段",
+          "row_count": 12,
+          "columns": [
+            "字段",
+            "空值率(%)",
+            "非空率(%)"
+          ],
+          "core_sha256": "0a1d8380737d89462c4ffb1ad520e1ef1fbd8edfe33ce661e14f340a9d08ae13"
+        },
+        {
+          "sheet_name": "时间链路异常_总览",
+          "row_count": 3,
+          "columns": [
+            "异常类型",
+            "异常条数",
+            "异常占比(%)",
+            "平均提前分钟",
+            "P50提前分钟",
+            "最大提前天数"
+          ],
+          "core_sha256": "bd1978e466f48601f8dc5dce7325431d8cc16a9373d4e2588eb084dbc4484362"
+        },
+        {
+          "sheet_name": "时间链路异常_明细",
+          "row_count": 23,
+          "columns": [
+            "异常类型",
+            "线索ID",
+            "手机号",
+            "渠道2",
+            "渠道3",
+            "大区",
+            "省份",
+            "城市",
+            "ERP",
+            "店名",
+            "销售姓名",
+            "线索状态",
+            "首次意向车型",
+            "意向车型",
+            "时间差_分钟",
+            "提前分钟(绝对值)",
+            "风险等级",
+            "创建时间",
+            "下发时间",
+            "首次跟进时间",
+            "到店时间",
+            "试驾时间",
+            "下订时间",
+            "成交时间"
+          ],
+          "core_sha256": "988dbe99b12ca93ca68febb450347cb66fa12b22293ef0e5ec2cebba10f3eabe"
+        },
+        {
+          "sheet_name": "异常归属_店名汇总",
+          "row_count": 535,
+          "columns": [
+            "渠道2",
+            "省份",
+            "城市",
+            "ERP",
+            "店名",
+            "基础线索量",
+            "异常条数",
+            "高风险条数",
+            "平均提前分钟",
+            "最大提前分钟",
+            "异常率(%)"
+          ],
+          "core_sha256": "853a6349b7d2079b1b3c9ac6c626084dbb6d89f2882d405cd1f2ad357a99e92e"
+        },
+        {
+          "sheet_name": "异常归属_渠道省份",
+          "row_count": 168,
+          "columns": [
+            "渠道2",
+            "渠道3",
+            "大区",
+            "省份",
+            "基础线索量",
+            "异常条数",
+            "高风险条数",
+            "平均提前分钟",
+            "最大提前分钟",
+            "异常率(%)"
+          ],
+          "core_sha256": "c0e910040a3cec656d0e2377ae5242847e916a62029c67b46fb9feaeaf36c635"
+        },
+        {
+          "sheet_name": "业务健康_日趋势",
+          "row_count": 105,
+          "columns": [
+            "创建日",
+            "线索量",
+            "到店率(创建->到店)%",
+            "试驾率(创建->试驾)%",
+            "成交率(创建->成交)%",
+            "线索量日环比(%)",
+            "成交率日环比(百分点)",
+            "线索量较7日均值(%)",
+            "成交率较7日均值(百分点)",
+            "异常告警"
+          ],
+          "core_sha256": "7c7022d2825882223ee8fc00e69e61684ecb4b61ebc3a21ed087748bcb1441f8"
+        },
+        {
+          "sheet_name": "业务健康_月环比",
+          "row_count": 5,
+          "columns": [
+            "月份",
+            "线索量",
+            "到店率(创建->到店)%",
+            "试驾率(创建->试驾)%",
+            "成交率(创建->成交)%",
+            "线索量月环比(%)",
+            "成交率月环比(百分点)"
+          ],
+          "core_sha256": "2ce59f19d5416a32b536038d8f0e70812256e468e29b3eb3e1327f64e04ba233"
+        },
+        {
+          "sheet_name": "线索等级表现",
+          "row_count": 8,
+          "columns": [
+            "线索等级标准",
+            "线索量",
+            "到店率",
+            "试驾率",
+            "下订率",
+            "成交率",
+            "平均跟进次数",
+            "线索等级得分",
+            "线索等级说明"
+          ],
+          "core_sha256": "cad49488fc61bfa0e717357df95897c66df4fcf14a0f982d1fb1c25d9dc950f1"
+        }
+      ]
+    },
+    {
+      "path": "tests/baseline/reference/analysis_anomaly_report_raw-evidence_latest_2026-03-12.xlsx",
+      "name": "analysis_anomaly_report_raw-evidence_latest_2026-03-12.xlsx",
+      "sha256": "b57de35a17f524a3bbaecff3332236f7c5fe2a279459184f1880c6ddc8e356a6",
+      "size_bytes": 46335,
+      "kind": "excel",
+      "sheets": [
+        {
+          "sheet_name": "异常总览",
+          "row_count": 3,
+          "columns": [
+            "异常类型",
+            "异常条数",
+            "异常占比(%)",
+            "平均提前分钟",
+            "P50提前分钟",
+            "最大提前天数"
+          ],
+          "core_sha256": "bd1978e466f48601f8dc5dce7325431d8cc16a9373d4e2588eb084dbc4484362"
+        },
+        {
+          "sheet_name": "异常明细",
+          "row_count": 23,
+          "columns": [
+            "异常类型",
+            "线索ID",
+            "手机号",
+            "渠道2",
+            "渠道3",
+            "大区",
+            "省份",
+            "城市",
+            "ERP",
+            "店名",
+            "销售姓名",
+            "线索状态",
+            "首次意向车型",
+            "意向车型",
+            "时间差_分钟",
+            "提前分钟(绝对值)",
+            "风险等级",
+            "创建时间",
+            "下发时间",
+            "首次跟进时间",
+            "到店时间",
+            "试驾时间",
+            "下订时间",
+            "成交时间"
+          ],
+          "core_sha256": "988dbe99b12ca93ca68febb450347cb66fa12b22293ef0e5ec2cebba10f3eabe"
+        },
+        {
+          "sheet_name": "归属_店名汇总",
+          "row_count": 535,
+          "columns": [
+            "渠道2",
+            "省份",
+            "城市",
+            "ERP",
+            "店名",
+            "基础线索量",
+            "异常条数",
+            "高风险条数",
+            "平均提前分钟",
+            "最大提前分钟",
+            "异常率(%)"
+          ],
+          "core_sha256": "853a6349b7d2079b1b3c9ac6c626084dbb6d89f2882d405cd1f2ad357a99e92e"
+        },
+        {
+          "sheet_name": "归属_渠道省份",
+          "row_count": 168,
+          "columns": [
+            "渠道2",
+            "渠道3",
+            "大区",
+            "省份",
+            "基础线索量",
+            "异常条数",
+            "高风险条数",
+            "平均提前分钟",
+            "最大提前分钟",
+            "异常率(%)"
+          ],
+          "core_sha256": "c0e910040a3cec656d0e2377ae5242847e916a62029c67b46fb9feaeaf36c635"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "ManualOverrideIssue",
+  "required": [
+    "issue_id",
+    "issue_type",
+    "severity",
+    "override_id",
+    "business_subject_key",
+    "phone",
+    "lead_id",
+    "detected_stage",
+    "message_cn",
+    "suggested_action",
+    "status",
+    "run_id"
+  ],
+  "properties": {
+    "issue_id": {
+      "type": "string"
+    },
+    "issue_type": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string"
+    },
+    "override_id": {
+      "type": "string"
+    },
+    "business_subject_key": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "lead_id": {
+      "type": "string"
+    },
+    "detected_stage": {
+      "type": "string"
+    },
+    "message_cn": {
+      "type": "string"
+    },
+    "suggested_action": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "matched_rows": {
+      "type": "integer"
+    },
+    "conflict_override_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "target_account": {
+      "type": "string"
+    },
+    "target_host": {
+      "type": "string"
+    }
+  }
+}

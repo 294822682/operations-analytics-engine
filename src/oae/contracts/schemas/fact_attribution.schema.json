@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "FactAttribution",
+  "required": [
+    "schema_version",
+    "metric_version",
+    "run_id",
+    "business_subject_key",
+    "_lead_key",
+    "线索ID",
+    "手机号",
+    "线索创建时间",
+    "date",
+    "标准账号",
+    "归属状态",
+    "is_order",
+    "is_deal"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "metric_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "business_subject_key": {
+      "type": "string"
+    },
+    "_lead_key": {
+      "type": "string"
+    },
+    "线索ID": {
+      "type": "string"
+    },
+    "手机号": {
+      "type": "string"
+    },
+    "线索创建时间": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "标准账号": {
+      "type": "string"
+    },
+    "本场主播": {
+      "type": "string"
+    },
+    "归属状态": {
+      "type": "string"
+    },
+    "无匹配原因": {
+      "type": "string"
+    },
+    "is_order": {
+      "type": "integer"
+    },
+    "is_deal": {
+      "type": "integer"
+    }
+  }
+}

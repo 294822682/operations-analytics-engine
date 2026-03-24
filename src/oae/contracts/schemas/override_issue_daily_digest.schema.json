@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "OverrideIssueDailyDigest",
+  "required": [
+    "run_id",
+    "summary_status",
+    "blocking_count",
+    "warning_count",
+    "info_count",
+    "top_priority_issues",
+    "account_impact_summary",
+    "host_impact_summary",
+    "latest_panel_risk_summary",
+    "suggested_actions",
+    "generated_at"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "summary_status": {
+      "type": "string"
+    },
+    "blocking_count": {
+      "type": "integer"
+    },
+    "warning_count": {
+      "type": "integer"
+    },
+    "info_count": {
+      "type": "integer"
+    },
+    "top_priority_issues": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "account_impact_summary": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "host_impact_summary": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "latest_panel_risk_summary": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "suggested_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "applied_override_count": {
+      "type": "integer"
+    },
+    "applied_row_count": {
+      "type": "integer"
+    },
+    "changed_final_consumer_scope": {
+      "type": "boolean"
+    }
+  }
+}

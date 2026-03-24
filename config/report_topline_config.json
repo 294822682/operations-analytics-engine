@@ -1,0 +1,36 @@
+{
+  "full_account_targets": {
+    "impressions": 20000000,
+    "leads": 25333,
+    "deals": 114,
+    "cpl": 53,
+    "cps": 6267
+  },
+  "ex7_rules": {
+    "keywords": [
+      "EX7"
+    ],
+    "live_model_field_candidates": [
+      "车型"
+    ],
+    "lead_model_field_candidates": [
+      "首次意向车型",
+      "意向车型",
+      "试驾车型",
+      "下订车型",
+      "成交车型"
+    ],
+    "deal_model_field_candidates": [
+      "下订车型",
+      "成交车型"
+    ]
+  },
+  "pending_rules": {
+    "primary_date_field": "下订日期",
+    "fallback_date_fields": [
+      "下订时间",
+      "成交日期",
+      "成交时间"
+    ]
+  }
+}

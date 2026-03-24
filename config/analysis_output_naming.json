@@ -1,0 +1,19 @@
+{
+  "profile": "canonical_preferred",
+  "canonical_default": true,
+  "compatibility_write_enabled": false,
+  "dry_run_disable_compatibility": true,
+  "allow_disable_only_when_ready": true,
+  "baseline_manifest": "tests/baseline/reference_manifest.json",
+  "manual_consumer_clearance": true,
+  "manual_consumer_clearance_doc": "docs/rules/analysis_manual_consumption.md",
+  "manual_consumer_blockers": [],
+  "readiness_requirements": {
+    "pipeline_uses_canonical": true,
+    "quality_uses_canonical": true,
+    "canonical_manifests_target_canonical_outputs": true,
+    "canonical_manifests_present": true,
+    "baseline_uses_canonical": true,
+    "manual_consumer_clearance": true
+  }
+}
