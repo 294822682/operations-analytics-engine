@@ -1,0 +1,99 @@
+name: Release Gates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      gate_profile:
+        description: "Which gate profile to run"
+        required: true
+        default: release
+        type: choice
+        options:
+          - pr
+          - release
+
+concurrency:
+  group: release-gates-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-gates:
+    if: github.event_name != 'workflow_dispatch' || inputs.gate_profile == 'pr'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONPATH: .:src
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements-fastapi.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-fastapi.txt
+          python -m pip install -r requirements-dev.txt
+
+      - name: Run PR gate profile
+        shell: bash
+        run: |
+          make ci-pr PYTHON=python
+
+      - name: Upload PR gate summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-gate-summary-pr
+          path: artifacts/runs/release_gate_summary_pr.json
+          if-no-files-found: warn
+
+  release-gates:
+    if: github.event_name == 'workflow_dispatch' && inputs.gate_profile == 'release'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONPATH: .:src
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements-fastapi.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-fastapi.txt
+          python -m pip install -r requirements-dev.txt
+
+      - name: Run release gate profile
+        shell: bash
+        run: |
+          make ci-release PYTHON=python
+
+      - name: Upload release gate summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-gate-summary-release
+          path: artifacts/runs/release_gate_summary_release.json
+          if-no-files-found: warn
