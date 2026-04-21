@@ -1,0 +1,42 @@
+{
+  "contract_version": 1,
+  "bundle_path": "tests/fixtures/pipeline/bundle_utf8_smoke.zip",
+  "bundle_size_bytes": 1707563,
+  "bundle_sha256": "4e234978a48af53a7f2cd7b52223e38e845cde3297145800e70a32077778bb09",
+  "fixture_status": "controlled_repo_fixture",
+  "kind": "pipeline_execution_smoke_bundle",
+  "rules": {
+    "exact_file_count": 3,
+    "allow_directory_entries": false,
+    "forbidden_name_fragments": [
+      ".DS_Store",
+      "__MACOSX/"
+    ],
+    "disallowed_entries": [
+      "monthly_targets.csv",
+      "daily_spend.csv",
+      "manual_attribution_overrides.csv",
+      "report_topline_config.json",
+      "quality_thresholds.json",
+      "input_sources.json",
+      "analysis_output_naming.json"
+    ],
+    "required_slots": [
+      {
+        "slot": "live_progress_workbook",
+        "suffix": ".xlsx",
+        "name_contains": "直播进度表"
+      },
+      {
+        "slot": "lead_csv",
+        "suffix": ".csv",
+        "name_contains": "新媒体线索"
+      },
+      {
+        "slot": "deal_csv",
+        "suffix": ".csv",
+        "name_contains": "新媒体成交"
+      }
+    ]
+  }
+}
