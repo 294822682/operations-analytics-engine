@@ -26,11 +26,9 @@ class GateProfile:
 
 QUALITY_TARGETED_SUITE = GateSuite(
     key="quality_targeted",
-    description="quality / baseline / business targeted regression",
+    description="release gate logic targeted regression",
     pytest_args=(
-        "tests/test_quality_baseline.py",
-        "tests/test_quality_reports.py",
-        "tests/test_quality_business.py",
+        "tests/test_release_gate_logic.py",
         "-q",
     ),
 )
@@ -46,19 +44,10 @@ SMOKE_BUNDLE_CONTRACT_SUITE = GateSuite(
 
 EXECUTION_TARGETED_SUITE = GateSuite(
     key="execution_targeted",
-    description="preflight / doctor / registry / latest / execution smoke",
+    description="dashboard API and interactive HTML regression",
     pytest_args=(
-        "tests/test_input_preflight.py",
-        "tests/test_execution_doctor_logic.py",
-        "tests/test_report_latest_logic.py",
-        "tests/test_report_registry.py",
-        "tests/api/test_execution_smoke.py",
-        "tests/api/test_execution_contracts.py",
-        "tests/api/test_report_status.py",
-        "tests/api/test_report_quality.py",
-        "tests/api/test_readable_report_resolution.py",
-        "tests/api/test_report_compare.py",
-        "tests/api/test_registry_read_write_split.py",
+        "tests/test_feishu_dashboard_interactive_html.py",
+        "tests/api/test_dashboard_daily_api.py",
         "-q",
     ),
 )
