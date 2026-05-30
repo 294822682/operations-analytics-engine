@@ -26,9 +26,11 @@ class GateProfile:
 
 QUALITY_TARGETED_SUITE = GateSuite(
     key="quality_targeted",
-    description="release gate logic targeted regression",
+    description="release gate and release contract targeted regression",
     pytest_args=(
         "tests/test_release_gate_logic.py",
+        "tests/test_execution_doctor_logic.py",
+        "tests/test_daily_pipeline_release_contract.py",
         "-q",
     ),
 )

@@ -33,6 +33,14 @@ def test_default_gate_suites_can_skip_full_pytest() -> None:
     ]
 
 
+def test_quality_targeted_suite_covers_release_contract_regressions() -> None:
+    quality_suite = default_gate_suites(include_full_pytest=False)[0]
+
+    assert "tests/test_release_gate_logic.py" in quality_suite.pytest_args
+    assert "tests/test_execution_doctor_logic.py" in quality_suite.pytest_args
+    assert "tests/test_daily_pipeline_release_contract.py" in quality_suite.pytest_args
+
+
 def test_resolve_gate_profile_supports_pr_and_release() -> None:
     assert resolve_gate_profile("pr").strict_release_ready is False
     assert resolve_gate_profile("release").strict_release_ready is True
