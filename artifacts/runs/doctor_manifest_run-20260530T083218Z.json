@@ -1,0 +1,109 @@
+{
+  "run_id": "run-20260530T083218Z",
+  "generated_at": "2026-05-30T16:32:34",
+  "workspace": "/private/tmp/oae_release_contract_fix_20260530",
+  "status": "pass",
+  "preflight_status": "pass",
+  "quality_status": "pass",
+  "quality_decision": "safe",
+  "release_readiness": "ready",
+  "summary": {
+    "required_artifact_count": 18,
+    "present_artifact_count": 18,
+    "missing_required_artifacts": [],
+    "blocking_reasons": [],
+    "review_reasons": []
+  },
+  "artifacts": [
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/output/fact_attribution.csv",
+      "exists": true,
+      "size_bytes": 6250808
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/output/sql_reports/daily_goal_account_latest_2026-05-28.csv",
+      "exists": true,
+      "size_bytes": 2974
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/output/sql_reports/feishu_table_latest_2026-05-28.tsv",
+      "exists": true,
+      "size_bytes": 3861
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/全量分析/analysis_workbook_unified-fact_latest_2026-05-28.xlsx",
+      "exists": true,
+      "size_bytes": 20718
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/output/sql_reports/daily_goal_anchor_latest_2026-05-28.csv",
+      "exists": true,
+      "size_bytes": 2859
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/output/sql_reports/feishu_report_latest_2026-05-28.md",
+      "exists": true,
+      "size_bytes": 4691
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/snapshots/daily_performance_snapshot_latest_2026-05-28.csv",
+      "exists": true,
+      "size_bytes": 6719
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/snapshots/compensation_ledger_2026-05_2026-05-28.csv",
+      "exists": true,
+      "size_bytes": 10902
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/snapshots/analysis_snapshot_unified-fact_latest_2026-05-28.csv",
+      "exists": true,
+      "size_bytes": 22194
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/exports/feishu_report_latest_2026-05-28.manifest.json",
+      "exists": true,
+      "size_bytes": 546
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/exports/feishu_table_latest_2026-05-28.manifest.json",
+      "exists": true,
+      "size_bytes": 592
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/exports/analysis/analysis_output_naming_status_unified-fact_latest_2026-05-28.json",
+      "exists": true,
+      "size_bytes": 3718
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/exports/analysis/analysis_snapshot_unified-fact_latest_2026-05-28.manifest.json",
+      "exists": true,
+      "size_bytes": 515
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/exports/analysis/analysis_workbook_unified-fact_latest_2026-05-28.manifest.json",
+      "exists": true,
+      "size_bytes": 503
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/runs/input_manifest_run-20260530T083218Z.json",
+      "exists": true,
+      "size_bytes": 11051
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/runs/manual_override_manifest_run-20260530T083218Z.json",
+      "exists": true,
+      "size_bytes": 10391
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/runs/manual_override_issue_manifest_run-20260530T083218Z.json",
+      "exists": true,
+      "size_bytes": 5755
+    },
+    {
+      "path": "/private/tmp/oae_release_contract_fix_20260530/artifacts/runs/manual_override_daily_digest_run-20260530T083218Z.json",
+      "exists": true,
+      "size_bytes": 4233
+    }
+  ]
+}

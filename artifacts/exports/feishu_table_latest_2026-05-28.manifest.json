@@ -1,0 +1,19 @@
+{
+  "export_name": "feishu_table_latest",
+  "snapshot_date": "2026-05-28",
+  "schema_version": "1.0.0",
+  "metric_version": "metric-v1",
+  "run_id": "run-20260530T083218Z",
+  "template_version": "excel-tsv-v1",
+  "freeze_id": "provisional",
+  "source_tables": [
+    "daily_performance_snapshot",
+    "compensation_ledger",
+    "analysis_snapshot",
+    "fact_attribution"
+  ],
+  "row_count": 11,
+  "generated_at": "2026-05-30T16:32:31",
+  "consumer": "excel_template_v1",
+  "output_path": "/private/tmp/oae_release_contract_fix_20260530/output/sql_reports/feishu_table_latest_2026-05-28.tsv"
+}

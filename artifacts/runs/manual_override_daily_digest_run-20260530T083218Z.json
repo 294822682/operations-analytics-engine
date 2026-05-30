@@ -1,0 +1,101 @@
+{
+  "run_id": "run-20260530T083218Z",
+  "summary_status": "info_only",
+  "blocking_count": 0,
+  "warning_count": 0,
+  "info_count": 5,
+  "top_priority_issues": [
+    {
+      "rank": 1,
+      "priority_bucket_cn": "今日可延后关注问题",
+      "issue_type": "unmatched_not_in_current_run",
+      "severity": "info",
+      "override_id": "manual-override-20260315-17835126680",
+      "phone": "17835126680",
+      "lead_id": "ID2033132100202205186",
+      "target_account": "抖音-星途汽车直营中心",
+      "target_host": "丁俐佳",
+      "matched_rows": 0,
+      "impact_scope_cn": "本轮样本本来不存在，可延后处理",
+      "message_cn": "当前未命中，且所有定位字段都像是正常值，本轮大概率本来就没有这条业务样本。",
+      "suggested_action": "如果这是历史专项或未来专项，可先忽略；如果业务确认本轮应该存在，再回头核数据来源。"
+    },
+    {
+      "rank": 2,
+      "priority_bucket_cn": "今日可延后关注问题",
+      "issue_type": "unmatched_not_in_current_run",
+      "severity": "info",
+      "override_id": "manual-override-20260317-18718861565",
+      "phone": "18718861565",
+      "lead_id": "ID2033777602904121346",
+      "target_account": "抖音-星途汽车官方直播间",
+      "target_host": "何雯",
+      "matched_rows": 0,
+      "impact_scope_cn": "本轮样本本来不存在，可延后处理",
+      "message_cn": "当前未命中，且所有定位字段都像是正常值，本轮大概率本来就没有这条业务样本。",
+      "suggested_action": "如果这是历史专项或未来专项，可先忽略；如果业务确认本轮应该存在，再回头核数据来源。"
+    },
+    {
+      "rank": 3,
+      "priority_bucket_cn": "今日可延后关注问题",
+      "issue_type": "unmatched_not_in_current_run",
+      "severity": "info",
+      "override_id": "manual-override-20260317-18196548988",
+      "phone": "18196548988",
+      "lead_id": "ID2033778358008864769",
+      "target_account": "抖音-星途汽车官方直播间",
+      "target_host": "何雯",
+      "matched_rows": 0,
+      "impact_scope_cn": "本轮样本本来不存在，可延后处理",
+      "message_cn": "当前未命中，且所有定位字段都像是正常值，本轮大概率本来就没有这条业务样本。",
+      "suggested_action": "如果这是历史专项或未来专项，可先忽略；如果业务确认本轮应该存在，再回头核数据来源。"
+    }
+  ],
+  "account_impact_summary": [
+    "今天没有命中任何专项归属账号，账号侧无需额外处理。"
+  ],
+  "host_impact_summary": [
+    "今天没有命中任何专项归属主播，主播侧无需额外处理。"
+  ],
+  "latest_panel_risk_summary": [
+    "今天没有明显的主播 latest 标签解释风险。"
+  ],
+  "suggested_actions": [
+    "今天没有阻断项和高优先级错误，专项归属可以继续使用，重点是解释历史样本风险。",
+    "今天存在本轮本来不存在的 unmatched，可先忽略，不必当天打断正式出数。",
+    "如果这是历史专项或未来专项，可先忽略；如果业务确认本轮应该存在，再回头核数据来源。"
+  ],
+  "generated_at": "2026-05-30T16:32:34",
+  "applied_override_count": 0,
+  "applied_row_count": 0,
+  "changed_final_consumer_scope": false,
+  "configured_override_count": 5,
+  "active_override_count": 5,
+  "affected_accounts": [],
+  "affected_hosts": [],
+  "final_consumer_scope": [
+    "daily_snapshot",
+    "analysis_snapshot",
+    "feishu_report",
+    "tsv_verify"
+  ],
+  "issue_counts": {
+    "issue_count": 5,
+    "conflict_count": 0,
+    "unmatched_total": 5,
+    "unmatched_not_in_current_run_count": 5,
+    "unmatched_probable_misconfig_count": 0,
+    "unmatched_outside_effective_window_count": 0,
+    "unmatched_insufficient_locator_count": 0,
+    "unmatched_needs_manual_review_count": 0,
+    "partial_apply_count": 0,
+    "invalid_override_count": 0,
+    "risk_count": 0
+  },
+  "application_summary": {
+    "description_cn": "今天没有专项人工确认归属实际改变最终消费口径。",
+    "changes_final_consumer_scope": false,
+    "affected_accounts": [],
+    "affected_hosts": []
+  }
+}
