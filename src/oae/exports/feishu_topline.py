@@ -265,7 +265,7 @@ def _load_live_metrics(live_df: pd.DataFrame, config: dict) -> pd.DataFrame:
     raw.columns = [str(col).strip() for col in raw.columns]
     date_col = pick_live_column(raw, ["日期", "直播日期", "创建时间"])
     spend_col = pick_live_column(raw, ["消耗", "实际消耗", "当日消耗", "花费", "费用", "投放消耗", "总消耗"])
-    exposure_col = pick_live_column(raw, ["曝光", "展现", "曝光量"])
+    exposure_col = pick_live_column(raw, ["曝光人数", "曝光次数", "曝光", "展现", "曝光量"])
     model_col = pick_live_column(raw, config["ex7_rules"]["live_model_field_candidates"])
 
     metrics = raw[[date_col, spend_col, exposure_col, model_col]].copy()
