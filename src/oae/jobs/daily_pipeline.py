@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
 import re
@@ -24,6 +25,8 @@ from oae.overrides import (
     inspect_manual_attribution_overrides,
 )
 from oae.quality import build_quality_report, compare_files_against_manifest, run_business_quality_checks
+from oae.services.execution_doctor_logic import build_doctor_manifest, dump_doctor_manifest
+from oae.services.report_date_semantics import build_report_date_contract
 from oae.version import METRIC_VERSION, SCHEMA_VERSION, TEMPLATE_VERSION, build_run_id
 
 
@@ -69,6 +72,11 @@ def main() -> None:
         config_path=(workspace / args.input_config).resolve(),
         dynamic_dir_override=args.data_dir,
         path_overrides={"live_schedule": args.live_file} if args.live_file else {},
+    )
+    target_report_month = _resolve_target_report_month(
+        input_manifest,
+        resolved_inputs["monthly_targets"],
+        explicit_report_date=args.report_date,
     )
     manual_override_source_summary = inspect_manual_attribution_overrides(
         resolved_inputs["manual_attribution_overrides"],
@@ -177,6 +185,8 @@ def main() -> None:
             str(resolved_inputs["live_schedule"]),
             "--spend-source",
             "auto",
+            "--month",
+            target_report_month,
             "--output-dir",
             str(reports_dir),
             "--snapshot-dir",
@@ -324,10 +334,11 @@ def main() -> None:
     subprocess.run(verify_step, cwd=workspace, check=True, env=env)
     completed_steps.append(verify_step)
 
+    report_date_tag = args.report_date or snapshot_date
     output_files = [
         output_dir / "fact_attribution.csv",
         _pick_latest(reports_dir, "daily_goal_account_latest_*.csv"),
-        reports_dir / f"feishu_table_latest_{args.report_date or snapshot_date}.tsv",
+        reports_dir / f"feishu_table_latest_{report_date_tag}.tsv",
         _pick_latest_any(
             workspace / "全量分析",
             ["analysis_workbook_unified-fact_latest_*.xlsx", "analysis_tables.xlsx"],
@@ -354,8 +365,8 @@ def main() -> None:
         "issue_summary": manual_override_issue_manifest.get("issue_summary", {}),
     }
     manifest_paths = [
-        exports_dir / f"feishu_report_latest_{args.report_date or snapshot_date}.manifest.json",
-        exports_dir / f"feishu_table_latest_{args.report_date or snapshot_date}.manifest.json",
+        exports_dir / f"feishu_report_latest_{report_date_tag}.manifest.json",
+        exports_dir / f"feishu_table_latest_{report_date_tag}.manifest.json",
     ]
     analysis_manifest_dir = workspace / "artifacts" / "exports" / "analysis"
     analysis_naming_status_path = _pick_latest_any(
@@ -429,6 +440,12 @@ def main() -> None:
         "template_version": TEMPLATE_VERSION,
         "freeze_id": freeze_id,
         "quality_threshold_profile": quality_threshold_profile,
+        "target_report_month": target_report_month,
+        **build_report_date_contract(
+            manifest_report_date=report_date_tag,
+            canonical_report_date=report_date_tag,
+            resolved_report_date=snapshot_date,
+        ),
         "analysis_output_default_paths": {
             "snapshot": str(analysis_snapshot_csv),
             "workbook": str(analysis_workbook_path),
@@ -455,13 +472,40 @@ def main() -> None:
         "manual_override_daily_digest": manual_override_daily_digest,
         "steps": completed_steps,
     }
+    doctor_manifest_path = runs_dir / f"doctor_manifest_{run_id}.json"
+    doctor_manifest = build_doctor_manifest(
+        run_manifest=run_manifest,
+        quality_report=quality_report,
+        required_artifacts=[
+            *output_files,
+            _pick_latest(reports_dir, "daily_goal_anchor_latest_*.csv"),
+            reports_dir / f"feishu_report_latest_{report_date_tag}.md",
+            snapshot_csv,
+            ledger_csv,
+            analysis_snapshot_csv,
+            *manifest_paths,
+            analysis_naming_status_path,
+            analysis_snapshot_manifest_path,
+            analysis_workbook_manifest_path,
+            input_manifest_path,
+            manual_override_manifest_path,
+            manual_override_issue_manifest_path,
+            manual_override_daily_digest_path,
+        ],
+    )
+    run_manifest["preflight_status"] = doctor_manifest["preflight_status"]
+    run_manifest["quality_status"] = doctor_manifest["quality_status"]
+    run_manifest["quality_decision"] = doctor_manifest["quality_decision"]
+    run_manifest["release_readiness"] = doctor_manifest["release_readiness"]
     (runs_dir / f"run_manifest_{run_id}.json").write_text(json.dumps(run_manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     (runs_dir / f"quality_report_{run_id}.json").write_text(json.dumps(quality_report, ensure_ascii=False, indent=2), encoding="utf-8")
+    dump_doctor_manifest(doctor_manifest_path, doctor_manifest)
     print(
         json.dumps(
             {
                 "run_manifest": str(runs_dir / f"run_manifest_{run_id}.json"),
                 "quality_report": str(runs_dir / f"quality_report_{run_id}.json"),
+                "doctor_manifest": str(doctor_manifest_path),
                 "input_manifest": str(input_manifest_path),
                 "manual_override_issue_manifest": str(manual_override_issue_manifest_path),
                 "manual_override_daily_digest": str(manual_override_daily_digest_path),
@@ -492,6 +536,65 @@ def _extract_date(path: Path) -> str:
     if not matched:
         raise ValueError(f"无法从文件名提取日期: {path}")
     return matched.group(1)
+
+
+def _resolve_target_report_month(
+    input_manifest: dict[str, object],
+    targets_path: Path,
+    *,
+    explicit_report_date: str,
+) -> str:
+    input_months = _dynamic_input_business_months(input_manifest)
+    unique_input_months = sorted(set(input_months.values()))
+    if len(unique_input_months) > 1:
+        details = "，".join(f"{key}={value}" for key, value in input_months.items())
+        raise SystemExit(f"[ERROR] 动态输入业务月份不一致：{details}")
+
+    requested_month = str(explicit_report_date or "").strip()[:7] if explicit_report_date else ""
+    if requested_month and unique_input_months and requested_month != unique_input_months[0]:
+        details = "，".join(f"{key}={value}" for key, value in input_months.items())
+        raise SystemExit(
+            f"[ERROR] report-date 与动态输入业务月份不一致：report-date={requested_month}；输入={details}"
+        )
+
+    target_months = _available_target_months(targets_path)
+    if not target_months:
+        raise SystemExit(f"[ERROR] targets 里没有可用 month：{targets_path}")
+
+    report_month = requested_month or (unique_input_months[0] if unique_input_months else target_months[-1])
+    if report_month not in target_months:
+        available = "，".join(target_months)
+        input_month = unique_input_months[0] if unique_input_months else report_month
+        raise SystemExit(
+            f"[ERROR] 目标月份配置缺失：输入业务月份={input_month}；targets可用月份={available}；"
+            "请补齐 config/monthly_targets.csv，或改用匹配已配置月份的输入文件"
+        )
+    return report_month
+
+
+def _dynamic_input_business_months(input_manifest: dict[str, object]) -> dict[str, str]:
+    months: dict[str, str] = {}
+    sources = input_manifest.get("sources", [])
+    if not isinstance(sources, list):
+        return months
+    for source in sources:
+        if not isinstance(source, dict):
+            continue
+        if str(source.get("kind", "")).strip() != "dynamic":
+            continue
+        business_date = str(source.get("business_date", "")).strip()
+        if not business_date:
+            continue
+        source_key = str(source.get("source_key", "")).strip() or str(source.get("label", "")).strip()
+        months[source_key] = business_date[:7]
+    return months
+
+
+def _available_target_months(targets_path: Path) -> list[str]:
+    with Path(targets_path).expanduser().open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        months = {str(row.get("month", "")).strip() for row in reader}
+    return sorted(month for month in months if month)
 
 
 def _build_input_checks(input_manifest: dict[str, object]) -> list[dict[str, object]]:
