@@ -30,7 +30,7 @@ api:
 	PYTHONPATH=$(PYTHONPATH_VALUE) $(PYTEST) tests/api -q
 
 smoke:
-	PYTHONPATH=$(PYTHONPATH_VALUE) $(PYTEST) tests/test_smoke_bundle_contract.py tests/api/test_execution_smoke.py -q
+	PYTHONPATH=$(PYTHONPATH_VALUE) $(PYTEST) tests/test_smoke_bundle_contract.py tests/test_feishu_dashboard_interactive_html.py tests/api/test_dashboard_daily_api.py -q
 
 full-pytest:
 	PYTHONPATH=$(PYTHONPATH_VALUE) $(PYTEST) -q
