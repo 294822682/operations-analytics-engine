@@ -384,6 +384,96 @@ def test_get_daily_dashboard_trends_monthly_comparison_uses_source_months_only(t
     assert may["cpl"]["value"] == 10.0
 
 
+def test_get_daily_dashboard_trends_supplements_visit_and_ex7_entity_metrics_from_history(tmp_path: Path) -> None:
+    repo_root, runs_root = build_temp_repo(tmp_path)
+    reports_dir = repo_root / "output" / "sql_reports"
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-29.tsv",
+        _minimal_dashboard_source_rows(
+            "2026-05-29",
+            accounts=[
+                {"name": "线索组汇总", "leads": 2, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
+                {"name": "星途汽车官方直播间", "leads": 2, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
+            ],
+            anchors=[
+                {"name": "丁俐佳", "parent_scope": "星途汽车官方直播间", "leads": 2, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
+            ],
+        ),
+    )
+    _write_fact_csv(
+        repo_root / "output" / "fact_attribution.csv",
+        [
+            _fact_row("L1", date="2026-05-29", account="抖音-星途汽车官方直播间", model="EX7", host="丁俐佳", deal_time="2026-05-29 12:00:00"),
+            _fact_row("L2", date="2026-05-29", account="抖音-星途汽车官方直播间", model="TXL", host="丁俐佳"),
+        ],
+    )
+    _write_raw_leads_csv(
+        repo_root / "源文件" / "总部新媒体线索2026-05-29.csv",
+        [
+            {"线索ID": "L1", "创建日期": "2026-05-29", "到店日期": "2026-05-29", "成交车型": "EX7"},
+            {"线索ID": "L2", "创建日期": "2026-05-29", "到店日期": "", "成交车型": "TXL"},
+        ],
+    )
+    app = create_test_app(repo_root, runs_root)
+
+    with TestClient(app) as client:
+        response = client.get("/dashboard/daily/trends?start_date=2026-05-29&end_date=2026-05-29")
+
+    assert response.status_code == 200
+    payload = response.json()
+    account = next(item for item in payload["account_summary"] if item["name"] == "星途汽车官方直播间")
+    assert account["metrics"]["visits"]["actual"] == 1.0
+    assert account["metrics"]["visit_rate"]["actual"] == pytest.approx(0.5)
+    assert account["metrics"]["ex7_leads"]["actual"] == 1.0
+    assert account["metrics"]["ex7_deals"]["actual"] == 1.0
+    assert account["metrics"]["ex7_deal_rate"]["actual"] == 1.0
+    assert account["metric_groups"]["到店"]["visits"]["source_status"] == "available"
+    assert account["metric_groups"]["EX7"]["ex7_leads"]["source_status"] == "available"
+
+    line_summary = next(item for item in payload["account_summary"] if item["name"] == "线索组汇总")
+    assert line_summary["metrics"]["visits"]["actual"] == 1.0
+    assert line_summary["metrics"]["visit_rate"]["actual"] == pytest.approx(0.5)
+    assert line_summary["metrics"]["ex7_leads"]["actual"] == 1.0
+    assert line_summary["metrics"]["ex7_deals"]["actual"] == 1.0
+
+    anchor = next(item for item in payload["anchor_summary"] if item["name"] == "丁俐佳")
+    assert anchor["metrics"]["visits"]["actual"] == 1.0
+    assert anchor["metrics"]["ex7_leads"]["actual"] == 1.0
+    assert anchor["metrics"]["ex7_deals"]["actual"] == 1.0
+
+
+def test_get_daily_dashboard_trends_supplements_monthly_comparison_from_history_when_source_months_are_missing(tmp_path: Path) -> None:
+    repo_root, runs_root = build_temp_repo(tmp_path)
+    reports_dir = repo_root / "output" / "sql_reports"
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-29.tsv",
+        _minimal_dashboard_source_rows("2026-05-29", impressions=500, leads=5, deals=1, spend=50),
+    )
+    _write_fact_csv(
+        repo_root / "output" / "fact_attribution.csv",
+        [
+            _fact_row("M1", date="2026-03-05", account="抖音-星途汽车官方直播间", model="TXL", deal_time="2026-03-06 12:00:00"),
+            _fact_row("A1", date="2026-04-05", account="抖音-星途汽车官方直播间", model="TXL"),
+            _fact_row("Y1", date="2026-05-29", account="抖音-星途汽车官方直播间", model="TXL"),
+        ],
+    )
+    app = create_test_app(repo_root, runs_root)
+
+    with TestClient(app) as client:
+        response = client.get("/dashboard/daily/trends?start_date=2026-03-01&end_date=2026-05-29")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert [month["label"] for month in payload["monthly_comparison"]] == ["2026年3月", "2026年4月", "2026年5月"]
+    march = payload["monthly_comparison"][0]["metrics"]
+    april = payload["monthly_comparison"][1]["metrics"]
+    may = payload["monthly_comparison"][2]["metrics"]
+    assert march["leads"]["value"] == 1.0
+    assert march["deals"]["value"] == 1.0
+    assert april["leads"]["value"] == 1.0
+    assert may["leads"]["value"] == 5.0
+
+
 def test_get_daily_dashboard_trends_filters_cancelled_accounts_from_account_summary(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
     reports_dir = repo_root / "output" / "sql_reports"
