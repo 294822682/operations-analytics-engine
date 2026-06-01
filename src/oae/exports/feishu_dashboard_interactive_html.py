@@ -1191,8 +1191,9 @@ function targetValueText(metric) {{
 }}
 
 function rateText(metric) {{
-  if (!hasValue(metric?.attain_rate)) return "未提供";
-  return fmtPct(metric.attain_rate);
+  const progressRate = metricProgressRate(metric);
+  if (!hasValue(progressRate)) return "未提供";
+  return fmtPct(progressRate);
 }}
 
 function sourceText(metric) {{
@@ -1830,24 +1831,33 @@ function isSpendMetric(metric) {{
   return key === "spend" || key === "mtd_spend" || label === "费用";
 }}
 
+function metricProgressRate(metric) {{
+  if (hasValue(metric?.attain_rate)) return Number(metric.attain_rate);
+  if (!hasValue(metric?.actual) || !hasValue(metric?.target)) return null;
+  if (Number(metric.actual) <= 0 || Number(metric.target) <= 0) return null;
+  if (isCostMetric(metric)) return Number(metric.target) / Number(metric.actual);
+  return null;
+}}
+
 function metricLine(metric) {{
   const lines = [`<span>目标参考：${{escapeHtml(targetText(metric))}}</span>`];
   if (isSpendMetric(metric)) {{
     return lines.join("");
   }}
   if (isCostMetric(metric)) {{
-    if (hasValue(metric?.attain_rate)) lines.push(`<span>成本比值：${{escapeHtml(rateText(metric))}}</span>`);
+    if (hasValue(metricProgressRate(metric))) lines.push(`<span>成本比值：${{escapeHtml(rateText(metric))}}</span>`);
     return lines.join("");
   }}
-  if (hasValue(metric?.attain_rate)) lines.push(`<span>当前 / 目标：${{escapeHtml(rateText(metric))}}</span>`);
+  if (hasValue(metricProgressRate(metric))) lines.push(`<span>当前 / 目标：${{escapeHtml(rateText(metric))}}</span>`);
   return lines.join("");
 }}
 
 function progressBar(metric) {{
-  if (!hasValue(metric?.attain_rate)) {{
+  const progressRate = metricProgressRate(metric);
+  if (!hasValue(progressRate)) {{
     return `<div class="progress-bar progress-muted" aria-label="目标参考未提供"><span class="progress-fill" style="width:0%"></span></div>`;
   }}
-  const width = Math.max(0, Math.min(Number(metric.attain_rate) * 100, 100));
+  const width = Math.max(0, Math.min(progressRate * 100, 100));
   const label = isCostMetric(metric) ? "成本比值" : "当前 / 目标";
   return `<div class="progress-bar" aria-label="${{escapeHtml(label)}} ${{escapeHtml(rateText(metric))}}"><span class="progress-fill" style="width:${{width.toFixed(2)}}%"></span></div>`;
 }}
@@ -2057,10 +2067,10 @@ function kpiTooltip(metric) {{
     parts.push("计算关系：当前范围内费用汇总");
   }} else if (isCostMetric(metric)) {{
     parts.push("计算关系：实际成本 / 目标参考");
-    if (hasValue(metric?.attain_rate)) parts.push(`成本比值：${{rateText(metric)}}`);
+    if (hasValue(metricProgressRate(metric))) parts.push(`成本比值：${{rateText(metric)}}`);
   }} else {{
     parts.push("计算关系：实际值 / 目标参考");
-    if (hasValue(metric?.attain_rate)) parts.push(`当前 / 目标：${{rateText(metric)}}`);
+    if (hasValue(metricProgressRate(metric))) parts.push(`当前 / 目标：${{rateText(metric)}}`);
   }}
   return parts.join("；");
 }}
