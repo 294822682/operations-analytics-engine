@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 
 from oae.exports.feishu_dashboard_interactive_html import DashboardSource, Metric
+from oae.exports.feishu_panel_utils import ACCOUNT_LABEL_MAP
 from oae.exports.feishu_topline import annotate_fact_with_ex7_partition, load_topline_config
 from oae.performance.fact_loader import load_fact
 from oae.performance.loader_utils import normalize_account, normalize_text, pick_live_column, split_hosts
@@ -33,6 +34,14 @@ HIDDEN_ACCOUNT_SUMMARY_NAMES = {
 HIDDEN_ANCHOR_SUMMARY_NAMES = {normalize_text(name) for name in ["王君如"]}
 HIDDEN_ANCHOR_PERFORMANCE_NAMES = HIDDEN_ANCHOR_SUMMARY_NAMES | {normalize_text(name) for name in ["桂婕"]}
 FIXED_SEED_ANCHOR_NAMES = {normalize_text(name) for name in ["桂婕"]}
+SOURCE_ENTITY_SUPPLEMENT_METRICS = {
+    "visits",
+    "visit_rate",
+    "visit_deal_rate",
+    "ex7_leads",
+    "ex7_deals",
+    "ex7_deal_rate",
+}
 
 
 class DashboardDailyService:
@@ -470,15 +479,30 @@ class DashboardDailyService:
             "has_data": previous_has_data,
             "message": "" if previous_has_data else "上一周期数据不足",
         }
+        supplemental_payload = self._build_business_trend_payload(window)
         seed_exposure = self._seed_exposure_from_dashboard_sources(seed_account, seed_anchors)
         account_summary = [self._source_entity_summary(item, scope_type="account") for item in accounts]
         anchor_summary = [self._source_entity_summary(item, scope_type="anchor") for item in lead_anchors]
+        if supplemental_payload:
+            account_summary = self._merge_source_entity_supplements(
+                account_summary,
+                supplemental_payload.get("account_summary", []),
+                scope_type="account",
+            )
+            anchor_summary = self._merge_source_entity_supplements(
+                anchor_summary,
+                supplemental_payload.get("anchor_summary", []),
+                scope_type="anchor",
+            )
         return {
             "daily_trends": daily_trends,
             "core_kpi_summary": self._core_summary_from_dashboard_sources(core_kpis),
             "previous_period": previous_period,
             "previous_period_trends": previous_daily_trends if previous_has_data else [],
-            "monthly_comparison": self._monthly_comparison(daily_trends, window),
+            "monthly_comparison": self._merge_monthly_comparison(
+                self._monthly_comparison(daily_trends, window),
+                supplemental_payload.get("monthly_comparison", []) if supplemental_payload else [],
+            ),
             "model_segment_summary": self._segment_summary_from_dashboard_sources(segments),
             "account_summary": account_summary,
             "account_daily_trends": [
@@ -540,7 +564,19 @@ class DashboardDailyService:
     @classmethod
     def _source_entity_summary(cls, entity: dict[str, Any], *, scope_type: str) -> dict[str, Any]:
         metrics = cls._source_entity_metrics(entity.get("metrics", {}))
-        metric_groups = {
+        metric_groups = cls._entity_metric_groups(metrics)
+        return {
+            "name": entity.get("name", ""),
+            "display_type": "账号表现" if scope_type == "account" else "主播表现",
+            "parent_scope": entity.get("parent_scope", ""),
+            "metrics": metrics,
+            "metric_groups": metric_groups,
+            "daily_trends": cls._source_entity_daily_trends(entity.get("metrics", {})),
+        }
+
+    @staticmethod
+    def _entity_metric_groups(metrics: dict[str, dict[str, Any]]) -> dict[str, dict[str, dict[str, Any]]]:
+        return {
             "线索": {
                 "leads": metrics["leads"],
                 "unique_leads": metrics["unique_leads"],
@@ -565,14 +601,113 @@ class DashboardDailyService:
                 "ex7_deal_rate": metrics["ex7_deal_rate"],
             },
         }
-        return {
-            "name": entity.get("name", ""),
-            "display_type": "账号表现" if scope_type == "account" else "主播表现",
-            "parent_scope": entity.get("parent_scope", ""),
-            "metrics": metrics,
-            "metric_groups": metric_groups,
-            "daily_trends": cls._source_entity_daily_trends(entity.get("metrics", {})),
+
+    @classmethod
+    def _merge_source_entity_supplements(
+        cls,
+        source_entities: list[dict[str, Any]],
+        supplemental_entities: list[dict[str, Any]],
+        *,
+        scope_type: str,
+    ) -> list[dict[str, Any]]:
+        supplemental_by_key = {
+            cls._source_entity_supplement_key(item, scope_type=scope_type): item
+            for item in supplemental_entities
+            if cls._source_entity_supplement_key(item, scope_type=scope_type)
         }
+        merged: list[dict[str, Any]] = []
+        for entity in source_entities:
+            key = cls._source_entity_supplement_key(entity, scope_type=scope_type)
+            supplement = supplemental_by_key.get(key)
+            if not supplement and scope_type == "account":
+                supplement = cls._line_summary_supplement(entity, supplemental_entities)
+            if not supplement:
+                merged.append(entity)
+                continue
+            metrics = dict(entity.get("metrics", {}))
+            supplement_metrics = supplement.get("metrics", {})
+            for metric_key in SOURCE_ENTITY_SUPPLEMENT_METRICS:
+                supplement_metric = supplement_metrics.get(metric_key)
+                if cls._metric_has_actual(supplement_metric):
+                    metrics[metric_key] = supplement_metric
+            daily_trends = dict(entity.get("daily_trends", {}))
+            for metric_key in SOURCE_ENTITY_SUPPLEMENT_METRICS:
+                if metric_key in supplement.get("daily_trends", {}):
+                    daily_trends[metric_key] = supplement["daily_trends"][metric_key]
+            merged.append(
+                {
+                    **entity,
+                    "metrics": metrics,
+                    "metric_groups": cls._entity_metric_groups(metrics),
+                    "daily_trends": daily_trends,
+                }
+            )
+        return merged
+
+    @staticmethod
+    def _source_entity_supplement_key(entity: dict[str, Any], *, scope_type: str) -> str:
+        name = str(entity.get("name") or "").strip()
+        if not name:
+            return ""
+        if scope_type == "account":
+            return normalize_account(ACCOUNT_LABEL_MAP.get(name, name))
+        return normalize_text(name)
+
+    @classmethod
+    def _line_summary_supplement(
+        cls,
+        source_entity: dict[str, Any],
+        supplemental_entities: list[dict[str, Any]],
+    ) -> dict[str, Any] | None:
+        if cls._source_entity_supplement_key(source_entity, scope_type="account") != normalize_account("线索组汇总"):
+            return None
+        visits = cls._sum_metric_actuals(supplemental_entities, "visits")
+        ex7_leads = cls._sum_metric_actuals(supplemental_entities, "ex7_leads")
+        ex7_deals = cls._sum_metric_actuals(supplemental_entities, "ex7_deals")
+        if visits is None and ex7_leads is None and ex7_deals is None:
+            return None
+        metrics = source_entity.get("metrics", {})
+        leads = cls._json_number(metrics.get("leads", {}).get("actual"))
+        deals = cls._json_number(metrics.get("deals", {}).get("actual"))
+        return {
+            "metrics": {
+                "visits": cls._metric_summary("visits", "到店数", visits, None, "条"),
+                "visit_rate": cls._metric_summary("visit_rate", "到店率", cls._safe_div_value(visits, leads), None, "比例"),
+                "visit_deal_rate": cls._metric_summary("visit_deal_rate", "到店成交率", cls._safe_div_value(deals, visits), None, "比例"),
+                "ex7_leads": cls._metric_summary("ex7_leads", "EX7 线索数", ex7_leads, None, "条"),
+                "ex7_deals": cls._metric_summary("ex7_deals", "EX7 成交数", ex7_deals, None, "台"),
+                "ex7_deal_rate": cls._metric_summary("ex7_deal_rate", "EX7 成交率", cls._safe_div_value(ex7_deals, ex7_leads), None, "比例"),
+            }
+        }
+
+    @classmethod
+    def _sum_metric_actuals(cls, entities: list[dict[str, Any]], metric_key: str) -> float | None:
+        values = [
+            cls._json_number(item.get("metrics", {}).get(metric_key, {}).get("actual"))
+            for item in entities
+        ]
+        present = [value for value in values if value is not None]
+        return float(sum(present)) if present else None
+
+    @staticmethod
+    def _metric_has_actual(metric: Any) -> bool:
+        return isinstance(metric, dict) and DashboardDailyService._json_number(metric.get("actual")) is not None
+
+    @staticmethod
+    def _merge_monthly_comparison(
+        source_monthly: list[dict[str, Any]],
+        supplemental_monthly: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        by_month: dict[str, dict[str, Any]] = {}
+        for item in supplemental_monthly:
+            month = str(item.get("month") or "")
+            if month:
+                by_month[month] = item
+        for item in source_monthly:
+            month = str(item.get("month") or "")
+            if month:
+                by_month[month] = item
+        return [by_month[month] for month in sorted(by_month)]
 
     @classmethod
     def _source_entity_metrics(cls, series_by_key: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
