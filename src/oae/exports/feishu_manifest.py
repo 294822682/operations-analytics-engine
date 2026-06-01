@@ -20,6 +20,8 @@ def write_feishu_manifests(
     fact_path: Path,
     md_path: Path,
     tsv_path: Path,
+    dashboard_source_path: Path | None = None,
+    dashboard_source_row_count: int | None = None,
 ) -> None:
     export_dir.mkdir(parents=True, exist_ok=True)
     export_sources = [
@@ -53,3 +55,14 @@ def write_feishu_manifests(
         consumer="feishu_markdown_reader",
         output_path=md_path,
     )
+    if dashboard_source_path is not None:
+        write_export_manifest(
+            manifest_path=export_dir / f"feishu_dashboard_source_latest_{report_date}.manifest.json",
+            export_name="feishu_dashboard_source_latest",
+            snapshot_date=report_date,
+            metadata=metadata,
+            source_tables=export_sources,
+            row_count=dashboard_source_row_count if dashboard_source_row_count is not None else row_count,
+            consumer="dashboard_daily_trends_api",
+            output_path=dashboard_source_path,
+        )

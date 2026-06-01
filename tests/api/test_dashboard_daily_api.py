@@ -271,7 +271,7 @@ def test_get_daily_dashboard_trends_allows_92_days_and_rejects_longer_ranges(tmp
     assert payload["error"]["message"] == "单次查看范围建议不超过一个季度，请缩小日期范围。"
 
 
-def test_get_daily_dashboard_trends_returns_fact_based_detail_metrics(tmp_path: Path) -> None:
+def test_get_daily_dashboard_trends_requires_dashboard_source_even_when_fact_exists(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
     _write_fact_csv(
         repo_root / "output" / "fact_attribution.csv",
@@ -293,92 +293,71 @@ def test_get_daily_dashboard_trends_returns_fact_based_detail_metrics(tmp_path: 
                 "线索ID_norm": "L1",
                 "is_perf_lead_scope": "1",
             },
-            {
-                "线索ID": "L2",
-                "手机号": "13900000002",
-                "线索创建时间": "2026-05-02 10:00:00",
-                "date": "2026-05-02",
-                "标准账号": "抖音-星途汽车官方直播间",
-                "本场主播": "丁俐佳",
-                "订单状态": "",
-                "成交时间": "",
-                "is_order": "0",
-                "is_deal": "0",
-                "成交车型": "",
-                "orders_contrib": "0",
-                "deals_contrib": "0",
-                "线索ID_norm": "L2",
-                "is_perf_lead_scope": "1",
-            },
-        ],
-    )
-    _write_raw_leads_csv(
-        repo_root / "源文件" / "总部新媒体线索2026-05-26.csv",
-        [
-            {"线索ID": "L1", "创建日期": "2026-05-01", "到店日期": "2026-05-02", "首次意向车型": "EX7", "渠道2": "抖音-星途汽车官方直播间", "渠道3": "直播"},
-            {"线索ID": "L2", "创建日期": "2026-05-02", "到店日期": "", "首次意向车型": "LX", "渠道2": "抖音-星途汽车官方直播间", "渠道3": "直播"},
-        ],
-    )
-    _write_raw_deals_csv(
-        repo_root / "源文件" / "总部新媒体成交2026-05-26.csv",
-        [{"线索ID": "L1", "订单状态": "已交车", "成交日期": "2026-05-02", "成交车型": "EX7", "渠道2": "抖音-星途汽车官方直播间", "渠道3": "直播"}],
-    )
-    _write_live_workbook(
-        repo_root / "源文件" / "2026年5月直播进度表.xlsx",
-        [
-            {
-                "日期": "2026-05-01",
-                "开播账号": "抖音-星途汽车官方直播间",
-                "本场主播": "丁俐佳",
-                "车型": "EX7",
-                "消耗": 100,
-                "曝光人数": 1000,
-            },
-            {
-                "日期": "2026-05-02",
-                "开播账号": "抖音-星途汽车官方直播间",
-                "本场主播": "丁俐佳",
-                "车型": "LX",
-                "消耗": 0,
-                "曝光人数": 0,
-            },
         ],
     )
     app = create_test_app(repo_root, runs_root)
 
     with TestClient(app) as client:
-        response = client.get("/dashboard/daily/trends?start_date=2026-05-01&end_date=2026-05-02")
+        response = client.get("/dashboard/daily/trends?start_date=2026-05-01&end_date=2026-05-01")
+
+    assert response.status_code == 404
+    payload = response.json()
+    assert payload["error"]["code"] == "DASHBOARD_SOURCE_NOT_FOUND"
+    assert payload["error"]["details"]["report_date"] == "trend"
+
+
+def test_get_daily_dashboard_trends_reads_release_metrics_from_dashboard_source(tmp_path: Path) -> None:
+    repo_root, runs_root = build_temp_repo(tmp_path)
+    reports_dir = repo_root / "output" / "sql_reports"
+    _write_tsv(reports_dir / "feishu_dashboard_source_latest_2026-05-28.tsv", _release_dashboard_source_rows("2026-05-28"))
+    _write_run_evidence(
+        repo_root,
+        run_id="run-20260530T083218Z",
+        report_date="2026-05-28",
+        quality_status="pass",
+        quality_decision="safe",
+        release_readiness="ready",
+    )
+    app = create_test_app(repo_root, runs_root)
+
+    with TestClient(app) as client:
+        response = client.get("/dashboard/daily/trends?start_date=2026-05-28&end_date=2026-05-28")
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["daily_trends"][1]["key"] == "leads"
-    assert payload["daily_trends"][1]["points"] == [
-        {"date": "2026-05-01", "value": 1.0},
-        {"date": "2026-05-02", "value": 1.0},
-    ]
-    account = payload["account_summary"][0]
-    assert account["name"] == "抖音-星途汽车官方直播间"
-    assert account["metrics"]["leads"]["actual"] == 2.0
-    assert account["metrics"]["visits"]["actual"] == 1.0
-    assert account["metrics"]["deals"]["actual"] == 1.0
-    assert account["metrics"]["visit_rate"]["actual"] == 0.5
-    assert account["metrics"]["lead_deal_rate"]["actual"] == 0.5
-    assert account["metrics"]["cpl"]["actual"] == 50.0
-    assert account["metrics"]["cps"]["actual"] == 100.0
-    assert account["metrics"]["ex7_leads"]["actual"] == 1.0
-    assert account["metrics"]["ex7_deals"]["actual"] == 1.0
-    assert account["metrics"]["ex7_deal_rate"]["actual"] == 1.0
-    anchor = payload["anchor_summary"][0]
-    assert anchor["name"] == "丁俐佳"
-    assert anchor["parent_scope"] == "抖音-星途汽车官方直播间"
-    assert anchor["metric_groups"]["到店"]["visit_rate"]["actual"] == 0.5
-    assert anchor["metric_groups"]["成交"]["lead_deal_rate"]["actual"] == 0.5
-    assert anchor["metric_groups"]["成本"]["cpl"]["actual"] == 50.0
-    assert anchor["metric_groups"]["EX7"]["ex7_deal_rate"]["actual"] == 1.0
+    summary = {item["key"]: item for item in payload["core_kpi_summary"]}
+    assert summary["impressions"]["actual"] == 24286300
+    assert summary["spend"]["actual"] == 784252.48
+    assert summary["cpl"]["actual"] == 34.58
+    assert summary["cps"]["actual"] == 8618.16
+
+    trends = {item["key"]: item for item in payload["daily_trends"]}
+    assert trends["impressions"]["points"] == [{"date": "2026-05-28", "value": 24286300}]
+    assert trends["spend"]["points"] == [{"date": "2026-05-28", "value": 784252.48}]
+    assert trends["cpl"]["points"] == [{"date": "2026-05-28", "value": 34.58}]
+    assert trends["cps"]["points"] == [{"date": "2026-05-28", "value": 8618.16}]
+
+    account = next(item for item in payload["account_summary"] if item["name"] == "星途汽车直播营销中心")
+    assert account["metrics"]["spend"]["actual"] == 338841.04
+    assert account["metrics"]["cpl"]["actual"] == 41.22
+    assert account["metrics"]["cps"]["actual"] == 14118.38
+
+    anchor = next(item for item in payload["anchor_summary"] if item["name"] == "徐欣悦")
+    assert anchor["parent_scope"] == "星途汽车直播营销中心"
+    assert anchor["metrics"]["spend"]["actual"] == 120921.25
+    assert anchor["metrics"]["cpl"]["actual"] == 41.12
+    assert anchor["metrics"]["cps"]["actual"] == 10076.77
+
+    annotation = payload["quality_annotations"]["2026-05-28"]
+    assert annotation["run_id"] == "run-20260530T083218Z"
+    assert annotation["quality_status"] == "pass"
+    assert annotation["quality_decision"] == "safe"
+    assert annotation["release_readiness"] == "ready"
 
 
 def test_get_daily_dashboard_trends_filters_cancelled_accounts_from_account_summary(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
+    reports_dir = repo_root / "output" / "sql_reports"
     cancelled_accounts = [
         "视频号-星途星纪元",
         "星途星纪元",
@@ -387,46 +366,16 @@ def test_get_daily_dashboard_trends_filters_cancelled_accounts_from_account_summ
         "快手-星途星纪元",
         "抖店",
     ]
-    rows = [
-        {
-            "线索ID": "KEEP-1",
-            "手机号": "13700001000",
-            "线索创建时间": "2026-05-01 10:00:00",
-            "date": "2026-05-01",
-            "标准账号": "快手-EXEED星途",
-            "本场主播": "丁俐佳",
-            "订单状态": "",
-            "成交时间": "",
-            "is_order": "0",
-            "is_deal": "0",
-            "成交车型": "EX7",
-            "orders_contrib": "0",
-            "deals_contrib": "0",
-            "线索ID_norm": "KEEP-1",
-            "is_perf_lead_scope": "1",
-        }
-    ]
-    for index, account_name in enumerate(cancelled_accounts, start=1):
-        rows.append(
-            {
-                "线索ID": f"HIDE-{index}",
-                "手机号": f"13700001{index:03d}",
-                "线索创建时间": "2026-05-01 11:00:00",
-                "date": "2026-05-01",
-                "标准账号": account_name,
-                "本场主播": "丁俐佳",
-                "订单状态": "",
-                "成交时间": "",
-                "is_order": "0",
-                "is_deal": "0",
-                "成交车型": "LX",
-                "orders_contrib": "0",
-                "deals_contrib": "0",
-                "线索ID_norm": f"HIDE-{index}",
-                "is_perf_lead_scope": "1",
-            }
-        )
-    _write_fact_csv(repo_root / "output" / "fact_attribution.csv", rows)
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-01.tsv",
+        _minimal_dashboard_source_rows(
+            "2026-05-01",
+            accounts=[
+                {"name": "快手-EXEED星途", "leads": 1, "deals": 0, "spend": 100, "cpl": 100, "cps": 0},
+                *[{"name": name, "leads": 1, "deals": 0, "spend": 0, "cpl": 0, "cps": 0} for name in cancelled_accounts],
+            ],
+        ),
+    )
     app = create_test_app(repo_root, runs_root)
 
     with TestClient(app) as client:
@@ -438,54 +387,18 @@ def test_get_daily_dashboard_trends_filters_cancelled_accounts_from_account_summ
     assert account_names.isdisjoint(cancelled_accounts)
 
 
-def test_get_daily_dashboard_trends_displays_conversion_rates_above_100_percent(tmp_path: Path) -> None:
+def test_get_daily_dashboard_trends_derives_source_conversion_rates_above_100_percent(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
-    rows: list[dict[str, str]] = []
-    rows.extend(
-        _fact_row(f"L-{index}", date="2026-05-01", account="抖音-星途极速拍档", model="EX7")
-        for index in range(1, 4)
-    )
-    rows.extend(
-        _fact_row(f"V-{index}", date="2026-04-01", account="抖音-星途极速拍档", model="LX")
-        for index in range(1, 100)
-    )
-    rows.extend(
-        _fact_row(
-            f"D-{index}",
-            date="2026-04-01",
-            account="抖音-星途极速拍档",
-            model="EX7",
-            deal_time="2026-05-01 12:00:00",
-        )
-        for index in range(1, 11)
-    )
-    rows.extend(
-        _fact_row(f"FAST-V-{index}", date="2026-04-01", account="快手-EXEED星途", model="LX")
-        for index in range(1, 3)
-    )
-    rows.extend(
-        _fact_row(
-            f"FAST-D-{index}",
-            date="2026-04-01",
-            account="快手-EXEED星途",
-            model="LX",
-            deal_time="2026-05-01 15:00:00",
-        )
-        for index in range(1, 4)
-    )
-    _write_fact_csv(repo_root / "output" / "fact_attribution.csv", rows)
-    _write_raw_leads_csv(
-        repo_root / "源文件" / "总部新媒体线索2026-05-26.csv",
-        [
-            *[
-                {"线索ID": f"V-{index}", "创建日期": "2026-04-01", "到店日期": "2026-05-01", "首次意向车型": "LX", "渠道2": "抖音-星途极速拍档"}
-                for index in range(1, 100)
+    reports_dir = repo_root / "output" / "sql_reports"
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-01.tsv",
+        _minimal_dashboard_source_rows(
+            "2026-05-01",
+            accounts=[
+                {"name": "抖音-星途极速拍档", "leads": 3, "deals": 10, "spend": 100, "cpl": 33.33, "cps": 10},
+                {"name": "快手-EXEED星途", "leads": 2, "deals": 3, "spend": 90, "cpl": 45, "cps": 30},
             ],
-            *[
-                {"线索ID": f"FAST-V-{index}", "创建日期": "2026-04-01", "到店日期": "2026-05-01", "首次意向车型": "LX", "渠道2": "快手-EXEED星途"}
-                for index in range(1, 3)
-            ],
-        ],
+        ),
     )
     app = create_test_app(repo_root, runs_root)
 
@@ -495,24 +408,16 @@ def test_get_daily_dashboard_trends_displays_conversion_rates_above_100_percent(
     assert response.status_code == 200
     account = next(item for item in response.json()["account_summary"] if item["name"] == "抖音-星途极速拍档")
     assert account["metrics"]["leads"]["actual"] == 3.0
-    assert account["metrics"]["visits"]["actual"] == 99.0
     assert account["metrics"]["deals"]["actual"] == 10.0
-
-    assert account["metrics"]["visit_rate"]["actual"] == 33.0
     assert account["metrics"]["lead_deal_rate"]["actual"] == pytest.approx(10 / 3)
-    assert account["metrics"]["ex7_deal_rate"]["actual"] == pytest.approx(10 / 3)
-    for metric_key in ["visit_rate", "lead_deal_rate", "ex7_deal_rate"]:
-        metric = account["metrics"][metric_key]
-        assert metric["source_status"] == "available"
-        assert "display_value" not in metric
-        assert metric.get("display_value") != "口径待确认"
+    assert account["metrics"]["lead_deal_rate"]["source_status"] == "available"
+    assert account["metrics"]["visit_rate"]["source_status"] == "not_connected"
+    assert account["metrics"]["ex7_deal_rate"]["source_status"] == "not_connected"
 
     featured = next(item for item in response.json()["account_summary"] if item["name"] == "快手-EXEED星途")
-    assert featured["metrics"]["visits"]["actual"] == 2.0
     assert featured["metrics"]["deals"]["actual"] == 3.0
-    assert featured["metrics"]["visit_deal_rate"]["actual"] == 1.5
-    assert featured["metrics"]["visit_deal_rate"]["source_status"] == "available"
-    assert "display_value" not in featured["metrics"]["visit_deal_rate"]
+    assert featured["metrics"]["lead_deal_rate"]["actual"] == pytest.approx(1.5)
+    assert featured["metrics"]["visit_deal_rate"]["source_status"] == "not_connected"
 
 
 def test_get_daily_dashboard_trends_keeps_zero_denominator_rates_missing() -> None:
@@ -531,28 +436,20 @@ def test_get_daily_dashboard_trends_keeps_zero_denominator_rates_missing() -> No
 
 def test_get_daily_dashboard_trends_hides_departed_anchor_and_keeps_fixed_seed_anchor(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
-    _write_fact_csv(
-        repo_root / "output" / "fact_attribution.csv",
-        [
-            _fact_row("WANG-LEAD", date="2026-05-01", account="抖音-星途汽车官方直播间", model="LX", host="王君如"),
-            _fact_row("GUI-LEAD", date="2026-05-01", account="抖音-EXEED星途", model="LX", host="桂婕"),
-        ],
-    )
-    (repo_root / "config" / "seed_monthly_targets.csv").write_text(
-        "\n".join(
-            [
-                "month,scope_type,scope_name,parent_scope,parent_account,impression_target_month,spend_target_month,cpm_target,target_pool",
-                "2026-05,host,桂婕,种草组,抖音-EXEED星途,4000000,,,种草组曝光目标池",
-            ]
-        )
-        + "\n",
-        encoding="utf-8-sig",
-    )
-    _write_live_workbook(
-        repo_root / "源文件" / "EXEED星途台账（五月）.xlsx",
-        [
-            {"日期": "2026-05-01", "开播账号": "抖音-EXEED星途", "本场主播": "王君如", "车型": "LX", "曝光人数": 500},
-        ],
+    reports_dir = repo_root / "output" / "sql_reports"
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-01.tsv",
+        _minimal_dashboard_source_rows(
+            "2026-05-01",
+            anchors=[
+                {"name": "王君如", "parent_scope": "抖音-星途汽车官方直播间", "leads": 1},
+                {"name": "桂婕", "parent_scope": "抖音-EXEED星途", "leads": 1},
+            ],
+            seed_anchors=[
+                {"name": "王君如", "parent_scope": "抖音-EXEED星途", "daily_impressions": 500, "mtd_impressions": 500},
+                {"name": "桂婕", "parent_scope": "抖音-EXEED星途", "daily_impressions": 0, "mtd_impressions": 0},
+            ],
+        ),
     )
     app = create_test_app(repo_root, runs_root)
 
@@ -571,85 +468,24 @@ def test_get_daily_dashboard_trends_hides_departed_anchor_and_keeps_fixed_seed_a
     gui_seed = next(item for item in payload["seed_exposure_summary"]["anchors"] if item["name"] == "桂婕")
     assert gui_seed["display_type"] == "主播曝光"
     assert gui_seed["parent_scope"] == "抖音-EXEED星途"
-    assert gui_seed["metrics"]["impressions"]["target"] == pytest.approx(4000000 / 31)
+    assert gui_seed["metrics"]["impressions"]["actual"] == 0
 
 
 def test_get_daily_dashboard_trends_returns_previous_period_and_monthly_comparison(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
-    _write_fact_csv(
-        repo_root / "output" / "fact_attribution.csv",
-        [
-            {
-                "线索ID": "P1",
-                "手机号": "13700000001",
-                "线索创建时间": "2025-12-08 10:00:00",
-                "date": "2025-12-08",
-                "标准账号": "抖音-星途汽车官方直播间",
-                "本场主播": "丁俐佳",
-                "订单状态": "",
-                "成交时间": "",
-                "is_order": "0",
-                "is_deal": "0",
-                "线索ID_norm": "P1",
-                "is_perf_lead_scope": "1",
-            },
-            {
-                "线索ID": "P2",
-                "手机号": "13700000002",
-                "线索创建时间": "2026-02-28 10:00:00",
-                "date": "2026-02-28",
-                "标准账号": "抖音-星途汽车官方直播间",
-                "本场主播": "丁俐佳",
-                "订单状态": "",
-                "成交时间": "",
-                "is_order": "0",
-                "is_deal": "0",
-                "线索ID_norm": "P2",
-                "is_perf_lead_scope": "1",
-            },
-            {
-                "线索ID": "C1",
-                "手机号": "13800000001",
-                "线索创建时间": "2026-03-01 10:00:00",
-                "date": "2026-03-01",
-                "标准账号": "抖音-星途汽车官方直播间",
-                "本场主播": "丁俐佳",
-                "订单状态": "",
-                "成交时间": "",
-                "is_order": "0",
-                "is_deal": "0",
-                "线索ID_norm": "C1",
-                "is_perf_lead_scope": "1",
-            },
-            {
-                "线索ID": "C2",
-                "手机号": "13800000002",
-                "线索创建时间": "2026-05-22 10:00:00",
-                "date": "2026-05-22",
-                "标准账号": "抖音-星途汽车官方直播间",
-                "本场主播": "丁俐佳",
-                "订单状态": "已交车",
-                "成交时间": "2026-05-22 12:00:00",
-                "is_order": "1",
-                "is_deal": "1",
-                "成交车型": "EX7",
-                "orders_contrib": "1",
-                "deals_contrib": "1",
-                "线索ID_norm": "C2",
-                "is_perf_lead_scope": "1",
-            },
-        ],
-    )
-    _write_live_workbook(
-        repo_root / "源文件" / "2026年5月直播进度表.xlsx",
-        [
-            {"日期": "2025-12-08", "开播账号": "抖音-星途汽车官方直播间", "本场主播": "丁俐佳", "车型": "LX", "消耗": 60, "曝光人数": 600},
-            {"日期": "2026-02-28", "开播账号": "抖音-星途汽车官方直播间", "本场主播": "丁俐佳", "车型": "LX", "消耗": 40, "曝光人数": 400},
-            {"日期": "2026-03-01", "开播账号": "抖音-星途汽车官方直播间", "本场主播": "丁俐佳", "车型": "LX", "消耗": 100, "曝光人数": 1000},
-            {"日期": "2026-04-01", "开播账号": "抖音-星途汽车官方直播间", "本场主播": "丁俐佳", "车型": "LX", "消耗": 80, "曝光人数": 0},
-            {"日期": "2026-05-22", "开播账号": "抖音-星途汽车官方直播间", "本场主播": "丁俐佳", "车型": "EX7", "消耗": 150, "曝光人数": 1500},
-        ],
-    )
+    reports_dir = repo_root / "output" / "sql_reports"
+    fixtures = {
+        "2025-12-08": {"impressions": 600, "leads": 1, "deals": 0, "spend": 60},
+        "2026-02-28": {"impressions": 400, "leads": 1, "deals": 0, "spend": 40},
+        "2026-03-01": {"impressions": 1000, "leads": 1, "deals": 0, "spend": 100},
+        "2026-04-01": {"impressions": 0, "leads": 0, "deals": 0, "spend": 80},
+        "2026-05-22": {"impressions": 1500, "leads": 1, "deals": 1, "spend": 150},
+    }
+    for report_date, values in fixtures.items():
+        _write_tsv(
+            reports_dir / f"feishu_dashboard_source_latest_{report_date}.tsv",
+            _minimal_dashboard_source_rows(report_date, **values),
+        )
     app = create_test_app(repo_root, runs_root)
 
     with TestClient(app) as client:
@@ -677,59 +513,33 @@ def test_get_daily_dashboard_trends_returns_previous_period_and_monthly_comparis
     assert march["spend"]["value"] == 100.0
     assert march["cpl"]["value"] == 100.0
     assert april["impressions"]["value"] == 0.0
-    assert april["leads"]["value"] is None
+    assert april["leads"]["value"] == 0.0
     assert april["cpl"]["value"] is None
     assert may["cps"]["value"] == 150.0
 
 
-def test_get_daily_dashboard_trends_uses_raw_historical_deals_for_quarter_deals(tmp_path: Path) -> None:
+def test_get_daily_dashboard_trends_uses_dashboard_source_history_for_quarter_deals(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
-    _write_fact_csv(
-        repo_root / "output" / "fact_attribution.csv",
-        [
-            {
-                "线索ID": "D-MAR",
-                "手机号": "13800001001",
-                "线索创建时间": "2026-03-01 10:00:00",
-                "date": "2026-03-01",
-                "标准账号": "抖音-星途汽车官方直播间",
-                "本场主播": "丁俐佳",
-                "订单状态": "",
-                "成交时间": "",
-                "is_order": "0",
-                "is_deal": "0",
-                "成交车型": "",
-                "orders_contrib": "0",
-                "deals_contrib": "0",
-                "线索ID_norm": "D-MAR",
-                "is_perf_lead_scope": "1",
-            },
-            {
-                "线索ID": "D-APR",
-                "手机号": "13800001002",
-                "线索创建时间": "2026-04-01 10:00:00",
-                "date": "2026-04-01",
-                "标准账号": "抖音-星途汽车直播营销中心",
-                "本场主播": "徐幻",
-                "订单状态": "",
-                "成交时间": "",
-                "is_order": "0",
-                "is_deal": "0",
-                "成交车型": "",
-                "orders_contrib": "0",
-                "deals_contrib": "0",
-                "线索ID_norm": "D-APR",
-                "is_perf_lead_scope": "1",
-            },
-        ],
+    reports_dir = repo_root / "output" / "sql_reports"
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-03-05.tsv",
+        _minimal_dashboard_source_rows(
+            "2026-03-05",
+            leads=1,
+            deals=1,
+            spend=100,
+            accounts=[{"name": "抖音-星途汽车官方直播间", "leads": 1, "deals": 1, "spend": 100, "cpl": 100, "cps": 100}],
+        ),
     )
-    _write_raw_deals_csv(
-        repo_root / "历史文件" / "2026年3月" / "总部新媒体成交2026-04-01.csv",
-        [{"线索ID": "D-MAR", "订单状态": "已交车", "成交日期": "2026-03-05", "成交车型": "EX7", "渠道2": "抖音-星途汽车官方直播间", "渠道3": "直播"}],
-    )
-    _write_raw_deals_csv(
-        repo_root / "历史文件" / "2026年4月" / "总部新媒体成交2026-05-01.csv",
-        [{"线索ID": "D-APR", "订单状态": "已交车", "成交日期": "2026-04-10", "成交车型": "LX", "渠道2": "抖音-星途汽车直播营销中心", "渠道3": "直播"}],
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-04-10.tsv",
+        _minimal_dashboard_source_rows(
+            "2026-04-10",
+            leads=1,
+            deals=1,
+            spend=200,
+            accounts=[{"name": "星途汽车直播营销中心", "leads": 1, "deals": 1, "spend": 200, "cpl": 200, "cps": 200}],
+        ),
     )
     app = create_test_app(repo_root, runs_root)
 
@@ -743,32 +553,16 @@ def test_get_daily_dashboard_trends_uses_raw_historical_deals_for_quarter_deals(
     assert {"date": "2026-04-10", "value": 1.0} in deals["points"]
     assert payload["monthly_comparison"][0]["metrics"]["deals"]["value"] == 1.0
     assert payload["monthly_comparison"][1]["metrics"]["deals"]["value"] == 1.0
-    ex7_segment = next(item for item in payload["model_segment_summary"] if item["name"] == "EX7")
-    assert ex7_segment["daily_trends"]["deals"][4]["value"] == 1.0
     official_account = next(item for item in payload["account_summary"] if item["name"] == "抖音-星途汽车官方直播间")
     assert official_account["metrics"]["deals"]["actual"] == 1.0
 
 
 def test_get_daily_dashboard_trends_marks_missing_previous_period_without_fake_values(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
-    _write_fact_csv(
-        repo_root / "output" / "fact_attribution.csv",
-        [
-            {
-                "线索ID": "C1",
-                "手机号": "13800000001",
-                "线索创建时间": "2026-05-01 10:00:00",
-                "date": "2026-05-01",
-                "标准账号": "抖音-星途汽车官方直播间",
-                "本场主播": "丁俐佳",
-                "订单状态": "",
-                "成交时间": "",
-                "is_order": "0",
-                "is_deal": "0",
-                "线索ID_norm": "C1",
-                "is_perf_lead_scope": "1",
-            }
-        ],
+    reports_dir = repo_root / "output" / "sql_reports"
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-01.tsv",
+        _minimal_dashboard_source_rows("2026-05-01", leads=1, spend=100),
     )
     app = create_test_app(repo_root, runs_root)
 
@@ -784,27 +578,14 @@ def test_get_daily_dashboard_trends_marks_missing_previous_period_without_fake_v
 
 def test_get_daily_dashboard_trends_keeps_missing_points_distinct_from_zero(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
-    _write_fact_csv(
-        repo_root / "output" / "fact_attribution.csv",
-        [
-            {
-                "线索ID": "L1",
-                "手机号": "13800000001",
-                "线索创建时间": "2026-05-01 10:00:00",
-                "date": "2026-05-01",
-                "标准账号": "抖音-星途汽车官方直播间",
-                "本场主播": "丁俐佳",
-                "订单状态": "",
-                "成交时间": "",
-                "is_order": "0",
-                "is_deal": "0",
-                "成交车型": "",
-                "orders_contrib": "0",
-                "deals_contrib": "0",
-                "线索ID_norm": "L1",
-                "is_perf_lead_scope": "1",
-            }
-        ],
+    reports_dir = repo_root / "output" / "sql_reports"
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-01.tsv",
+        _minimal_dashboard_source_rows("2026-05-01", leads=1, include_spend=False),
+    )
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-03.tsv",
+        _minimal_dashboard_source_rows("2026-05-03", leads=0, spend=0),
     )
     app = create_test_app(repo_root, runs_root)
 
@@ -815,15 +596,14 @@ def test_get_daily_dashboard_trends_keeps_missing_points_distinct_from_zero(tmp_
     payload = response.json()
     leads = next(item for item in payload["daily_trends"] if item["key"] == "leads")
     spend = next(item for item in payload["daily_trends"] if item["key"] == "spend")
+    assert payload["missing_dates"] == ["2026-05-02"]
     assert leads["points"] == [
         {"date": "2026-05-01", "value": 1.0},
-        {"date": "2026-05-02", "value": None},
-        {"date": "2026-05-03", "value": None},
+        {"date": "2026-05-03", "value": 0.0},
     ]
     assert spend["points"] == [
         {"date": "2026-05-01", "value": None},
-        {"date": "2026-05-02", "value": None},
-        {"date": "2026-05-03", "value": None},
+        {"date": "2026-05-03", "value": 0.0},
     ]
 
 
@@ -1126,6 +906,97 @@ def test_get_daily_dashboard_prototype_is_not_polluted_by_n9b_workbench(tmp_path
     assert 'data-dashboard-mode="technical"' in html
     assert "维度工作台" not in html
     assert 'id="workbench"' not in html
+
+
+def _release_dashboard_source_rows(report_date: str) -> list[dict[str, str]]:
+    return [
+        _dated_row(report_date, "topline", "department", "全量", "", "impressions", "曝光", "24286300", "20000000", "1.214315", "次"),
+        _dated_row(report_date, "topline", "department", "全量", "", "mtd_unique_leads", "累计唯一线索", "22682", "25333", "0.8954", "条"),
+        _dated_row(report_date, "topline", "department", "全量", "", "mtd_deals", "累计实销", "91", "114", "0.7982", "台"),
+        _dated_row(report_date, "topline", "department", "全量", "", "mtd_spend", "累计线索费用", "784252.48", "", "", "元"),
+        _dated_row(report_date, "topline", "department", "全量", "", "mtd_cpl", "总体 CPL", "34.58", "53", "", "元/条"),
+        _dated_row(report_date, "topline", "department", "全量", "", "mtd_cps", "总体 CPS", "8618.16", "6267", "", "元/台"),
+        _dated_row(report_date, "topline_segment", "segment", "EX7 专项", "", "mtd_unique_leads", "累计唯一线索", "10975", "", "", "条"),
+        _dated_row(report_date, "topline_segment", "segment", "EX7 专项", "", "mtd_deals", "累计实销", "34", "", "", "台"),
+        _dated_row(report_date, "topline_segment", "segment", "EX7 专项", "", "mtd_spend", "累计线索费用", "331884", "", "", "元"),
+        _dated_row(report_date, "topline_segment", "segment", "EX7 专项", "", "mtd_cpl", "实际 CPL", "30.24", "", "", "元/条"),
+        _dated_row(report_date, "topline_segment", "segment", "EX7 专项", "", "mtd_cps", "实际 CPS", "9761.53", "", "", "元/台"),
+        _dated_row(report_date, "topline_segment", "segment", "不含 EX7", "", "mtd_unique_leads", "累计唯一线索", "11707", "", "", "条"),
+        _dated_row(report_date, "topline_segment", "segment", "不含 EX7", "", "mtd_deals", "累计实销", "57", "", "", "台"),
+        _dated_row(report_date, "topline_segment", "segment", "不含 EX7", "", "mtd_spend", "累计线索费用", "452368.48", "", "", "元"),
+        _dated_row(report_date, "topline_segment", "segment", "不含 EX7", "", "mtd_cpl", "实际 CPL", "38.64", "", "", "元/条"),
+        _dated_row(report_date, "topline_segment", "segment", "不含 EX7", "", "mtd_cps", "实际 CPS", "7936.15", "", "", "元/台"),
+        _dated_row(report_date, "lead_account", "account", "星途汽车直播营销中心", "", "mtd_unique_leads", "累计唯一线索", "8221", "14850", "0.5536", "条"),
+        _dated_row(report_date, "lead_account", "account", "星途汽车直播营销中心", "", "mtd_deals", "累计实销", "24", "50", "0.48", "台"),
+        _dated_row(report_date, "lead_account", "account", "星途汽车直播营销中心", "", "mtd_spend", "累计线索费用", "338841.04", "453001.13", "", "元"),
+        _dated_row(report_date, "lead_account", "account", "星途汽车直播营销中心", "", "mtd_cpl", "实际 CPL", "41.22", "55", "", "元/条"),
+        _dated_row(report_date, "lead_account", "account", "星途汽车直播营销中心", "", "mtd_cps", "实际 CPS", "14118.38", "9060.02", "", "元/台"),
+        _dated_row(report_date, "lead_anchor", "anchor", "徐欣悦", "星途汽车直播营销中心", "mtd_unique_leads", "累计唯一线索", "2941", "3713", "0.7921", "条"),
+        _dated_row(report_date, "lead_anchor", "anchor", "徐欣悦", "星途汽车直播营销中心", "mtd_deals", "累计实销", "12", "13", "0.9231", "台"),
+        _dated_row(report_date, "lead_anchor", "anchor", "徐欣悦", "星途汽车直播营销中心", "mtd_spend", "累计线索费用", "120921.25", "113250.28", "", "元"),
+        _dated_row(report_date, "lead_anchor", "anchor", "徐欣悦", "星途汽车直播营销中心", "mtd_cpl", "实际 CPL", "41.12", "55", "", "元/条"),
+        _dated_row(report_date, "lead_anchor", "anchor", "徐欣悦", "星途汽车直播营销中心", "mtd_cps", "实际 CPS", "10076.77", "9060", "", "元/台"),
+    ]
+
+
+def _minimal_dashboard_source_rows(
+    report_date: str,
+    *,
+    impressions: float = 0,
+    leads: float = 0,
+    deals: float = 0,
+    spend: float | None = 0,
+    cpl: float | None = None,
+    cps: float | None = None,
+    include_spend: bool = True,
+    accounts: list[dict[str, object]] | None = None,
+    anchors: list[dict[str, object]] | None = None,
+    seed_anchors: list[dict[str, object]] | None = None,
+) -> list[dict[str, str]]:
+    rows = [
+        _dated_row(report_date, "topline", "department", "全量", "", "impressions", "曝光", str(impressions), "", "", "次"),
+        _dated_row(report_date, "topline", "department", "全量", "", "mtd_unique_leads", "累计唯一线索", str(leads), "", "", "条"),
+        _dated_row(report_date, "topline", "department", "全量", "", "mtd_deals", "累计实销", str(deals), "", "", "台"),
+    ]
+    if include_spend:
+        rows.append(_dated_row(report_date, "topline", "department", "全量", "", "mtd_spend", "累计线索费用", "" if spend is None else str(spend), "", "", "元"))
+    if cpl is not None:
+        rows.append(_dated_row(report_date, "topline", "department", "全量", "", "mtd_cpl", "总体 CPL", str(cpl), "", "", "元/条"))
+    if cps is not None:
+        rows.append(_dated_row(report_date, "topline", "department", "全量", "", "mtd_cps", "总体 CPS", str(cps), "", "", "元/台"))
+    for account in accounts or []:
+        name = str(account["name"])
+        rows.extend(
+            [
+                _dated_row(report_date, "lead_account", "account", name, "", "mtd_unique_leads", "累计唯一线索", str(account.get("leads", 0)), "", "", "条"),
+                _dated_row(report_date, "lead_account", "account", name, "", "mtd_deals", "累计实销", str(account.get("deals", 0)), "", "", "台"),
+                _dated_row(report_date, "lead_account", "account", name, "", "mtd_spend", "累计线索费用", str(account.get("spend", 0)), "", "", "元"),
+                _dated_row(report_date, "lead_account", "account", name, "", "mtd_cpl", "实际 CPL", str(account.get("cpl", 0)), "", "", "元/条"),
+                _dated_row(report_date, "lead_account", "account", name, "", "mtd_cps", "实际 CPS", str(account.get("cps", 0)), "", "", "元/台"),
+            ]
+        )
+    for anchor in anchors or []:
+        name = str(anchor["name"])
+        parent_scope = str(anchor.get("parent_scope", ""))
+        rows.extend(
+            [
+                _dated_row(report_date, "lead_anchor", "anchor", name, parent_scope, "mtd_unique_leads", "累计唯一线索", str(anchor.get("leads", 0)), "", "", "条"),
+                _dated_row(report_date, "lead_anchor", "anchor", name, parent_scope, "mtd_deals", "累计实销", str(anchor.get("deals", 0)), "", "", "台"),
+                _dated_row(report_date, "lead_anchor", "anchor", name, parent_scope, "mtd_spend", "累计线索费用", str(anchor.get("spend", 0)), "", "", "元"),
+                _dated_row(report_date, "lead_anchor", "anchor", name, parent_scope, "mtd_cpl", "实际 CPL", str(anchor.get("cpl", 0)), "", "", "元/条"),
+                _dated_row(report_date, "lead_anchor", "anchor", name, parent_scope, "mtd_cps", "实际 CPS", str(anchor.get("cps", 0)), "", "", "元/台"),
+            ]
+        )
+    for anchor in seed_anchors or []:
+        name = str(anchor["name"])
+        parent_scope = str(anchor.get("parent_scope", ""))
+        rows.extend(
+            [
+                _dated_row(report_date, "seed_anchor", "anchor", name, parent_scope, "daily_impressions", "当日曝光", str(anchor.get("daily_impressions", 0)), "", "", "次"),
+                _dated_row(report_date, "seed_anchor", "anchor", name, parent_scope, "mtd_impressions", "累计曝光", str(anchor.get("mtd_impressions", 0)), "", "", "次"),
+            ]
+        )
+    return rows
 
 
 def _trend_rows(report_date: str, *, leads: str) -> list[dict[str, str]]:

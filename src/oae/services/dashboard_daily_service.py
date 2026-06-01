@@ -106,8 +106,7 @@ class DashboardDailyService:
             start_date=window["start_date"],
             end_date=window["end_date"],
         )
-        business_payload = self._build_business_trend_payload(window)
-        if not report_dates and not business_payload:
+        if not report_dates:
             reports_dir = self.repo_root / "output" / "sql_reports"
             raise ApiError(
                 "DASHBOARD_SOURCE_NOT_FOUND",
@@ -130,6 +129,61 @@ class DashboardDailyService:
             f"{report_dates[0]} 至 {report_dates[-1]}"
             if report_dates
             else f"{window['start_date']} 至 {window['end_date']}"
+        )
+        core_kpis = self._trend_metrics(
+            sources,
+            "topline",
+            "department",
+            "全量",
+            ["impressions", "mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
+            quality_annotations,
+        )
+        segments = {
+            "ex7": self._trend_entity(
+                sources,
+                "topline_segment",
+                "segment",
+                ["EX7 专项", "EX7专项"],
+                ["mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
+                quality_annotations,
+            ),
+            "non_ex7": self._trend_entity(
+                sources,
+                "topline_segment",
+                "segment",
+                ["不含 EX7", "不含EX7"],
+                ["mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
+                quality_annotations,
+            ),
+        }
+        accounts = self._trend_entities_for_source(
+            sources,
+            "lead_account",
+            "account",
+            ["mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
+            quality_annotations,
+        )
+        lead_anchors = self._trend_entities_for_source(
+            sources,
+            "lead_anchor",
+            "anchor",
+            ["mtd_unique_leads", "mtd_deals", "mtd_douyin_laike_orders", "mtd_spend", "mtd_cpl", "mtd_cps"],
+            quality_annotations,
+        )
+        seed_account = self._trend_entity(
+            sources,
+            "seed_account",
+            "account",
+            ["EXEED星途"],
+            ["daily_impressions", "mtd_impressions"],
+            quality_annotations,
+        )
+        seed_anchors = self._trend_entities_for_source(
+            sources,
+            "seed_anchor",
+            "anchor",
+            ["daily_impressions", "mtd_impressions"],
+            quality_annotations,
         )
         payload = {
             "contract_version": "n8-v1-trend-1",
@@ -157,64 +211,25 @@ class DashboardDailyService:
                 "quality_annotation_source": "run_manifest_and_quality_report",
             },
             "quality_annotations": quality_annotations,
-            "core_kpis": self._trend_metrics(
-                sources,
-                "topline",
-                "department",
-                "全量",
-                ["impressions", "mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
-                quality_annotations,
-            ),
-            "segments": {
-                "ex7": self._trend_entity(
-                    sources,
-                    "topline_segment",
-                    "segment",
-                    ["EX7 专项", "EX7专项"],
-                    ["mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
-                    quality_annotations,
-                ),
-                "non_ex7": self._trend_entity(
-                    sources,
-                    "topline_segment",
-                    "segment",
-                    ["不含 EX7", "不含EX7"],
-                    ["mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
-                    quality_annotations,
-                ),
-            },
-            "accounts": self._trend_entities_for_source(
-                sources,
-                "lead_account",
-                "account",
-                ["mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
-                quality_annotations,
-            ),
-            "lead_anchors": self._trend_entities_for_source(
-                sources,
-                "lead_anchor",
-                "anchor",
-                ["mtd_unique_leads", "mtd_deals", "mtd_douyin_laike_orders", "mtd_cpl", "mtd_cps"],
-                quality_annotations,
-            ),
-            "seed_account": self._trend_entity(
-                sources,
-                "seed_account",
-                "account",
-                ["EXEED星途"],
-                ["daily_impressions", "mtd_impressions"],
-                quality_annotations,
-            ),
-            "seed_anchors": self._trend_entities_for_source(
-                sources,
-                "seed_anchor",
-                "anchor",
-                ["daily_impressions", "mtd_impressions"],
-                quality_annotations,
-            ),
+            "core_kpis": core_kpis,
+            "segments": segments,
+            "accounts": accounts,
+            "lead_anchors": lead_anchors,
+            "seed_account": seed_account,
+            "seed_anchors": seed_anchors,
             "quality_note": "质量状态仅用于人工提示；N8 v0 不改写 dashboard source 数据。",
         }
-        payload.update(business_payload)
+        payload.update(
+            self._business_trend_payload_from_dashboard_sources(
+                window=window,
+                core_kpis=core_kpis,
+                segments=segments,
+                accounts=accounts,
+                lead_anchors=lead_anchors,
+                seed_account=seed_account,
+                seed_anchors=seed_anchors,
+            )
+        )
         return payload
 
     def _source_path(self, report_date: str) -> Path:
@@ -335,15 +350,6 @@ class DashboardDailyService:
 
     def _latest_available_business_date(self) -> str:
         candidates = self._available_report_dates_from_sources()
-        fact_path = self.repo_root / "output" / "fact_attribution.csv"
-        if fact_path.exists():
-            try:
-                dates = pd.read_csv(fact_path, encoding="utf-8-sig", usecols=["date"])
-                parsed = pd.to_datetime(dates["date"], errors="coerce")
-                if parsed.notna().any():
-                    candidates.append(str(parsed.max().date()))
-            except Exception:
-                pass
         return sorted(set(candidates))[-1] if candidates else ""
 
     @staticmethod
@@ -419,6 +425,313 @@ class DashboardDailyService:
             "seed_range": seed_range,
             "core_live_range": core_live_range,
         }
+
+    def _business_trend_payload_from_dashboard_sources(
+        self,
+        *,
+        window: dict[str, Any],
+        core_kpis: dict[str, dict[str, Any]],
+        segments: dict[str, dict[str, Any]],
+        accounts: list[dict[str, Any]],
+        lead_anchors: list[dict[str, Any]],
+        seed_account: dict[str, Any],
+        seed_anchors: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        daily_trends = self._core_daily_trends_from_dashboard_sources(core_kpis)
+        previous_window = self._previous_trend_window(window)
+        previous_report_dates = self._filter_report_dates(
+            self._available_report_dates_from_sources(),
+            start_date=previous_window["start_date"],
+            end_date=previous_window["end_date"],
+        )
+        previous_quality = self._trend_quality_annotations(previous_report_dates)
+        previous_sources = [
+            (report_date, self._source_path(report_date), DashboardSource.from_tsv(self._source_path(report_date)))
+            for report_date in previous_report_dates
+        ]
+        previous_core_kpis = (
+            self._trend_metrics(
+                previous_sources,
+                "topline",
+                "department",
+                "全量",
+                ["impressions", "mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
+                previous_quality,
+            )
+            if previous_sources
+            else {}
+        )
+        previous_daily_trends = (
+            self._core_daily_trends_from_dashboard_sources(previous_core_kpis) if previous_core_kpis else []
+        )
+        previous_has_data = self._trend_payloads_have_data(previous_daily_trends)
+        previous_period = {
+            **previous_window,
+            "has_data": previous_has_data,
+            "message": "" if previous_has_data else "上一周期数据不足",
+        }
+        seed_exposure = self._seed_exposure_from_dashboard_sources(seed_account, seed_anchors)
+        account_summary = [self._source_entity_summary(item, scope_type="account") for item in accounts]
+        anchor_summary = [self._source_entity_summary(item, scope_type="anchor") for item in lead_anchors]
+        return {
+            "daily_trends": daily_trends,
+            "core_kpi_summary": self._core_summary_from_dashboard_sources(core_kpis),
+            "previous_period": previous_period,
+            "previous_period_trends": previous_daily_trends if previous_has_data else [],
+            "monthly_comparison": self._monthly_comparison(daily_trends, window),
+            "model_segment_summary": self._segment_summary_from_dashboard_sources(segments),
+            "account_summary": account_summary,
+            "account_daily_trends": [
+                {"name": item["name"], "parent_scope": item.get("parent_scope", ""), "daily_trends": item["daily_trends"]}
+                for item in account_summary
+            ],
+            "anchor_summary": anchor_summary,
+            "anchor_daily_trends": [
+                {"name": item["name"], "parent_scope": item.get("parent_scope", ""), "daily_trends": item["daily_trends"]}
+                for item in anchor_summary
+            ],
+            "seed_exposure_summary": seed_exposure["summary"],
+            "seed_exposure_daily_trends": seed_exposure["daily_trends"],
+            "metric_source_status": self._dashboard_source_status(),
+        }
+
+    @classmethod
+    def _core_summary_from_dashboard_sources(cls, core_kpis: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        return [
+            cls._summary_from_series(core_kpis.get(source_key, {}), business_key, label)
+            for source_key, business_key, label in cls._core_metric_specs()
+        ]
+
+    @classmethod
+    def _core_daily_trends_from_dashboard_sources(cls, core_kpis: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        return [
+            cls._daily_trend_from_series(core_kpis.get(source_key, {}), business_key, label)
+            for source_key, business_key, label in cls._core_metric_specs()
+        ]
+
+    @staticmethod
+    def _core_metric_specs() -> list[tuple[str, str, str]]:
+        return [
+            ("impressions", "impressions", "曝光"),
+            ("mtd_unique_leads", "leads", "线索"),
+            ("mtd_deals", "deals", "实销"),
+            ("mtd_spend", "spend", "费用"),
+            ("mtd_cpl", "cpl", "CPL"),
+            ("mtd_cps", "cps", "CPS"),
+        ]
+
+    @classmethod
+    def _segment_summary_from_dashboard_sources(cls, segments: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        return [
+            cls._segment_business_summary("EX7", segments.get("ex7", {})),
+            cls._segment_business_summary("不含 EX7", segments.get("non_ex7", {})),
+        ]
+
+    @classmethod
+    def _segment_business_summary(cls, name: str, entity: dict[str, Any]) -> dict[str, Any]:
+        metrics = entity.get("metrics", {})
+        return {
+            "name": name,
+            "parent_scope": entity.get("parent_scope", ""),
+            "metrics": cls._source_entity_metrics(metrics),
+            "daily_trends": cls._source_entity_daily_trends(metrics),
+        }
+
+    @classmethod
+    def _source_entity_summary(cls, entity: dict[str, Any], *, scope_type: str) -> dict[str, Any]:
+        metrics = cls._source_entity_metrics(entity.get("metrics", {}))
+        metric_groups = {
+            "线索": {
+                "leads": metrics["leads"],
+                "unique_leads": metrics["unique_leads"],
+            },
+            "到店": {
+                "visits": metrics["visits"],
+                "visit_rate": metrics["visit_rate"],
+            },
+            "成交": {
+                "deals": metrics["deals"],
+                "lead_deal_rate": metrics["lead_deal_rate"],
+                "visit_deal_rate": metrics["visit_deal_rate"],
+            },
+            "成本": {
+                "spend": metrics["spend"],
+                "cpl": metrics["cpl"],
+                "cps": metrics["cps"],
+            },
+            "EX7": {
+                "ex7_leads": metrics["ex7_leads"],
+                "ex7_deals": metrics["ex7_deals"],
+                "ex7_deal_rate": metrics["ex7_deal_rate"],
+            },
+        }
+        return {
+            "name": entity.get("name", ""),
+            "display_type": "账号表现" if scope_type == "account" else "主播表现",
+            "parent_scope": entity.get("parent_scope", ""),
+            "metrics": metrics,
+            "metric_groups": metric_groups,
+            "daily_trends": cls._source_entity_daily_trends(entity.get("metrics", {})),
+        }
+
+    @classmethod
+    def _source_entity_metrics(cls, series_by_key: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+        leads = cls._summary_from_series(series_by_key.get("mtd_unique_leads", {}), "leads", "线索")
+        unique_leads = {**leads, "key": "unique_leads", "label": "唯一线索"}
+        deals = cls._summary_from_series(series_by_key.get("mtd_deals", {}), "deals", "实销")
+        spend = cls._summary_from_series(series_by_key.get("mtd_spend", {}), "spend", "费用")
+        cpl = cls._summary_from_series(series_by_key.get("mtd_cpl", {}), "cpl", "CPL")
+        cps = cls._summary_from_series(series_by_key.get("mtd_cps", {}), "cps", "CPS")
+        lead_deal_rate = cls._metric_summary(
+            "lead_deal_rate",
+            "线索成交率",
+            cls._safe_div_value(deals.get("actual"), leads.get("actual")),
+            None,
+            "比例",
+        )
+        not_connected = {
+            "visits": cls._metric_summary("visits", "到店", None, None, "次", source_status="not_connected"),
+            "visit_rate": cls._metric_summary("visit_rate", "到店率", None, None, "比例", source_status="not_connected"),
+            "visit_deal_rate": cls._metric_summary("visit_deal_rate", "到店成交率", None, None, "比例", source_status="not_connected"),
+            "ex7_leads": cls._metric_summary("ex7_leads", "EX7 线索", None, None, "条", source_status="not_connected"),
+            "ex7_deals": cls._metric_summary("ex7_deals", "EX7 实销", None, None, "台", source_status="not_connected"),
+            "ex7_deal_rate": cls._metric_summary("ex7_deal_rate", "EX7 成交率", None, None, "比例", source_status="not_connected"),
+        }
+        return {
+            "leads": leads,
+            "unique_leads": unique_leads,
+            "deals": deals,
+            "spend": spend,
+            "cpl": cpl,
+            "cps": cps,
+            "lead_deal_rate": lead_deal_rate,
+            **not_connected,
+        }
+
+    @classmethod
+    def _source_entity_daily_trends(cls, series_by_key: dict[str, dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+        return {
+            "leads": cls._daily_points_from_series(series_by_key.get("mtd_unique_leads", {})),
+            "unique_leads": cls._daily_points_from_series(series_by_key.get("mtd_unique_leads", {})),
+            "deals": cls._daily_points_from_series(series_by_key.get("mtd_deals", {})),
+            "spend": cls._daily_points_from_series(series_by_key.get("mtd_spend", {})),
+            "cpl": cls._daily_points_from_series(series_by_key.get("mtd_cpl", {})),
+            "cps": cls._daily_points_from_series(series_by_key.get("mtd_cps", {})),
+        }
+
+    @classmethod
+    def _seed_exposure_from_dashboard_sources(
+        cls,
+        seed_account: dict[str, Any],
+        seed_anchors: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        account_items = []
+        if cls._trend_entity_has_data(seed_account):
+            account_items.append(cls._seed_item_from_entity(seed_account, display_type="账号曝光"))
+        anchor_items = [
+            cls._seed_item_from_entity(item, display_type="主播曝光")
+            for item in seed_anchors
+            if cls._trend_entity_has_data(item)
+        ]
+        return {
+            "summary": {"accounts": account_items, "anchors": anchor_items},
+            "daily_trends": {
+                "accounts": [
+                    {"name": item["name"], "points": item["daily_trends"]["impressions"]} for item in account_items
+                ],
+                "anchors": [
+                    {"name": item["name"], "points": item["daily_trends"]["impressions"]} for item in anchor_items
+                ],
+            },
+        }
+
+    @classmethod
+    def _seed_item_from_entity(cls, entity: dict[str, Any], *, display_type: str) -> dict[str, Any]:
+        metrics = entity.get("metrics", {})
+        source_series = metrics.get("mtd_impressions", {}) if cls._series_has_data(metrics.get("mtd_impressions", {})) else metrics.get("daily_impressions", {})
+        impressions = cls._summary_from_series(source_series, "impressions", "曝光")
+        return {
+            "name": entity.get("name", ""),
+            "display_type": display_type,
+            "parent_scope": entity.get("parent_scope", ""),
+            "metrics": {
+                "impressions": impressions,
+                "lead_conversion_rate": cls._metric_summary(
+                    "lead_conversion_rate",
+                    "曝光到线索转化率",
+                    None,
+                    None,
+                    "比例",
+                    source_status="not_connected",
+                ),
+            },
+            "daily_trends": {"impressions": cls._daily_points_from_series(source_series)},
+        }
+
+    @classmethod
+    def _summary_from_series(cls, series: dict[str, Any], key: str, label: str) -> dict[str, Any]:
+        point = cls._latest_available_point(series)
+        unit = str(series.get("unit") or (point or {}).get("unit") or "")
+        if point is None:
+            return cls._metric_summary(key, label, None, None, unit, source_status="not_connected")
+        return {
+            "key": key,
+            "label": label,
+            "actual": cls._json_number(point.get("actual")),
+            "target": cls._json_number(point.get("target")),
+            "attain_rate": cls._json_number(point.get("attain_rate")),
+            "unit": unit,
+            "source_status": "available",
+        }
+
+    @classmethod
+    def _daily_trend_from_series(cls, series: dict[str, Any], key: str, label: str) -> dict[str, Any]:
+        return {
+            "key": key,
+            "label": label,
+            "unit": str(series.get("unit") or ""),
+            "points": cls._daily_points_from_series(series),
+        }
+
+    @classmethod
+    def _daily_points_from_series(cls, series: dict[str, Any]) -> list[dict[str, Any]]:
+        return [
+            {
+                "date": str(point.get("report_date") or ""),
+                "value": None if point.get("is_missing") else cls._json_number(point.get("actual")),
+            }
+            for point in series.get("points", [])
+        ]
+
+    @staticmethod
+    def _latest_available_point(series: dict[str, Any]) -> dict[str, Any] | None:
+        for point in reversed(series.get("points", [])):
+            if not point.get("is_missing"):
+                return point
+        return None
+
+    @classmethod
+    def _trend_entity_has_data(cls, entity: dict[str, Any]) -> bool:
+        return any(cls._series_has_data(series) for series in entity.get("metrics", {}).values())
+
+    @staticmethod
+    def _series_has_data(series: dict[str, Any]) -> bool:
+        return any(not point.get("is_missing") for point in series.get("points", []))
+
+    @staticmethod
+    def _dashboard_source_status() -> list[dict[str, Any]]:
+        return [
+            {
+                "metric": "曝光/线索/实销/费用/CPL/CPS/账号/主播",
+                "status": "available",
+                "source": "output/sql_reports/feishu_dashboard_source_latest_*.tsv",
+            },
+            {
+                "metric": "到店/EX7账号细分/曝光到线索转化率",
+                "status": "not_connected",
+                "source": "dashboard source 当前未提供这些派生字段",
+            },
+        ]
 
     def _build_business_trend_payload(self, window: dict[str, Any]) -> dict[str, Any]:
         fact = self._load_dashboard_fact()
@@ -1859,8 +2172,13 @@ class DashboardDailyService:
                 if row.get("source_table") != source_table or row.get("scope_type") != scope_type:
                     continue
                 name = row.get("scope_name", "")
-                if scope_type == "anchor" and cls._is_hidden_anchor_name(name):
+                if scope_type == "account" and normalize_account(name) in HIDDEN_ACCOUNT_SUMMARY_NAMES:
                     continue
+                if scope_type == "anchor":
+                    if source_table == "lead_anchor" and cls._is_hidden_anchor_performance_name(name):
+                        continue
+                    if source_table != "lead_anchor" and cls._is_hidden_anchor_name(name):
+                        continue
                 if name and name not in names:
                     names[name] = row.get("parent_scope", "")
         return [

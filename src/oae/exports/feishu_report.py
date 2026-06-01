@@ -9,6 +9,7 @@ import pandas as pd
 
 from oae.contracts.models import RunMetadata
 from oae.exports.feishu_content import ReportContext, build_markdown_content, build_tsv_content
+from oae.exports.feishu_dashboard_source import build_dashboard_source_rows, dashboard_source_tsv
 from oae.exports.feishu_manifest import write_feishu_manifests
 from oae.exports.feishu_panels import (
     ACCOUNT_REQUIRED_COLUMNS,
@@ -73,6 +74,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--freeze-id", default="", help="冻结编号")
     parser.add_argument("--output-md", default="", help="输出md文件；留空自动命名")
     parser.add_argument("--output-tsv", default="", help="输出tsv文件；留空自动命名")
+    parser.add_argument("--output-dashboard-source-tsv", default="", help="输出 dashboard source TSV；留空自动命名")
     return parser.parse_args()
 
 
@@ -200,12 +202,26 @@ def main() -> None:
 
     md_content = build_markdown_content(ctx)
     tsv_content = build_tsv_content(ctx)
+    dashboard_source_rows = build_dashboard_source_rows(
+        report_date=report_date_str,
+        topline_summary=topline_summary,
+        account_table=acc_tsv_out,
+        anchor_table=anc_tsv_out,
+    )
+    dashboard_source_content = dashboard_source_tsv(dashboard_source_rows)
     md_path = Path(args.output_md).expanduser().resolve() if args.output_md else reports_dir / f"feishu_report_latest_{report_date_str}.md"
     tsv_path = Path(args.output_tsv).expanduser().resolve() if args.output_tsv else reports_dir / f"feishu_table_latest_{report_date_str}.tsv"
+    dashboard_source_path = (
+        Path(args.output_dashboard_source_tsv).expanduser().resolve()
+        if args.output_dashboard_source_tsv
+        else reports_dir / f"feishu_dashboard_source_latest_{report_date_str}.tsv"
+    )
     md_path.parent.mkdir(parents=True, exist_ok=True)
     tsv_path.parent.mkdir(parents=True, exist_ok=True)
+    dashboard_source_path.parent.mkdir(parents=True, exist_ok=True)
     md_path.write_text(md_content, encoding="utf-8")
     tsv_path.write_text(tsv_content, encoding="utf-8")
+    dashboard_source_path.write_text(dashboard_source_content, encoding="utf-8-sig")
 
     metadata = RunMetadata(
         run_id=args.run_id or infer_run_id(acc) or build_run_id(),
@@ -225,10 +241,13 @@ def main() -> None:
         fact_path=fact_path,
         md_path=md_path,
         tsv_path=tsv_path,
+        dashboard_source_path=dashboard_source_path,
+        dashboard_source_row_count=len(dashboard_source_rows),
     )
 
     print(f"[OK] markdown file: {md_path}")
     print(f"[OK] tsv file: {tsv_path}")
+    print(f"[OK] dashboard source tsv file: {dashboard_source_path}")
     print(f"[OK] export manifest dir: {export_dir}")
     print(f"[INFO] leads source: {leads_path}")
     print(f"[INFO] deals source: {deals_path}")
