@@ -329,7 +329,9 @@ def test_get_daily_dashboard_trends_reads_release_metrics_from_dashboard_source(
     assert summary["impressions"]["actual"] == 24286300
     assert summary["spend"]["actual"] == 784252.48
     assert summary["cpl"]["actual"] == 34.58
+    assert summary["cpl"]["attain_rate"] == pytest.approx(53 / 34.58)
     assert summary["cps"]["actual"] == 8618.16
+    assert summary["cps"]["attain_rate"] == pytest.approx(6267 / 8618.16)
 
     trends = {item["key"]: item for item in payload["daily_trends"]}
     assert trends["impressions"]["points"] == [{"date": "2026-05-28", "value": 24286300}]
@@ -340,6 +342,7 @@ def test_get_daily_dashboard_trends_reads_release_metrics_from_dashboard_source(
     account = next(item for item in payload["account_summary"] if item["name"] == "星途汽车直播营销中心")
     assert account["metrics"]["spend"]["actual"] == 338841.04
     assert account["metrics"]["cpl"]["actual"] == 41.22
+    assert account["metrics"]["cpl"]["attain_rate"] == pytest.approx(55 / 41.22)
     assert account["metrics"]["cps"]["actual"] == 14118.38
 
     anchor = next(item for item in payload["anchor_summary"] if item["name"] == "徐欣悦")
@@ -353,6 +356,32 @@ def test_get_daily_dashboard_trends_reads_release_metrics_from_dashboard_source(
     assert annotation["quality_status"] == "pass"
     assert annotation["quality_decision"] == "safe"
     assert annotation["release_readiness"] == "ready"
+
+
+def test_get_daily_dashboard_trends_monthly_comparison_uses_source_months_only(tmp_path: Path) -> None:
+    repo_root, runs_root = build_temp_repo(tmp_path)
+    reports_dir = repo_root / "output" / "sql_reports"
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-13.tsv",
+        _minimal_dashboard_source_rows("2026-05-13", impressions=1000, leads=10, deals=1, spend=100),
+    )
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-22.tsv",
+        _minimal_dashboard_source_rows("2026-05-22", impressions=2000, leads=20, deals=2, spend=200),
+    )
+    app = create_test_app(repo_root, runs_root)
+
+    with TestClient(app) as client:
+        response = client.get("/dashboard/daily/trends?start_date=2026-03-01&end_date=2026-05-22")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["date_range"]["available_dates"] == ["2026-05-13", "2026-05-22"]
+    assert [month["label"] for month in payload["monthly_comparison"]] == ["2026年5月"]
+    may = payload["monthly_comparison"][0]["metrics"]
+    assert may["impressions"]["value"] == 3000.0
+    assert may["leads"]["value"] == 30.0
+    assert may["cpl"]["value"] == 10.0
 
 
 def test_get_daily_dashboard_trends_filters_cancelled_accounts_from_account_summary(tmp_path: Path) -> None:

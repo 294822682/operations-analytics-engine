@@ -674,12 +674,17 @@ class DashboardDailyService:
         unit = str(series.get("unit") or (point or {}).get("unit") or "")
         if point is None:
             return cls._metric_summary(key, label, None, None, unit, source_status="not_connected")
+        actual = cls._json_number(point.get("actual"))
+        target = cls._json_number(point.get("target"))
+        attain_rate = cls._json_number(point.get("attain_rate"))
+        if attain_rate is None and key in {"cpl", "cps"}:
+            attain_rate = cls._json_number(cls._safe_div_value(target, actual))
         return {
             "key": key,
             "label": label,
-            "actual": cls._json_number(point.get("actual")),
-            "target": cls._json_number(point.get("target")),
-            "attain_rate": cls._json_number(point.get("attain_rate")),
+            "actual": actual,
+            "target": target,
+            "attain_rate": attain_rate,
             "unit": unit,
             "source_status": "available",
         }
@@ -1233,7 +1238,14 @@ class DashboardDailyService:
         if int(window["days"]) <= 31:
             return []
         trend_by_key = {str(trend.get("key", "")): trend for trend in daily_trends}
-        months = sorted({date_key[:7] for date_key in cls._calendar_date_strings(window["start_date"], window["end_date"])})
+        months = sorted(
+            {
+                str(point.get("date", ""))[:7]
+                for trend in daily_trends
+                for point in trend.get("points", [])
+                if point.get("value") is not None and str(point.get("date", ""))[:7]
+            }
+        )
 
         def monthly_sum(key: str, month: str) -> float | None:
             values: list[float] = []

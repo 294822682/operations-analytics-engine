@@ -355,8 +355,17 @@ def test_render_trend_dashboard_html_exposes_n12a_kpi_card_copy_rules() -> None:
     assert "当前 / 目标：未提供" not in html
     assert "成本比值" in html
     assert "达成率" not in html
-    assert "Math.min(Number(metric.attain_rate) * 100, 100)" in html
+    assert "metricProgressRate(metric)" in html
     assert "rateText(metric)" in html
+
+
+def test_render_trend_dashboard_html_derives_cost_progress_when_source_rate_is_missing() -> None:
+    html = dashboard_html.render_trend_dashboard_html(api_path="/dashboard/daily/trends?end_date=2026-05-22")
+
+    assert "function metricProgressRate(metric)" in html
+    assert "if (isCostMetric(metric)) return Number(metric.target) / Number(metric.actual);" in html
+    assert "const progressRate = metricProgressRate(metric);" in html
+    assert "Math.min(progressRate * 100, 100)" in html
 
 
 def test_render_trend_dashboard_html_exposes_n12a_tooltip_focus_and_text_rules() -> None:
@@ -678,7 +687,7 @@ def test_render_trend_dashboard_html_exposes_n121c1_account_summary_and_expand_d
     assert "function bindAccountDetailToggles" in html
     assert "account-detail-panel.is-expanded" in html
     assert "比率超过 100%" in html
-    assert "Math.min(Number(metric.attain_rate) * 100, 100)" in html
+    assert "Math.min(progressRate * 100, 100)" in html
     assert "口径待确认" not in html
 
 

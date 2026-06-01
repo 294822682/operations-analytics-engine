@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import re
 from io import StringIO
 from pathlib import Path
 from typing import Any
@@ -36,10 +37,17 @@ def build_dashboard_source_rows(
     topline_summary: ToplineSummary,
     account_table: pd.DataFrame,
     anchor_table: pd.DataFrame,
+    seed_account_table: pd.DataFrame | None = None,
+    seed_anchor_table: pd.DataFrame | None = None,
+    lead_quality_line: str = "",
 ) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     full = topline_summary.full_account
     account_summary_spend = _account_summary_spend(account_table)
+    order_actual = getattr(topline_summary, "douyin_laike_orders", None)
+    if order_actual is None:
+        order_actual = _account_summary_metric(account_table, "抖音-来客订单数")
+    order_target = _account_summary_metric(account_table, "订单KPI目标")
     full_spend = account_summary_spend
     if full_spend is None and full.cpl_actual is not None:
         full_spend = float(full.cpl_actual) * float(full.lead_actual)
@@ -172,11 +180,31 @@ def build_dashboard_source_rows(
         "topline_summary.full_account.pending_cumulative",
         80,
     )
+    _append(
+        rows,
+        report_date,
+        "topline",
+        "department",
+        "全量",
+        "",
+        "mtd_douyin_laike_orders",
+        "抖音-来客订单",
+        order_actual,
+        order_target,
+        _safe_div(order_actual, order_target),
+        "个",
+        "账号层（母集）.线索组汇总.抖音-来客订单数",
+        90,
+    )
 
     _append_segment(rows, report_date, topline_summary.ex7, 100)
     _append_segment(rows, report_date, topline_summary.excluding_ex7, 200)
+    _append_seed_account_rows(rows, report_date, seed_account_table if seed_account_table is not None else pd.DataFrame(), 700)
     _append_account_rows(rows, report_date, account_table, 1000)
+    _append_seed_anchor_rows(rows, report_date, seed_anchor_table if seed_anchor_table is not None else pd.DataFrame(), 3000)
     _append_anchor_rows(rows, report_date, anchor_table, 5000)
+    if lead_quality_line:
+        _append_lead_quality_rows(rows, report_date, lead_quality_line, 9000)
     return rows
 
 
@@ -218,6 +246,7 @@ def _append_account_rows(rows: list[dict[str, str]], report_date: str, account_t
             ("mtd_unique_leads", "累计唯一线索", "累计线索", "线索月目标", "累计线索达成率", "条"),
             ("daily_deals", "当日实销", "当日实销", "当日实销目标", "当日实销达成率", "台"),
             ("mtd_deals", "累计实销", "累计实销", "实销月目标", "累计实销达成率", "台"),
+            ("mtd_douyin_laike_orders", "抖音-来客订单", "抖音-来客订单数", "订单KPI目标", "订单KPI完成率", "个"),
             ("mtd_spend", "累计线索费用", "累计线索费用", "线索费用月目标", "", "元"),
             ("mtd_cpl", "实际 CPL", "实际CPL", "CPL目标", "", "元/条"),
             ("mtd_cps", "实际 CPS", "实际CPS", "CPS目标", "", "元/台"),
@@ -241,6 +270,37 @@ def _append_account_rows(rows: list[dict[str, str]], report_date: str, account_t
             )
 
 
+def _append_seed_account_rows(rows: list[dict[str, str]], report_date: str, seed_account_table: pd.DataFrame, base_order: int) -> None:
+    if seed_account_table.empty:
+        return
+    for row_index, (_, row) in enumerate(seed_account_table.iterrows()):
+        name = str(row.get("账号", "")).strip()
+        if not name:
+            continue
+        order = base_order + row_index * 100
+        specs = [
+            ("daily_impressions", "当日曝光", "当日曝光", "当日曝光目标", "当日曝光达成率", "人次"),
+            ("mtd_impressions", "累计曝光", "累计曝光", "曝光目标", "累计曝光达成率", "人次"),
+        ]
+        for offset, (metric_key, metric_name, actual_col, target_col, rate_col, unit) in enumerate(specs, start=1):
+            _append(
+                rows,
+                report_date,
+                "seed_account",
+                "account",
+                name,
+                "",
+                metric_key,
+                metric_name,
+                _num(row.get(actual_col)),
+                _num(row.get(target_col)),
+                _num(row.get(rate_col)),
+                unit,
+                f"种草账号.{name}.{actual_col}",
+                order + offset,
+            )
+
+
 def _append_anchor_rows(rows: list[dict[str, str]], report_date: str, anchor_table: pd.DataFrame, base_order: int) -> None:
     if anchor_table.empty:
         return
@@ -255,6 +315,7 @@ def _append_anchor_rows(rows: list[dict[str, str]], report_date: str, anchor_tab
             ("mtd_unique_leads", "累计唯一线索", "累计线索", "线索月目标", "累计线索达成率", "条"),
             ("daily_deals", "当日实销", "当日实销", "当日实销目标", "当日实销达成率", "台"),
             ("mtd_deals", "累计实销", "累计实销", "实销月目标", "累计实销达成率", "台"),
+            ("mtd_douyin_laike_orders", "抖音-来客订单", "抖音-来客订单数", "订单KPI目标", "订单KPI完成率", "个"),
             ("mtd_spend", "累计线索费用", "累计线索费用", "单人线索费用目标", "", "元"),
             ("mtd_cpl", "实际 CPL", "实际CPL", "单人CPL目标", "", "元/条"),
             ("mtd_cps", "实际 CPS", "实际CPS", "单人CPS目标", "", "元/台"),
@@ -276,6 +337,66 @@ def _append_anchor_rows(rows: list[dict[str, str]], report_date: str, anchor_tab
                 f"到人层（子集）.{name}.{actual_col}",
                 order + offset,
             )
+
+
+def _append_seed_anchor_rows(rows: list[dict[str, str]], report_date: str, seed_anchor_table: pd.DataFrame, base_order: int) -> None:
+    if seed_anchor_table.empty:
+        return
+    for row_index, (_, row) in enumerate(seed_anchor_table.iterrows()):
+        name = str(row.get("主播", "")).strip()
+        if not name:
+            continue
+        parent_scope = str(row.get("归属账号", "")).strip()
+        order = base_order + row_index * 100
+        specs = [
+            ("daily_impressions", "当日曝光", "当日曝光", "当日曝光目标", "当日曝光达成率", "人次"),
+            ("mtd_impressions", "累计曝光", "累计曝光", "曝光目标", "累计曝光达成率", "人次"),
+        ]
+        for offset, (metric_key, metric_name, actual_col, target_col, rate_col, unit) in enumerate(specs, start=1):
+            _append(
+                rows,
+                report_date,
+                "seed_anchor",
+                "anchor",
+                name,
+                parent_scope,
+                metric_key,
+                metric_name,
+                _num(row.get(actual_col)),
+                _num(row.get(target_col)),
+                _num(row.get(rate_col)),
+                unit,
+                f"种草主播.{name}.{actual_col}",
+                order + offset,
+            )
+
+
+def _append_lead_quality_rows(rows: list[dict[str, str]], report_date: str, lead_quality_line: str, base_order: int) -> None:
+    specs = [
+        ("raw_leads", "原始线索", _extract_first_int(lead_quality_line, r"原始线索[^）)]*[）)]?(\d+)"), "条"),
+        ("lead_quality_unique_leads", "唯一线索", _extract_first_int(lead_quality_line, r"唯一线索[^）)]*[）)]?(\d+)"), "条"),
+        ("unique_rate", "唯一率", _extract_first_rate(lead_quality_line, r"唯一率\s*([0-9.]+%)"), "比例"),
+        ("unowned_leads", "无主线索", _extract_first_int(lead_quality_line, r"无主线索\s*(\d+)"), "条"),
+        ("manual_overrides", "人工归属", _extract_first_int(lead_quality_line, r"人工确认归属\s*(\d+)\s*条"), "条"),
+        ("manual_affected_rows", "人工归属影响行", _extract_first_int(lead_quality_line, r"影响样本\s*(\d+)\s*行"), "行"),
+    ]
+    for offset, (metric_key, metric_name, actual, unit) in enumerate(specs):
+        _append(
+            rows,
+            report_date,
+            "lead_quality",
+            "department",
+            "全量",
+            "",
+            metric_key,
+            metric_name,
+            actual,
+            None,
+            None,
+            unit,
+            "lead_quality_text",
+            base_order + offset,
+        )
 
 
 def _append(
@@ -314,12 +435,18 @@ def _append(
 
 
 def _account_summary_spend(account_table: pd.DataFrame) -> float | None:
-    if account_table.empty or "账号" not in account_table.columns or "累计线索费用" not in account_table.columns:
+    return _account_summary_metric(account_table, "累计线索费用")
+
+
+def _account_summary_metric(account_table: pd.DataFrame, metric_column: str) -> float | None:
+    if account_table.empty or "账号" not in account_table.columns:
+        return None
+    if metric_column not in account_table.columns:
         return None
     matched = account_table[account_table["账号"].astype(str).str.strip().eq("线索组汇总")]
     if matched.empty:
         return None
-    return _num(matched.iloc[0].get("累计线索费用"))
+    return _num(matched.iloc[0].get(metric_column))
 
 
 def _segment_spend(segment: SegmentTopline) -> float | None:
@@ -356,6 +483,29 @@ def _num(value: Any) -> float | None:
     except ValueError:
         return None
     return number * scale if np.isfinite(number) else None
+
+
+def _safe_div(numerator: object, denominator: object) -> float | None:
+    actual = _num(numerator)
+    target = _num(denominator)
+    if actual is None or target is None or target <= 0:
+        return None
+    return actual / target
+
+
+def _extract_first_int(text: str, pattern: str) -> int:
+    matched = re.search(pattern, text)
+    if not matched:
+        return 0
+    value = str(matched.group(1)).replace(",", "")
+    return int(value) if value.isdigit() else 0
+
+
+def _extract_first_rate(text: str, pattern: str) -> float:
+    matched = re.search(pattern, text)
+    if not matched:
+        return 0.0
+    return float(str(matched.group(1)).rstrip("%")) / 100
 
 
 def _cell(value: object) -> str:
