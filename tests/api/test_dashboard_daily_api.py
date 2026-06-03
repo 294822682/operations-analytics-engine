@@ -363,11 +363,11 @@ def test_get_daily_dashboard_trends_monthly_comparison_uses_latest_source_mtd_fo
     reports_dir = repo_root / "output" / "sql_reports"
     _write_tsv(
         reports_dir / "feishu_dashboard_source_latest_2026-05-13.tsv",
-        _minimal_dashboard_source_rows("2026-05-13", impressions=1000, leads=10, deals=1, spend=100),
+        _minimal_dashboard_source_rows("2026-05-13", impressions=1000, leads=10, orders=3, deals=1, spend=100),
     )
     _write_tsv(
         reports_dir / "feishu_dashboard_source_latest_2026-05-22.tsv",
-        _minimal_dashboard_source_rows("2026-05-22", impressions=2000, leads=20, deals=2, spend=200),
+        _minimal_dashboard_source_rows("2026-05-22", impressions=2000, leads=20, orders=7, deals=2, spend=200),
     )
     app = create_test_app(repo_root, runs_root)
 
@@ -381,6 +381,7 @@ def test_get_daily_dashboard_trends_monthly_comparison_uses_latest_source_mtd_fo
     may = payload["monthly_comparison"][0]["metrics"]
     assert may["impressions"]["value"] == 2000.0
     assert may["leads"]["value"] == 20.0
+    assert may["douyin_laike_orders"]["value"] == 7.0
     assert may["deals"]["value"] == 2.0
     assert may["spend"]["value"] == 200.0
     assert may["cpl"]["value"] == 10.0
@@ -449,7 +450,89 @@ def test_get_daily_dashboard_trends_supplements_monthly_comparison_from_history_
     reports_dir = repo_root / "output" / "sql_reports"
     _write_tsv(
         reports_dir / "feishu_dashboard_source_latest_2026-05-29.tsv",
-        _minimal_dashboard_source_rows("2026-05-29", impressions=500, leads=5, deals=1, spend=50),
+        _minimal_dashboard_source_rows("2026-05-29", impressions=500, leads=5, orders=5, deals=1, spend=50),
+    )
+    _write_live_workbook(
+        repo_root / "历史文件" / "2026年3月" / "2026年3月直播进度表.xlsx",
+        [
+            {
+                "日期": "2026-03-05",
+                "开播账号": "抖音-星途汽车官方直播间",
+                "平台&挂载组建": "抖音-来客",
+                "开播时间": "10:00",
+                "下播时间": "11:00",
+                "本场主播": "丁俐佳",
+                "订单数": 800,
+                "消耗": 80,
+                "曝光人数": 800,
+            },
+            {
+                "日期": "2026-03-05",
+                "开播账号": "抖音-星途汽车官方直播间",
+                "平台&挂载组建": "直播",
+                "开播时间": "12:00",
+                "下播时间": "13:00",
+                "本场主播": "丁俐佳",
+                "订单数": 99,
+                "消耗": 20,
+                "曝光人数": 200,
+            },
+        ],
+    )
+    _write_live_workbook(
+        repo_root / "历史文件" / "2026年4月" / "2026年4月直播进度表.xlsx",
+        [
+            {
+                "日期": "2026-04-05",
+                "开播账号": "抖音-星途汽车直播营销中心",
+                "平台&挂载组建": "抖音-来客",
+                "开播时间": "10:00",
+                "下播时间": "11:00",
+                "本场主播": "徐欣悦",
+                "订单数": 900,
+                "消耗": 90,
+                "曝光人数": 900,
+            },
+        ],
+    )
+    _write_live_workbook(
+        repo_root / "源文件" / "2026年5月直播进度表.xlsx",
+        [
+            {
+                "日期": "2026-05-29",
+                "开播账号": "抖音-星途汽车官方直播间",
+                "平台&挂载组建": "抖音-来客",
+                "开播时间": "10:00",
+                "下播时间": "11:00",
+                "本场主播": "丁俐佳",
+                "订单数": 990,
+                "消耗": 990,
+                "曝光人数": 9900,
+            },
+        ],
+    )
+    _write_raw_leads_csv(
+        repo_root / "历史文件" / "2026年3月" / "总部新媒体线索2026-04-01.csv",
+        [
+            {"线索ID": "M-L1", "创建时间": "2026-03-05 10:10:00", "渠道2": "抖音来客直播", "渠道3": "星途星纪元直播营销中心", "手机号": "13800000001"},
+            {"线索ID": "M-L2", "创建时间": "2026-03-05 10:20:00", "渠道2": "抖音来客直播", "渠道3": "星途星纪元直播营销中心", "手机号": "13800000001"},
+            {"线索ID": "M-L3", "创建时间": "2026-03-05 10:30:00", "渠道2": "抖音来客直播", "渠道3": "星途星纪元直播营销中心", "手机号": ""},
+            {"线索ID": "M-L4", "创建时间": "2026-03-05 12:30:00", "渠道2": "抖音来客直播", "渠道3": "星途星纪元直播营销中心", "手机号": "13800000004"},
+        ],
+    )
+    _write_raw_leads_csv(
+        repo_root / "历史文件" / "2026年4月" / "总部新媒体线索2026-05-01.csv",
+        [
+            {"线索ID": "A-L1", "创建时间": "2026-04-05 10:10:00", "渠道2": "抖音来客直播", "渠道3": "星途汽车直播营销中心", "手机号": "13900000001"},
+            {"线索ID": "A-L2", "创建时间": "2026-04-05 10:20:00", "渠道2": "抖音来客直播", "渠道3": "星途汽车直播营销中心", "手机号": "13800000001"},
+        ],
+    )
+    _write_raw_leads_csv(
+        repo_root / "源文件" / "总部新媒体线索2026-06-01.csv",
+        [
+            {"线索ID": "Y-L1", "创建时间": "2026-05-29 10:10:00", "渠道2": "抖音来客直播", "渠道3": "星途汽车官方直播间", "手机号": "13700000001"},
+            {"线索ID": "Y-L2", "创建时间": "2026-05-29 10:20:00", "渠道2": "抖音来客直播", "渠道3": "星途汽车官方直播间", "手机号": "13700000002"},
+        ],
     )
     _write_fact_csv(
         repo_root / "output" / "fact_attribution.csv",
@@ -471,9 +554,12 @@ def test_get_daily_dashboard_trends_supplements_monthly_comparison_from_history_
     april = payload["monthly_comparison"][1]["metrics"]
     may = payload["monthly_comparison"][2]["metrics"]
     assert march["leads"]["value"] == 1.0
+    assert march["douyin_laike_orders"]["value"] == 2.0
     assert march["deals"]["value"] == 1.0
     assert april["leads"]["value"] == 1.0
+    assert april["douyin_laike_orders"]["value"] == 2.0
     assert may["leads"]["value"] == 5.0
+    assert may["douyin_laike_orders"]["value"] == 5.0
 
 
 def test_get_daily_dashboard_trends_filters_cancelled_accounts_from_account_summary(tmp_path: Path) -> None:
@@ -1065,6 +1151,7 @@ def _minimal_dashboard_source_rows(
     *,
     impressions: float = 0,
     leads: float = 0,
+    orders: float | None = None,
     deals: float = 0,
     spend: float | None = 0,
     cpl: float | None = None,
@@ -1079,6 +1166,8 @@ def _minimal_dashboard_source_rows(
         _dated_row(report_date, "topline", "department", "全量", "", "mtd_unique_leads", "累计唯一线索", str(leads), "", "", "条"),
         _dated_row(report_date, "topline", "department", "全量", "", "mtd_deals", "累计实销", str(deals), "", "", "台"),
     ]
+    if orders is not None:
+        rows.append(_dated_row(report_date, "topline", "department", "全量", "", "mtd_douyin_laike_orders", "抖音-来客订单", str(orders), "", "", "个"))
     if include_spend:
         rows.append(_dated_row(report_date, "topline", "department", "全量", "", "mtd_spend", "累计线索费用", "" if spend is None else str(spend), "", "", "元"))
     if cpl is not None:
@@ -1334,7 +1423,7 @@ def _write_fact_csv(path: Path, rows: list[dict[str, str]]) -> None:
 
 def _write_raw_leads_csv(path: Path, rows: list[dict[str, str]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    columns = ["线索ID", "创建日期", "创建时间", "到店日期", "到店时间", "首次意向车型", "意向车型", "试驾车型", "下订车型", "成交车型", "渠道2", "渠道3"]
+    columns = ["线索ID", "创建日期", "创建时间", "到店日期", "到店时间", "首次意向车型", "意向车型", "试驾车型", "下订车型", "成交车型", "渠道2", "渠道3", "手机号"]
     path.write_text(
         "\n".join([",".join(columns), *[",".join(str(row.get(column, "")) for column in columns) for row in rows]]) + "\n",
         encoding="utf-8-sig",

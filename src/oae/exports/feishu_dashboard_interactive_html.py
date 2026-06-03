@@ -3223,7 +3223,7 @@ function monthlyCellTooltip(row, metric, coverage) {{
 function monthlyComparisonPanel(payload) {{
   const rows = payload.monthly_comparison || [];
   if (!rows.length) return "";
-  const metricKeys = ["impressions", "leads", "deals", "spend", "cpl", "cps"];
+  const metricKeys = ["impressions", "leads", "douyin_laike_orders", "deals", "spend", "cpl", "cps"];
   const maxByMetric = Object.fromEntries(metricKeys.map((key) => [
     key,
     Math.max(...rows.map((row) => Number(row.metrics?.[key]?.value ?? 0)).filter((value) => Number.isFinite(value)), 0),
