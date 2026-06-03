@@ -267,6 +267,7 @@ def main() -> None:
         ["analysis_snapshot_unified-fact_latest_*.csv", "analysis_snapshot_latest_*.csv"],
     )
     snapshot_date = _extract_date(snapshot_csv)
+    report_date_tag = args.report_date or snapshot_date
 
     export_step = [
         sys.executable,
@@ -305,7 +306,9 @@ def main() -> None:
         "--freeze-id",
         freeze_id,
         "--report-date",
-        args.report_date or snapshot_date,
+        report_date_tag,
+        "--output-dashboard-source-tsv",
+        str(reports_dir / f"feishu_dashboard_source_latest_{report_date_tag}.tsv"),
     ]
     subprocess.run(export_step, cwd=workspace, check=True, env=env)
     completed_steps.append(export_step)
@@ -329,12 +332,11 @@ def main() -> None:
         "--topline-config",
         str(workspace / "config" / "report_topline_config.json"),
         "--tsv",
-        str(reports_dir / f"feishu_table_latest_{args.report_date or snapshot_date}.tsv"),
+        str(reports_dir / f"feishu_table_latest_{report_date_tag}.tsv"),
     ]
     subprocess.run(verify_step, cwd=workspace, check=True, env=env)
     completed_steps.append(verify_step)
 
-    report_date_tag = args.report_date or snapshot_date
     output_files = [
         output_dir / "fact_attribution.csv",
         _pick_latest(reports_dir, "daily_goal_account_latest_*.csv"),
@@ -367,6 +369,7 @@ def main() -> None:
     manifest_paths = [
         exports_dir / f"feishu_report_latest_{report_date_tag}.manifest.json",
         exports_dir / f"feishu_table_latest_{report_date_tag}.manifest.json",
+        exports_dir / f"feishu_dashboard_source_latest_{report_date_tag}.manifest.json",
     ]
     analysis_manifest_dir = workspace / "artifacts" / "exports" / "analysis"
     analysis_naming_status_path = _pick_latest_any(
@@ -480,6 +483,7 @@ def main() -> None:
             *output_files,
             _pick_latest(reports_dir, "daily_goal_anchor_latest_*.csv"),
             reports_dir / f"feishu_report_latest_{report_date_tag}.md",
+            reports_dir / f"feishu_dashboard_source_latest_{report_date_tag}.tsv",
             snapshot_csv,
             ledger_csv,
             analysis_snapshot_csv,
