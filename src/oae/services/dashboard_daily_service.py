@@ -11,10 +11,12 @@ import numpy as np
 import pandas as pd
 
 from oae.exports.feishu_dashboard_interactive_html import DashboardSource, Metric
+from oae.exports.feishu_douyin_laike import build_douyin_laike_order_metrics
 from oae.exports.feishu_panel_utils import ACCOUNT_LABEL_MAP
 from oae.exports.feishu_topline import annotate_fact_with_ex7_partition, load_topline_config
 from oae.performance.fact_loader import load_fact
 from oae.performance.loader_utils import normalize_account, normalize_text, pick_live_column, split_hosts
+from oae.rules.columns import COLUMN_ALIASES, pick_col
 from oae.rules.io_utils import read_table_auto
 from oae.utils import ApiError, InvalidReportDateError, normalize_report_date
 
@@ -144,7 +146,7 @@ class DashboardDailyService:
             "topline",
             "department",
             "全量",
-            ["impressions", "mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
+            ["impressions", "mtd_unique_leads", "mtd_douyin_laike_orders", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
             quality_annotations,
         )
         segments = {
@@ -169,7 +171,7 @@ class DashboardDailyService:
             sources,
             "lead_account",
             "account",
-            ["mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
+            ["mtd_unique_leads", "mtd_douyin_laike_orders", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
             quality_annotations,
         )
         lead_anchors = self._trend_entities_for_source(
@@ -464,7 +466,7 @@ class DashboardDailyService:
                 "topline",
                 "department",
                 "全量",
-                ["impressions", "mtd_unique_leads", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
+                ["impressions", "mtd_unique_leads", "mtd_douyin_laike_orders", "mtd_deals", "mtd_spend", "mtd_cpl", "mtd_cps"],
                 previous_quality,
             )
             if previous_sources
@@ -538,6 +540,7 @@ class DashboardDailyService:
         return [
             ("impressions", "impressions", "曝光"),
             ("mtd_unique_leads", "leads", "线索"),
+            ("mtd_douyin_laike_orders", "douyin_laike_orders", "来客订单"),
             ("mtd_deals", "deals", "实销"),
             ("mtd_spend", "spend", "费用"),
             ("mtd_cpl", "cpl", "CPL"),
@@ -580,6 +583,9 @@ class DashboardDailyService:
             "线索": {
                 "leads": metrics["leads"],
                 "unique_leads": metrics["unique_leads"],
+            },
+            "来客订单": {
+                "douyin_laike_orders": metrics["douyin_laike_orders"],
             },
             "到店": {
                 "visits": metrics["visits"],
@@ -713,6 +719,11 @@ class DashboardDailyService:
     def _source_entity_metrics(cls, series_by_key: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
         leads = cls._summary_from_series(series_by_key.get("mtd_unique_leads", {}), "leads", "线索")
         unique_leads = {**leads, "key": "unique_leads", "label": "唯一线索"}
+        douyin_laike_orders = cls._summary_from_series(
+            series_by_key.get("mtd_douyin_laike_orders", {}),
+            "douyin_laike_orders",
+            "来客订单",
+        )
         deals = cls._summary_from_series(series_by_key.get("mtd_deals", {}), "deals", "实销")
         spend = cls._summary_from_series(series_by_key.get("mtd_spend", {}), "spend", "费用")
         cpl = cls._summary_from_series(series_by_key.get("mtd_cpl", {}), "cpl", "CPL")
@@ -735,6 +746,7 @@ class DashboardDailyService:
         return {
             "leads": leads,
             "unique_leads": unique_leads,
+            "douyin_laike_orders": douyin_laike_orders,
             "deals": deals,
             "spend": spend,
             "cpl": cpl,
@@ -748,6 +760,7 @@ class DashboardDailyService:
         return {
             "leads": cls._daily_points_from_series(series_by_key.get("mtd_unique_leads", {})),
             "unique_leads": cls._daily_points_from_series(series_by_key.get("mtd_unique_leads", {})),
+            "douyin_laike_orders": cls._daily_points_from_series(series_by_key.get("mtd_douyin_laike_orders", {})),
             "deals": cls._daily_points_from_series(series_by_key.get("mtd_deals", {})),
             "spend": cls._daily_points_from_series(series_by_key.get("mtd_spend", {})),
             "cpl": cls._daily_points_from_series(series_by_key.get("mtd_cpl", {})),
@@ -878,6 +891,7 @@ class DashboardDailyService:
         raw_leads = self._load_raw_source_table("leads")
         raw_deals = self._load_raw_source_table("deals")
         live_sessions = self._load_live_sessions()
+        live_source = self._load_live_source_table()
         seed_sessions = self._load_seed_sessions()
         targets = self._load_targets()
         seed_targets = self._load_seed_targets()
@@ -902,6 +916,11 @@ class DashboardDailyService:
             live_range=current["core_live_range"],
             window=window,
             target_config=self._load_topline_targets(),
+            douyin_laike_order_daily=self._douyin_laike_order_mtd_points(
+                live_source,
+                raw_leads,
+                window,
+            ),
         )
         accounts = self._entity_summaries(
             "account",
@@ -952,6 +971,11 @@ class DashboardDailyService:
             live_range=previous["core_live_range"],
             window=previous_window,
             target_config=self._load_topline_targets(),
+            douyin_laike_order_daily=self._douyin_laike_order_mtd_points(
+                live_source,
+                raw_leads,
+                previous_window,
+            ),
         )
         previous_has_data = self._trend_payloads_have_data(previous_core["daily_trends"])
         previous_period = {
@@ -1026,6 +1050,27 @@ class DashboardDailyService:
             paths.update(path.resolve() for path in root.rglob("*直播进度表*.xlsx") if path.is_file())
             paths.update(path.resolve() for path in root.rglob("*直播进度表*.xls") if path.is_file())
         return self._load_session_workbooks(paths, source_kind="live_progress")
+
+    def _load_live_source_table(self) -> pd.DataFrame:
+        paths: set[Path] = set()
+        for root in (self.repo_root / "历史文件", self.repo_root / "源文件"):
+            if not root.exists():
+                continue
+            paths.update(path.resolve() for path in root.rglob("*直播进度表*.xlsx") if path.is_file())
+            paths.update(path.resolve() for path in root.rglob("*直播进度表*.xls") if path.is_file())
+
+        frames: list[pd.DataFrame] = []
+        for path in sorted(paths):
+            try:
+                workbook = pd.ExcelFile(path)
+                raw = pd.read_excel(path, sheet_name=workbook.sheet_names[0])
+            except Exception:
+                continue
+            raw = raw.copy()
+            raw.columns = [str(column).strip() for column in raw.columns]
+            raw["_source_file"] = path.name
+            frames.append(raw)
+        return pd.concat(frames, ignore_index=True, sort=False) if frames else pd.DataFrame()
 
     def _load_seed_sessions(self) -> pd.DataFrame:
         paths: set[Path] = set()
@@ -1315,6 +1360,45 @@ class DashboardDailyService:
         return data[data["date"].between(start_ts, end_ts)].copy()
 
     @classmethod
+    def _douyin_laike_order_mtd_points(
+        cls,
+        live_source: pd.DataFrame,
+        raw_leads: pd.DataFrame,
+        window: dict[str, Any],
+    ) -> dict[str, float]:
+        if live_source.empty or raw_leads.empty:
+            return {}
+        lead_time_col = pick_col(raw_leads, [*COLUMN_ALIASES["lead_time"], "创建日期"], required=False)
+        if not lead_time_col:
+            return {}
+        lead_time = pd.to_datetime(raw_leads[lead_time_col], errors="coerce")
+        date_strings = cls._calendar_date_strings(window["start_date"], window["end_date"])
+        if not date_strings:
+            return {}
+        end_date = date.fromisoformat(window["end_date"])
+        months = sorted({date_key[:7] for date_key in date_strings})
+        out: dict[str, float] = {}
+        for month in months:
+            year, month_number = (int(part) for part in month.split("-"))
+            month_end = date(year, month_number, calendar.monthrange(year, month_number)[1])
+            report_date = min(month_end, end_date)
+            report_date_key = report_date.isoformat()
+            if report_date_key not in date_strings:
+                continue
+            month_start = pd.Timestamp(report_date).to_period("M").to_timestamp().normalize()
+            month_leads = raw_leads[
+                lead_time.notna()
+                & lead_time.dt.normalize().between(month_start, pd.Timestamp(report_date).normalize())
+            ].copy()
+            total_orders, _, _ = build_douyin_laike_order_metrics(
+                live_source,
+                month_leads,
+                pd.Timestamp(report_date),
+            )
+            out[report_date_key] = float(total_orders)
+        return out
+
+    @classmethod
     def _core_business_summary(
         cls,
         date_strings: list[str],
@@ -1324,7 +1408,9 @@ class DashboardDailyService:
         live_range: pd.DataFrame,
         window: dict[str, Any],
         target_config: dict[str, float],
+        douyin_laike_order_daily: dict[str, float] | None = None,
     ) -> dict[str, Any]:
+        douyin_laike_order_daily = douyin_laike_order_daily or {}
         lead_daily = cls._daily_count(lead_rows, "date", "_perf_lead_key")
         deal_daily = cls._daily_count(deal_rows, "deal_date", "线索ID_norm")
         spend_daily = cls._session_daily(live_range, "spend")
@@ -1334,6 +1420,7 @@ class DashboardDailyService:
         trend_specs = [
             ("impressions", "曝光", "人次", impression_daily),
             ("leads", "线索", "条", lead_daily),
+            ("douyin_laike_orders", "来客订单", "个", douyin_laike_order_daily),
             ("deals", "实销", "台", deal_daily),
             ("spend", "费用", "元", spend_daily),
             ("cpl", "CPL", "元/条", cpl_daily),
@@ -1343,6 +1430,7 @@ class DashboardDailyService:
         totals = {
             "impressions": cls._sum_present(impression_daily),
             "leads": cls._sum_present(lead_daily),
+            "douyin_laike_orders": cls._sum_present(douyin_laike_order_daily),
             "deals": cls._sum_present(deal_daily),
             "spend": cls._sum_present(spend_daily),
         }
@@ -1351,6 +1439,7 @@ class DashboardDailyService:
         summary = [
             cls._metric_summary("impressions", "曝光", totals["impressions"], cls._range_target(target_config.get("impressions"), window), "人次"),
             cls._metric_summary("leads", "线索", totals["leads"], cls._range_target(target_config.get("leads"), window), "条"),
+            cls._metric_summary("douyin_laike_orders", "来客订单", totals["douyin_laike_orders"], None, "个"),
             cls._metric_summary("deals", "实销", totals["deals"], cls._range_target(target_config.get("deals"), window), "台"),
             cls._metric_summary("spend", "费用", totals["spend"], None, "元"),
             cls._metric_summary("cpl", "CPL", totals["cpl"], target_config.get("cpl"), "元/条"),
@@ -1413,6 +1502,7 @@ class DashboardDailyService:
         for month in months:
             impressions = monthly_value("impressions", month)
             leads = monthly_value("leads", month)
+            douyin_laike_orders = monthly_value("douyin_laike_orders", month)
             deals = monthly_value("deals", month)
             spend = monthly_value("spend", month)
             cpl = cls._safe_div_value(spend, leads)
@@ -1425,6 +1515,7 @@ class DashboardDailyService:
                     "metrics": {
                         "impressions": metric("impressions", "曝光", "人次", impressions),
                         "leads": metric("leads", "线索", "条", leads),
+                        "douyin_laike_orders": metric("douyin_laike_orders", "来客订单", "个", douyin_laike_orders),
                         "deals": metric("deals", "实销", "台", deals),
                         "spend": metric("spend", "费用", "元", spend),
                         "cpl": metric("cpl", "CPL", "元/条", cpl),

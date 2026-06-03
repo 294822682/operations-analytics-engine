@@ -537,6 +537,7 @@ def test_render_trend_dashboard_html_exposes_n12b_monthly_matrix_and_coverage_ru
     assert "月度对比矩阵" in html
     for label in ["曝光", "线索", "实销", "费用", "CPL", "CPS"]:
         assert label in html
+    assert '"douyin_laike_orders"' in html
     assert "2026年3月" in html
     assert "2026年4月" in html
     assert "2026年5月" in html
