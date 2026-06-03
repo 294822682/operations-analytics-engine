@@ -358,7 +358,7 @@ def test_get_daily_dashboard_trends_reads_release_metrics_from_dashboard_source(
     assert annotation["release_readiness"] == "ready"
 
 
-def test_get_daily_dashboard_trends_monthly_comparison_uses_source_months_only(tmp_path: Path) -> None:
+def test_get_daily_dashboard_trends_monthly_comparison_uses_latest_source_mtd_for_month(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
     reports_dir = repo_root / "output" / "sql_reports"
     _write_tsv(
@@ -379,8 +379,10 @@ def test_get_daily_dashboard_trends_monthly_comparison_uses_source_months_only(t
     assert payload["date_range"]["available_dates"] == ["2026-05-13", "2026-05-22"]
     assert [month["label"] for month in payload["monthly_comparison"]] == ["2026年5月"]
     may = payload["monthly_comparison"][0]["metrics"]
-    assert may["impressions"]["value"] == 3000.0
-    assert may["leads"]["value"] == 30.0
+    assert may["impressions"]["value"] == 2000.0
+    assert may["leads"]["value"] == 20.0
+    assert may["deals"]["value"] == 2.0
+    assert may["spend"]["value"] == 200.0
     assert may["cpl"]["value"] == 10.0
 
 

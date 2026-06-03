@@ -500,7 +500,7 @@ class DashboardDailyService:
             "previous_period": previous_period,
             "previous_period_trends": previous_daily_trends if previous_has_data else [],
             "monthly_comparison": self._merge_monthly_comparison(
-                self._monthly_comparison(daily_trends, window),
+                self._monthly_comparison(daily_trends, window, aggregation="latest"),
                 supplemental_payload.get("monthly_comparison", []) if supplemental_payload else [],
             ),
             "model_segment_summary": self._segment_summary_from_dashboard_sources(segments),
@@ -1369,7 +1369,13 @@ class DashboardDailyService:
         )
 
     @classmethod
-    def _monthly_comparison(cls, daily_trends: list[dict[str, Any]], window: dict[str, Any]) -> list[dict[str, Any]]:
+    def _monthly_comparison(
+        cls,
+        daily_trends: list[dict[str, Any]],
+        window: dict[str, Any],
+        *,
+        aggregation: str = "sum",
+    ) -> list[dict[str, Any]]:
         if int(window["days"]) <= 31:
             return []
         trend_by_key = {str(trend.get("key", "")): trend for trend in daily_trends}
@@ -1382,28 +1388,33 @@ class DashboardDailyService:
             }
         )
 
-        def monthly_sum(key: str, month: str) -> float | None:
-            values: list[float] = []
+        def monthly_value(key: str, month: str) -> float | None:
+            values: list[tuple[str, float]] = []
             for point in trend_by_key.get(key, {}).get("points", []):
-                if str(point.get("date", ""))[:7] != month:
+                point_date = str(point.get("date", ""))
+                if point_date[:7] != month:
                     continue
                 value = point.get("value")
                 if value is None:
                     continue
                 parsed = cls._json_number(value)
                 if parsed is not None:
-                    values.append(parsed)
-            return float(sum(values)) if values else None
+                    values.append((point_date, parsed))
+            if not values:
+                return None
+            if aggregation == "latest":
+                return sorted(values, key=lambda item: item[0])[-1][1]
+            return float(sum(value for _, value in values))
 
         def metric(key: str, label: str, unit: str, value: float | None) -> dict[str, Any]:
             return {"key": key, "label": label, "unit": unit, "value": cls._json_number(value)}
 
         rows: list[dict[str, Any]] = []
         for month in months:
-            impressions = monthly_sum("impressions", month)
-            leads = monthly_sum("leads", month)
-            deals = monthly_sum("deals", month)
-            spend = monthly_sum("spend", month)
+            impressions = monthly_value("impressions", month)
+            leads = monthly_value("leads", month)
+            deals = monthly_value("deals", month)
+            spend = monthly_value("spend", month)
             cpl = cls._safe_div_value(spend, leads)
             cps = cls._safe_div_value(spend, deals)
             year, month_number = month.split("-")
