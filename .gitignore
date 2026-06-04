@@ -1,0 +1,37 @@
+# Local Python/tooling state
+.venv/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+
+# macOS local metadata
+.DS_Store
+**/.DS_Store
+
+# Browser and temporary local runners
+.playwright-cli/
+tmp/
+
+# Generated business outputs and run evidence
+output/
+outputs/
+artifacts/
+全量分析/
+全量分析_round*_raw/
+
+# Local source/evidence folders that must be reviewed outside Git
+源文件/
+历史文件/
+legacy/
+archive/
+final_upload/
+
+# One-off contest/package/staging handoffs
+contest_submission_package/
+contest_submission_package_*.zip
+diagrams/
+interview_prep/
+
+# Customer-service engine runtime data only; do not ignore engine source code.
+engines/customer_service_performance_engine/input/
+engines/customer_service_performance_engine/output/
