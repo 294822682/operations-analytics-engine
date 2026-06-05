@@ -428,38 +428,21 @@ def _format_order_attain(actual: float | None, target: float | None) -> str:
 
 def build_markdown_topline_lines(summary: ToplineSummary) -> list[str]:
     full = summary.full_account
-    non_ex7 = summary.excluding_ex7
-    ex7 = summary.ex7
     order_actual = getattr(summary, "douyin_laike_orders", None)
     order_target = getattr(summary, "douyin_laike_order_target", None)
     lines = [
-        "**全量账号**",
-        f"- 曝光：目标 {format_impressions(full.impression_target)}，实际 {format_impressions(full.impression_actual)}，达成率 {format_pct(full.impression_attain)}",
-        f"- 线索：目标 {int(full.lead_target)}，实际达成 {int(full.lead_actual)}，达成率 {format_pct(full.lead_attain)}",
-        f"- 实销：目标 {int(full.deal_target)}，实际达成 {int(full.deal_actual)}，达成率 {format_pct(full.deal_attain)}",
+        "全量账号",
+        f"曝光：目标 {format_impressions(full.impression_target)}，实际 {format_impressions(full.impression_actual)}，达成率 {format_pct(full.impression_attain)}",
     ]
     if order_actual is not None:
         lines.append(
-            f"- 抖音-来客订单：目标 {format_metric(order_target, 0)}，实际 {format_metric(order_actual, 0)}，达成率 {_format_order_attain(order_actual, order_target)}"
+            f"订单：目标 {format_metric(order_target, 0)}单，实际 {format_metric(order_actual, 0)}单，达成率 {_format_order_attain(order_actual, order_target)}"
         )
     lines.extend(
         [
-        f"- 总体 CPL：目标 {format_metric(full.cpl_target, 0)}，实际 {format_metric(full.cpl_actual)}",
-        f"- 总体 CPS：目标 {format_metric(full.cps_target, 0)}，实际 {format_metric(full.cps_actual)}",
-        f"- 待交车（当日）：{int(full.pending_day)}",
-        f"- 待交车（累计）：{int(full.pending_cumulative)}",
-        "",
-        "**不含 EX7**",
-        f"- 线索：{int(non_ex7.leads)}",
-        f"- 实销：{int(non_ex7.deals)}",
-        f"- 实际 CPL：{format_metric(non_ex7.cpl_actual)}",
-        f"- 实际 CPS：{format_metric(non_ex7.cps_actual)}",
-        "",
-        "**EX7 专项**",
-        f"- 线索：{int(ex7.leads)}",
-        f"- 实销：{int(ex7.deals)}",
-        f"- 实际 CPL：{format_metric(ex7.cpl_actual)}",
-        f"- 实际 CPS：{format_metric(ex7.cps_actual)}",
+        f"实销：目标 {int(full.deal_target)}台，实际达成 {int(full.deal_actual)}台，达成率 {format_pct(full.deal_attain)}",
+        f"待交车（当日）：{int(full.pending_day)}",
+        f"待交车（累计）：{int(full.pending_cumulative)}",
         ]
     )
     return lines

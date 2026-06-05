@@ -4,19 +4,27 @@ from oae.exports.feishu_content import ReportContext, build_markdown_content, bu
 from oae.exports.feishu_topline import FullAccountTopline, SegmentTopline, ToplineSummary
 
 
-def test_markdown_content_includes_standalone_douyin_laike_order_breakdown() -> None:
+def test_markdown_content_uses_concise_daily_dialog_format() -> None:
     ctx = _report_context()
 
     content = build_markdown_content(ctx)
 
-    assert (
-        "**抖音-来客订单数**\n"
-        "- 累计订单数：19\n"
-        "- 订单目标：1000，达成率：1.90%\n"
-        "- 累计订单数（账号）：星途汽车官方直播间(15)、星途汽车直播营销中心(4)\n"
-        "- 累计订单数（主播）：丁俐佳(4)、侯翩翩(2)"
-    ) in content
-    assert content.index("**EX7 专项**") < content.index("**抖音-来客订单数**") < content.index("**成交账号**")
+    expected = (
+        "日报日期：2026-06-04\n"
+        "全量账号\n"
+        "曝光：目标 2500万，实际 28.28万，达成率 1.13%\n"
+        "订单：目标 1000单，实际 19单，达成率 1.90%\n"
+        "实销：目标 100台，实际达成 14台，达成率 14.00%\n"
+        "待交车（当日）：1\n"
+        "待交车（累计）：3\n"
+        "来客订单数\n"
+        "累计订单数（账号）：星途汽车官方直播间(15)、星途汽车直播营销中心(4)\n"
+        "累计订单数（主播）：丁俐佳(4)、孙慧敏(4)、何雯(5)、徐幻(2)、侯翩翩(2)、徐欣悦(2)"
+    )
+    assert content == expected
+    assert "线索：" not in content
+    assert "总体 CPL" not in content
+    assert "EX7 专项" not in content
 
 
 def test_tsv_content_includes_standalone_douyin_laike_order_breakdown() -> None:
@@ -30,7 +38,7 @@ def test_tsv_content_includes_standalone_douyin_laike_order_breakdown() -> None:
         "订单目标\t1000\n"
         "订单达成率\t1.90%\n"
         "累计订单数（账号）\t星途汽车官方直播间(15)、星途汽车直播营销中心(4)\n"
-        "累计订单数（主播）\t丁俐佳(4)、侯翩翩(2)"
+        "累计订单数（主播）\t丁俐佳(4)、孙慧敏(4)、何雯(5)、徐幻(2)、侯翩翩(2)、徐欣悦(2)"
     ) in content
     assert content.index("EX7 专项") < content.index("抖音-来客订单数") < content.index("成交账号\t结果")
 
@@ -70,8 +78,11 @@ def _report_context() -> ReportContext:
     anchor_table = pd.DataFrame(
         [
             {"主播": "丁俐佳", "归属账号": "星途汽车官方直播间", "抖音-来客订单数": "4"},
+            {"主播": "孙慧敏", "归属账号": "星途汽车官方直播间", "抖音-来客订单数": "4"},
+            {"主播": "何雯", "归属账号": "星途汽车官方直播间", "抖音-来客订单数": "5"},
+            {"主播": "徐幻", "归属账号": "星途汽车官方直播间", "抖音-来客订单数": "2"},
             {"主播": "侯翩翩", "归属账号": "星途汽车直播营销中心", "抖音-来客订单数": "2"},
-            {"主播": "徐欣悦", "归属账号": "星途汽车直播营销中心", "抖音-来客订单数": "0"},
+            {"主播": "徐欣悦", "归属账号": "星途汽车直播营销中心", "抖音-来客订单数": "2"},
         ]
     )
     return ReportContext(

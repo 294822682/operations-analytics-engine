@@ -183,6 +183,16 @@ def test_feishu_report_writes_seed_rows_to_dashboard_source(tmp_path: Path, monk
     assert account_mtd["actual"] == 8000
     assert account_mtd["target"] == 28000
 
+    topline_impressions = dashboard_source[
+        dashboard_source["source_table"].eq("topline")
+        & dashboard_source["scope_name"].eq("全量")
+        & dashboard_source["metric_key"].eq("impressions")
+    ].iloc[0]
+    assert topline_impressions["actual"] == 8000
+
+    markdown = (reports_dir / "feishu_report_latest_2026-06-03.md").read_text(encoding="utf-8")
+    assert "曝光：目标 1万，实际 0.8万，达成率 80.00%" in markdown
+
 
 def _snapshot_row(scope_type: str, scope_name: str, *, parent_account: str = "") -> dict[str, object]:
     return {
@@ -219,7 +229,7 @@ def _snapshot_row(scope_type: str, scope_name: str, *, parent_account: str = "")
 def _topline_summary() -> ToplineSummary:
     return ToplineSummary(
         full_account=FullAccountTopline(
-            impression_target=1,
+            impression_target=10_000,
             impression_actual=0,
             impression_attain=0,
             lead_target=1,

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 from pathlib import Path
 
 import pandas as pd
@@ -46,6 +47,28 @@ from oae.exports.feishu_topline import (
 )
 from oae.overrides import load_fact_with_manual_overrides
 from oae.version import METRIC_VERSION, SCHEMA_VERSION, TEMPLATE_VERSION, build_run_id
+
+
+def _with_seed_impressions(topline_summary, seed_account_table: pd.DataFrame):
+    if seed_account_table.empty or "累计曝光" not in seed_account_table.columns:
+        return topline_summary
+
+    seed_impressions = pd.to_numeric(seed_account_table["累计曝光"], errors="coerce").fillna(0.0).sum()
+    if float(seed_impressions) <= 0:
+        return topline_summary
+
+    full = topline_summary.full_account
+    actual = float(full.impression_actual or 0.0) + float(seed_impressions)
+    target = float(full.impression_target or 0.0)
+    attain = actual / target if target > 0 else None
+    return replace(
+        topline_summary,
+        full_account=replace(
+            full,
+            impression_actual=actual,
+            impression_attain=attain,
+        ),
+    )
 
 
 def _merge_metric_by_scope(panel: pd.DataFrame, metric_frame: pd.DataFrame) -> pd.DataFrame:
@@ -278,6 +301,7 @@ def main() -> None:
         seed_sessions=seed_sessions,
         seed_targets=seed_targets,
     )
+    topline_summary = _with_seed_impressions(topline_summary, seed_acc_tsv_out)
 
     ctx = ReportContext(
         report_date_str=report_date_str,

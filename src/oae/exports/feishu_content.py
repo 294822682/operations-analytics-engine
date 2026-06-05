@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import pandas as pd
 
 from oae.exports.feishu_topline import ToplineSummary, build_markdown_topline_lines, build_tsv_topline_lines
-from oae.exports.feishu_formatters import md_table, tsv_table
+from oae.exports.feishu_formatters import tsv_table
 
 
 @dataclass
@@ -29,28 +29,9 @@ class ReportContext:
 
 def build_markdown_content(ctx: ReportContext) -> str:
     lines = [
-        f"**日报日期：{ctx.report_date_str}**",
-        "",
+        f"日报日期：{ctx.report_date_str}",
         *build_markdown_topline_lines(ctx.topline_summary),
-        "",
         *_build_markdown_order_breakdown_lines(ctx),
-        "",
-        "**成交账号**",
-        f"- 当日成交账号（线索组目标账号）：{ctx.day_target_deal_accounts}",
-        f"- 累计成交账号（线索组目标账号）：{ctx.mtd_target_deal_accounts}",
-        f"- 累计成交账号（全量账号）：{ctx.mtd_all_deal_accounts}",
-        f"- 当日待交车账号（线索组目标账号）：{ctx.day_target_pending_accounts}",
-        f"- 累计待交车账号（线索组目标账号）：{ctx.mtd_target_pending_accounts}",
-        f"- 累计待交车账号（全量账号）：{ctx.mtd_all_pending_accounts}",
-        "",
-        "**线索质量口径**",
-        f"- {ctx.lead_quality_line}",
-        "",
-        "**账号层（母集）**",
-        md_table(ctx.acc_out),
-        "",
-        "**到人层（子集）**",
-        md_table(ctx.anc_out),
     ]
     return "\n".join(lines)
 
@@ -95,11 +76,9 @@ def build_markdown_order_breakdown_lines(
     if actual is None:
         return []
     return [
-        "**抖音-来客订单数**",
-        f"- 累计订单数：{_format_count(actual)}",
-        f"- 订单目标：{_format_count(target)}，达成率：{_format_rate(actual, target)}",
-        f"- 累计订单数（账号）：{_format_order_breakdown(acc_tsv_out, '账号')}",
-        f"- 累计订单数（主播）：{_format_order_breakdown(anc_tsv_out, '主播')}",
+        "来客订单数",
+        f"累计订单数（账号）：{_format_order_breakdown(acc_tsv_out, '账号')}",
+        f"累计订单数（主播）：{_format_order_breakdown(anc_tsv_out, '主播')}",
     ]
 
 
