@@ -331,8 +331,12 @@ def main() -> None:
         str(resolved_inputs["deals_detail"]),
         "--topline-config",
         str(workspace / "config" / "report_topline_config.json"),
+        "--snapshot-csv",
+        str(snapshot_csv),
         "--tsv",
         str(reports_dir / f"feishu_table_latest_{report_date_tag}.tsv"),
+        "--seed-targets-file",
+        str(workspace / "config" / "seed_monthly_targets.csv"),
     ]
     subprocess.run(verify_step, cwd=workspace, check=True, env=env)
     completed_steps.append(verify_step)

@@ -14,6 +14,12 @@ import pandas as pd
 
 import oae.exports.feishu_report as g
 from oae.exports.feishu_content import build_tsv_order_breakdown_lines
+from oae.exports.feishu_seed_dashboard import (
+    build_seed_dashboard_tables,
+    load_seed_monthly_targets,
+    load_seed_sessions_from_workbooks,
+    resolve_seed_workbook_paths,
+)
 from oae.exports.feishu_topline import (
     build_topline_summary,
     build_tsv_topline_lines,
@@ -46,7 +52,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--leads-file", default="", help="原始线索明细 CSV")
     p.add_argument("--deals-file", default="", help="原始成交明细 CSV")
     p.add_argument("--topline-config", default="config/report_topline_config.json", help="顶部核心汇报配置")
+    p.add_argument("--snapshot-csv", default="", help="正式日报快照 CSV，优先于 legacy daily_goal_*")
     p.add_argument("--tsv", default="", help="指定待复核 TSV；留空自动取最新")
+    p.add_argument("--seed-targets-file", default="config/seed_monthly_targets.csv", help="种草曝光月目标配置")
+    p.add_argument("--seed-workbook-file", default="", help="种草台账文件；留空自动搜索 EXEED星途台账")
     return p.parse_args()
 
 
@@ -113,6 +122,8 @@ def main() -> int:
     manual_override_path = Path(args.manual_override_file).expanduser().resolve() if str(args.manual_override_file).strip() else None
     live_path = Path(args.live_file).expanduser().resolve()
     topline_config_path = Path(args.topline_config).expanduser().resolve()
+    snapshot_path = Path(args.snapshot_csv).expanduser().resolve() if args.snapshot_csv else None
+    seed_targets_path = Path(args.seed_targets_file).expanduser().resolve() if str(args.seed_targets_file).strip() else None
 
     if not reports_dir.exists():
         print(f"[ERROR] reports dir not found: {reports_dir}")
@@ -141,6 +152,7 @@ def main() -> int:
         reports_dir.parent.parent.resolve() if reports_dir.parent.parent.exists() else reports_dir.parent.resolve(),
         fact_path.parent.resolve(),
         fact_path.parent.parent.resolve() if fact_path.parent.parent.exists() else fact_path.parent.resolve(),
+        live_path.parent.resolve(),
     ]
     search_dirs = _expand_search_dirs(search_dirs)
     if not live_path.exists():
@@ -153,10 +165,21 @@ def main() -> int:
 
     leads_path = resolve_latest_source_file(args.leads_file, search_dirs, "总部新媒体线索*.csv", "原始线索明细")
     deals_path = resolve_latest_source_file(args.deals_file, search_dirs, "总部新媒体成交*.csv", "原始成交明细")
+    search_dirs = _expand_search_dirs(
+        [
+            *search_dirs,
+            leads_path.parent.resolve(),
+            deals_path.parent.resolve(),
+        ]
+    )
 
     try:
-        acc = g.load_panel_for_date(reports_dir=reports_dir, report_date_str=report_date_str, scope="account")
-        anc = g.load_panel_for_date(reports_dir=reports_dir, report_date_str=report_date_str, scope="anchor")
+        if snapshot_path and snapshot_path.exists():
+            acc = g.load_panel_from_snapshot(snapshot_path=snapshot_path, report_date_str=report_date_str, scope="account")
+            anc = g.load_panel_from_snapshot(snapshot_path=snapshot_path, report_date_str=report_date_str, scope="anchor")
+        else:
+            acc = g.load_panel_for_date(reports_dir=reports_dir, report_date_str=report_date_str, scope="account")
+            anc = g.load_panel_for_date(reports_dir=reports_dir, report_date_str=report_date_str, scope="anchor")
     except SystemExit as exc:
         print(str(exc))
         return 1
@@ -170,13 +193,21 @@ def main() -> int:
     if not g.validate_columns(fact, g.FACT_REQUIRED_COLUMNS, "事实表"):
         return 1
 
-    lines = tsv_path.read_text(encoding="utf-8").splitlines()
+    lines = tsv_path.read_text(encoding="utf-8-sig").splitlines()
     report_date = pd.to_datetime(report_date_str)
     month_start = pd.to_datetime(f"{report_date_str[:7]}-01")
     live_df = pd.read_excel(live_path) if live_path.exists() else pd.DataFrame()
     leads_source = load_leads_source(leads_path)
     deals_source = load_deals_source(deals_path)
     topline_config = load_topline_config(topline_config_path)
+    seed_workbook_paths = resolve_seed_workbook_paths(args.seed_workbook_file, search_dirs)
+    seed_targets = load_seed_monthly_targets(seed_targets_path)
+    seed_sessions = load_seed_sessions_from_workbooks(seed_workbook_paths)
+    seed_acc_tsv_out, _ = build_seed_dashboard_tables(
+        report_date=report_date_str,
+        seed_sessions=seed_sessions,
+        seed_targets=seed_targets,
+    )
     topline_summary = build_topline_summary(
         fact=fact,
         live_df=live_df,
@@ -200,6 +231,7 @@ def main() -> int:
         )
         if summary_target.notna().any():
             setattr(topline_summary, "douyin_laike_order_target", float(summary_target.dropna().iloc[0]))
+    topline_summary = g._with_seed_impressions(topline_summary, seed_acc_tsv_out)
 
     errors: list[str] = []
     target_accounts = g.get_target_accounts(acc)
