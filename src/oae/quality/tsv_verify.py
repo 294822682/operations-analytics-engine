@@ -13,6 +13,7 @@ from pathlib import Path
 import pandas as pd
 
 import oae.exports.feishu_report as g
+from oae.exports.feishu_content import build_tsv_order_breakdown_lines
 from oae.exports.feishu_topline import (
     build_topline_summary,
     build_tsv_topline_lines,
@@ -184,11 +185,33 @@ def main() -> int:
         report_date=report_date,
         config=topline_config,
     )
+    acc, anc, total_douyin_laike_orders = g._attach_douyin_laike_order_metrics(
+        account_panel=acc,
+        anchor_panel=anc,
+        live_df=live_df,
+        leads_source=leads_source,
+        report_date=report_date,
+    )
+    setattr(topline_summary, "douyin_laike_orders", total_douyin_laike_orders)
+    if "order_target_month" in acc.columns:
+        summary_target = pd.to_numeric(
+            acc.loc[acc["scope_name"].astype(str).eq("线索组汇总"), "order_target_month"],
+            errors="coerce",
+        )
+        if summary_target.notna().any():
+            setattr(topline_summary, "douyin_laike_order_target", float(summary_target.dropna().iloc[0]))
 
     errors: list[str] = []
+    target_accounts = g.get_target_accounts(acc)
+    exp_acc_tsv = g.account_table_tsv(acc, target_accounts=target_accounts)
+    exp_anc_tsv = g.anchor_table_tsv(anc)
 
     # 1) 顶部核心汇报区
-    expected_top_lines = build_tsv_topline_lines(report_date_str, topline_summary)
+    expected_top_lines = [
+        *build_tsv_topline_lines(report_date_str, topline_summary),
+        *build_tsv_order_breakdown_lines(topline_summary, exp_acc_tsv, exp_anc_tsv),
+        "",
+    ]
     if "成交账号\t结果" not in lines:
         errors.append("缺少板块: 成交账号")
     else:
@@ -209,7 +232,6 @@ def main() -> int:
         got_rows = [lines[idx + i] for i in range(1, 7)]
         got_lead_quality = lines[idx + 7]
 
-        target_accounts = g.get_target_accounts(acc)
         day_target_deal, mtd_target_deal, mtd_all_deal = g.deal_accounts_text(
             fact=fact,
             report_date=report_date,
@@ -252,7 +274,6 @@ def main() -> int:
     # 3) 账号层（母集）逐单元复核
     try:
         got_acc_tsv = parse_section_df(lines, "账号层（母集）")
-        exp_acc_tsv = g.account_table_tsv(acc, target_accounts=g.get_target_accounts(acc))
         errors.extend(assert_df_equal("账号层（母集）", exp_acc_tsv, got_acc_tsv))
     except Exception as exc:
         errors.append(f"账号层（母集）解析失败: {exc}")
@@ -260,7 +281,6 @@ def main() -> int:
     # 4) 到人层（子集）逐单元复核
     try:
         got_anc_tsv = parse_section_df(lines, "到人层（子集）")
-        exp_anc_tsv = g.anchor_table_tsv(anc)
         errors.extend(assert_df_equal("到人层（子集）", exp_anc_tsv, got_anc_tsv))
     except Exception as exc:
         errors.append(f"到人层（子集）解析失败: {exc}")

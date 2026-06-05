@@ -105,7 +105,15 @@ def build_account_panel(
 
     target_cols = [
         col
-        for col in ["lead_target_month", "deal_target_month", "lead_cost_target_month", "cpl_target", "cps_target", "target_pool"]
+        for col in [
+            "lead_target_month",
+            "deal_target_month",
+            "lead_cost_target_month",
+            "cpl_target",
+            "cps_target",
+            "target_pool",
+            "order_target_month",
+        ]
         if col in account_targets.columns
     ]
     out = out.merge(account_targets.set_index("scope_name")[target_cols], left_on="scope_name", right_index=True, how="left")
@@ -115,7 +123,7 @@ def build_account_panel(
             out[col] = default
         out[col] = pd.to_numeric(out[col], errors="coerce").fillna(default)
 
-    for col in ["lead_cost_target_month", "cpl_target", "cps_target"]:
+    for col in ["lead_cost_target_month", "cpl_target", "cps_target", "order_target_month"]:
         if col not in out.columns:
             out[col] = np.nan
         out[col] = pd.to_numeric(out[col], errors="coerce")
@@ -139,6 +147,8 @@ def build_account_panel(
         pool_targets = account_targets.copy()
         if "target_pool" not in pool_targets.columns:
             pool_targets["target_pool"] = pool_targets["scope_name"]
+        if "order_target_month" not in pool_targets.columns:
+            pool_targets["order_target_month"] = np.nan
         pool_targets["target_pool"] = pool_targets["target_pool"].fillna("").astype(str).str.strip()
         pool_targets.loc[pool_targets["target_pool"].isin(["", "nan", "none", "null"]), "target_pool"] = pool_targets["scope_name"]
         pool_targets = (
@@ -148,11 +158,13 @@ def build_account_panel(
                 lead_target_month=("lead_target_month", "max"),
                 deal_target_month=("deal_target_month", "max"),
                 lead_cost_target_month=("lead_cost_target_month", "max"),
+                order_target_month=("order_target_month", "max"),
             )
         )
 
         total_daily["lead_target_month"] = pool_targets["lead_target_month"].sum()
         total_daily["deal_target_month"] = pool_targets["deal_target_month"].sum()
+        total_daily["order_target_month"] = pool_targets["order_target_month"].sum()
         account_cost = pd.to_numeric(pool_targets["lead_cost_target_month"], errors="coerce")
         if account_cost.notna().any():
             total_cost = float(account_cost.sum())
@@ -333,7 +345,7 @@ def build_anchor_panel(
     if anchor_meta.empty:
         return pd.DataFrame()
 
-    for col in ["lead_target_month", "deal_target_month", "lead_cost_target_month", "cpl_target", "cps_target"]:
+    for col in ["lead_target_month", "deal_target_month", "lead_cost_target_month", "cpl_target", "cps_target", "order_target_month"]:
         if col not in anchor_meta.columns:
             anchor_meta[col] = np.nan
         anchor_meta[col] = pd.to_numeric(anchor_meta[col], errors="coerce").astype(float)
@@ -342,7 +354,16 @@ def build_anchor_panel(
     out = pd.MultiIndex.from_product([dates, anchor_meta["anchor_idx"]], names=["date", "anchor_idx"]).to_frame(index=False)
     out = out.merge(
         anchor_meta[
-            ["anchor_idx", "scope_name", "lead_target_month", "deal_target_month", "lead_cost_target_month", "cpl_target", "cps_target"]
+            [
+                "anchor_idx",
+                "scope_name",
+                "lead_target_month",
+                "deal_target_month",
+                "lead_cost_target_month",
+                "cpl_target",
+                "cps_target",
+                "order_target_month",
+            ]
         ],
         on="anchor_idx",
         how="left",

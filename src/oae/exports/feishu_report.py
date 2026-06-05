@@ -10,6 +10,7 @@ import pandas as pd
 from oae.contracts.models import RunMetadata
 from oae.exports.feishu_content import ReportContext, build_markdown_content, build_tsv_content
 from oae.exports.feishu_dashboard_source import build_dashboard_source_rows, dashboard_source_tsv
+from oae.exports.feishu_douyin_laike import build_douyin_laike_order_metrics
 from oae.exports.feishu_manifest import write_feishu_manifests
 from oae.exports.feishu_panels import (
     ACCOUNT_REQUIRED_COLUMNS,
@@ -30,6 +31,12 @@ from oae.exports.feishu_panels import (
     resolve_report_date,
     validate_columns,
 )
+from oae.exports.feishu_seed_dashboard import (
+    build_seed_dashboard_tables,
+    load_seed_monthly_targets,
+    load_seed_sessions_from_workbooks,
+    resolve_seed_workbook_paths,
+)
 from oae.exports.feishu_topline import (
     build_topline_summary,
     load_deals_source,
@@ -39,6 +46,60 @@ from oae.exports.feishu_topline import (
 )
 from oae.overrides import load_fact_with_manual_overrides
 from oae.version import METRIC_VERSION, SCHEMA_VERSION, TEMPLATE_VERSION, build_run_id
+
+
+def _merge_metric_by_scope(panel: pd.DataFrame, metric_frame: pd.DataFrame) -> pd.DataFrame:
+    out = panel.copy()
+    if "mtd_douyin_laike_orders" not in out.columns:
+        out["mtd_douyin_laike_orders"] = 0.0
+    out["mtd_douyin_laike_orders"] = pd.to_numeric(out["mtd_douyin_laike_orders"], errors="coerce").fillna(0.0)
+    if metric_frame.empty:
+        return out
+
+    metric = metric_frame.set_index("scope_name")["mtd_douyin_laike_orders"]
+    matched = out["scope_name"].map(metric)
+    out.loc[matched.notna(), "mtd_douyin_laike_orders"] = matched.loc[matched.notna()].astype(float)
+    return out
+
+
+def _attach_order_attain(panel: pd.DataFrame) -> pd.DataFrame:
+    out = panel.copy()
+    target = (
+        pd.to_numeric(out["order_target_month"], errors="coerce")
+        if "order_target_month" in out.columns
+        else pd.Series(float("nan"), index=out.index, dtype="float64")
+    )
+    actual = pd.to_numeric(out.get("mtd_douyin_laike_orders", pd.Series(0.0, index=out.index)), errors="coerce").fillna(0.0)
+    attain = pd.Series(float("nan"), index=out.index, dtype="float64")
+    mask = target.notna() & (target > 0)
+    attain.loc[mask] = actual.loc[mask] / target.loc[mask]
+    out["mtd_douyin_laike_order_attain"] = attain
+    return out
+
+
+def _attach_douyin_laike_order_metrics(
+    *,
+    account_panel: pd.DataFrame,
+    anchor_panel: pd.DataFrame,
+    live_df: pd.DataFrame,
+    leads_source: pd.DataFrame,
+    report_date: pd.Timestamp,
+) -> tuple[pd.DataFrame, pd.DataFrame, float]:
+    total_orders, account_orders, anchor_orders = build_douyin_laike_order_metrics(
+        live_df=live_df,
+        leads_df=leads_source,
+        report_date=report_date,
+    )
+
+    acc = _merge_metric_by_scope(account_panel, account_orders)
+    summary_mask = acc["scope_name"].astype(str).eq("线索组汇总")
+    if summary_mask.any():
+        acc.loc[summary_mask, "mtd_douyin_laike_orders"] = float(total_orders)
+    acc = _attach_order_attain(acc)
+
+    anc = _merge_metric_by_scope(anchor_panel, anchor_orders)
+    anc = _attach_order_attain(anc)
+    return acc, anc, float(total_orders)
 
 
 def _expand_search_dirs(base_dirs: list[Path]) -> list[Path]:
@@ -75,6 +136,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-md", default="", help="输出md文件；留空自动命名")
     parser.add_argument("--output-tsv", default="", help="输出tsv文件；留空自动命名")
     parser.add_argument("--output-dashboard-source-tsv", default="", help="输出 dashboard source TSV；留空自动命名")
+    parser.add_argument("--seed-targets-file", default="config/seed_monthly_targets.csv", help="种草曝光月目标配置")
+    parser.add_argument("--seed-workbook-file", default="", help="种草台账文件；留空自动搜索 EXEED星途台账")
     return parser.parse_args()
 
 
@@ -85,6 +148,7 @@ def main() -> None:
     manual_override_path = Path(args.manual_override_file).expanduser().resolve() if str(args.manual_override_file).strip() else None
     live_path = Path(args.live_file).expanduser().resolve()
     topline_config_path = Path(args.topline_config).expanduser().resolve()
+    seed_targets_path = Path(args.seed_targets_file).expanduser().resolve() if str(args.seed_targets_file).strip() else None
     snapshot_path = Path(args.snapshot_csv).expanduser().resolve() if args.snapshot_csv else None
     ledger_path = Path(args.ledger_csv).expanduser().resolve() if args.ledger_csv else None
     analysis_snapshot_path = Path(args.analysis_snapshot_csv).expanduser().resolve() if args.analysis_snapshot_csv else None
@@ -119,10 +183,18 @@ def main() -> None:
         reports_dir.parent.parent.resolve() if reports_dir.parent.parent.exists() else reports_dir.parent.resolve(),
         fact_path.parent.resolve(),
         fact_path.parent.parent.resolve() if fact_path.parent.parent.exists() else fact_path.parent.resolve(),
+        live_path.parent.resolve(),
     ]
     search_dirs = _expand_search_dirs(search_dirs)
     leads_path = resolve_latest_source_file(args.leads_file, search_dirs, "总部新媒体线索*.csv", "原始线索明细")
     deals_path = resolve_latest_source_file(args.deals_file, search_dirs, "总部新媒体成交*.csv", "原始成交明细")
+    search_dirs = _expand_search_dirs(
+        [
+            *search_dirs,
+            leads_path.parent.resolve(),
+            deals_path.parent.resolve(),
+        ]
+    )
 
     if snapshot_path and snapshot_path.exists():
         acc = load_panel_from_snapshot(snapshot_path=snapshot_path, report_date_str=report_date_str, scope="account")
@@ -154,6 +226,21 @@ def main() -> None:
         report_date=report_date,
         config=topline_config,
     )
+    acc, anc, total_douyin_laike_orders = _attach_douyin_laike_order_metrics(
+        account_panel=acc,
+        anchor_panel=anc,
+        live_df=live_df,
+        leads_source=leads_source,
+        report_date=report_date,
+    )
+    setattr(topline_summary, "douyin_laike_orders", total_douyin_laike_orders)
+    if "order_target_month" in acc.columns:
+        summary_target = pd.to_numeric(
+            acc.loc[acc["scope_name"].astype(str).eq("线索组汇总"), "order_target_month"],
+            errors="coerce",
+        )
+        if summary_target.notna().any():
+            setattr(topline_summary, "douyin_laike_order_target", float(summary_target.dropna().iloc[0]))
 
     target_accounts = get_target_accounts(acc)
     day_target_deal_accounts, mtd_target_deal_accounts, mtd_all_deal_accounts = deal_accounts_text(
@@ -183,6 +270,14 @@ def main() -> None:
     anc_out = anchor_table(anc)
     acc_tsv_out = account_table_tsv(acc, target_accounts=target_accounts)
     anc_tsv_out = anchor_table_tsv(anc)
+    seed_workbook_paths = resolve_seed_workbook_paths(args.seed_workbook_file, search_dirs)
+    seed_targets = load_seed_monthly_targets(seed_targets_path)
+    seed_sessions = load_seed_sessions_from_workbooks(seed_workbook_paths)
+    seed_acc_tsv_out, seed_anc_tsv_out = build_seed_dashboard_tables(
+        report_date=report_date_str,
+        seed_sessions=seed_sessions,
+        seed_targets=seed_targets,
+    )
 
     ctx = ReportContext(
         report_date_str=report_date_str,
@@ -207,6 +302,9 @@ def main() -> None:
         topline_summary=topline_summary,
         account_table=acc_tsv_out,
         anchor_table=anc_tsv_out,
+        seed_account_table=seed_acc_tsv_out,
+        seed_anchor_table=seed_anc_tsv_out,
+        lead_quality_line=lead_quality_line,
     )
     dashboard_source_content = dashboard_source_tsv(dashboard_source_rows)
     md_path = Path(args.output_md).expanduser().resolve() if args.output_md else reports_dir / f"feishu_report_latest_{report_date_str}.md"
@@ -252,6 +350,8 @@ def main() -> None:
     print(f"[INFO] leads source: {leads_path}")
     print(f"[INFO] deals source: {deals_path}")
     print(f"[INFO] topline config: {topline_config_path}")
+    print(f"[INFO] seed targets: {seed_targets_path if seed_targets_path else ''}")
+    print(f"[INFO] seed workbooks: {[str(path) for path in seed_workbook_paths]}")
     print(
         f"[INFO] manual overrides: applied={manual_override_summary.get('applied_override_count', 0)}, "
         f"affected_rows={manual_override_summary.get('applied_row_count', 0)}"

@@ -37,6 +37,7 @@ def finalize_format(df: pd.DataFrame, report_month: str) -> pd.DataFrame:
         "mtd_deals",
         "lead_target_month",
         "deal_target_month",
+        "order_target_month",
         "daily_lead_target",
         "daily_deal_target",
     ]:
@@ -79,6 +80,7 @@ def finalize_format(df: pd.DataFrame, report_month: str) -> pd.DataFrame:
         "parent_account",
         "lead_target_month",
         "deal_target_month",
+        "order_target_month",
         "lead_cost_target_month",
         "lead_cost_target_month_disp",
         "cpl_target",

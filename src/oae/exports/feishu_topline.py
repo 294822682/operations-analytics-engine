@@ -420,15 +420,30 @@ def format_impressions(value: float) -> str:
     return f"{text}万"
 
 
+def _format_order_attain(actual: float | None, target: float | None) -> str:
+    if actual is None or target is None or pd.isna(actual) or pd.isna(target):
+        return "-"
+    return format_pct(_safe_div(float(actual), float(target)))
+
+
 def build_markdown_topline_lines(summary: ToplineSummary) -> list[str]:
     full = summary.full_account
     non_ex7 = summary.excluding_ex7
     ex7 = summary.ex7
-    return [
+    order_actual = getattr(summary, "douyin_laike_orders", None)
+    order_target = getattr(summary, "douyin_laike_order_target", None)
+    lines = [
         "**全量账号**",
         f"- 曝光：目标 {format_impressions(full.impression_target)}，实际 {format_impressions(full.impression_actual)}，达成率 {format_pct(full.impression_attain)}",
         f"- 线索：目标 {int(full.lead_target)}，实际达成 {int(full.lead_actual)}，达成率 {format_pct(full.lead_attain)}",
         f"- 实销：目标 {int(full.deal_target)}，实际达成 {int(full.deal_actual)}，达成率 {format_pct(full.deal_attain)}",
+    ]
+    if order_actual is not None:
+        lines.append(
+            f"- 抖音-来客订单：目标 {format_metric(order_target, 0)}，实际 {format_metric(order_actual, 0)}，达成率 {_format_order_attain(order_actual, order_target)}"
+        )
+    lines.extend(
+        [
         f"- 总体 CPL：目标 {format_metric(full.cpl_target, 0)}，实际 {format_metric(full.cpl_actual)}",
         f"- 总体 CPS：目标 {format_metric(full.cps_target, 0)}，实际 {format_metric(full.cps_actual)}",
         f"- 待交车（当日）：{int(full.pending_day)}",
@@ -445,14 +460,18 @@ def build_markdown_topline_lines(summary: ToplineSummary) -> list[str]:
         f"- 实销：{int(ex7.deals)}",
         f"- 实际 CPL：{format_metric(ex7.cpl_actual)}",
         f"- 实际 CPS：{format_metric(ex7.cps_actual)}",
-    ]
+        ]
+    )
+    return lines
 
 
 def build_tsv_topline_lines(report_date_str: str, summary: ToplineSummary) -> list[str]:
     full = summary.full_account
     non_ex7 = summary.excluding_ex7
     ex7 = summary.ex7
-    return [
+    order_actual = getattr(summary, "douyin_laike_orders", None)
+    order_target = getattr(summary, "douyin_laike_order_target", None)
+    lines = [
         f"日报日期\t{report_date_str}",
         "",
         "全量账号",
@@ -460,6 +479,13 @@ def build_tsv_topline_lines(report_date_str: str, summary: ToplineSummary) -> li
         f"曝光\t{format_impressions(full.impression_target)}\t{format_impressions(full.impression_actual)}\t{format_pct(full.impression_attain)}",
         f"线索\t{int(full.lead_target)}\t{int(full.lead_actual)}\t{format_pct(full.lead_attain)}",
         f"实销\t{int(full.deal_target)}\t{int(full.deal_actual)}\t{format_pct(full.deal_attain)}",
+    ]
+    if order_actual is not None:
+        lines.append(
+            f"抖音-来客订单\t{format_metric(order_target, 0)}\t{format_metric(order_actual, 0)}\t{_format_order_attain(order_actual, order_target)}"
+        )
+    lines.extend(
+        [
         f"总体 CPL\t{format_metric(full.cpl_target, 0)}\t{format_metric(full.cpl_actual)}\t-",
         f"总体 CPS\t{format_metric(full.cps_target, 0)}\t{format_metric(full.cps_actual)}\t-",
         f"待交车（当日）\t-\t{int(full.pending_day)}\t-",
@@ -479,4 +505,6 @@ def build_tsv_topline_lines(report_date_str: str, summary: ToplineSummary) -> li
         f"实际 CPL\t{format_metric(ex7.cpl_actual)}",
         f"实际 CPS\t{format_metric(ex7.cps_actual)}",
         "",
-    ]
+        ]
+    )
+    return lines

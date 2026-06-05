@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 from oae.exports.feishu_formatters import (
@@ -39,6 +40,7 @@ def account_table(acc: pd.DataFrame, target_accounts: list[str]) -> pd.DataFrame
         target_override_digits=0,
         target_override_mask=line_summary_mask,
     )
+    _add_order_columns(x)
     add_num_columns(
         x,
         {
@@ -61,6 +63,9 @@ def account_table(acc: pd.DataFrame, target_accounts: list[str]) -> pd.DataFrame
             "daily_deal_attain_pct",
             "累计实销/月目标",
             "mtd_deal_attain_pct",
+            "抖音-来客订单数",
+            "订单KPI目标",
+            "订单KPI完成率",
             "线索费用月目标",
             "CPL目标",
             "CPS目标",
@@ -73,11 +78,36 @@ def account_table(acc: pd.DataFrame, target_accounts: list[str]) -> pd.DataFrame
     return out
 
 
+def _numeric_series(df: pd.DataFrame, column: str) -> pd.Series:
+    if column not in df.columns:
+        return pd.Series(np.nan, index=df.index, dtype="float64")
+    return pd.to_numeric(df[column], errors="coerce")
+
+
+def _order_attain_pct(df: pd.DataFrame, actual: pd.Series, target: pd.Series) -> pd.Series:
+    if "mtd_douyin_laike_order_attain_pct" in df.columns:
+        return df["mtd_douyin_laike_order_attain_pct"]
+    rate = pd.Series(np.nan, index=df.index, dtype="float64")
+    mask = actual.notna() & target.notna() & (target > 0)
+    rate.loc[mask] = actual.loc[mask] / target.loc[mask]
+    return rate
+
+
+def _add_order_columns(df: pd.DataFrame) -> None:
+    actual = _numeric_series(df, "mtd_douyin_laike_orders")
+    target = _numeric_series(df, "order_target_month")
+    df["抖音-来客订单数"] = actual.map(lambda value: num_trim(value, 0))
+    df["订单KPI目标"] = target.map(lambda value: num_trim(value, 0))
+    df["订单KPI完成率"] = _order_attain_pct(df, actual, target)
+    format_pct_columns(df, ["订单KPI完成率"])
+
+
 def account_table_tsv(acc: pd.DataFrame, target_accounts: list[str]) -> pd.DataFrame:
     show_order = DISPLAY_ACCOUNT_ORDER + [item for item in target_accounts if item not in DISPLAY_ACCOUNT_ORDER] + ["线索组汇总"]
     x = sort_by_order(acc, show_order, scope_col="scope_name")
     x["账号"] = x["scope_name"].map(lambda s: ACCOUNT_LABEL_MAP.get(s, s))
     line_summary_mask = x["scope_name"] == "线索组汇总"
+    _add_order_columns(x)
     out = pd.DataFrame(
         {
             "账号": x["账号"],
@@ -93,6 +123,9 @@ def account_table_tsv(acc: pd.DataFrame, target_accounts: list[str]) -> pd.DataF
             "累计实销": x["mtd_deals"].map(lambda v: f"{v:.0f}"),
             "实销月目标": x["deal_target_month"].map(lambda v: f"{v:.2f}"),
             "累计实销达成率": x["mtd_deal_attain_pct"],
+            "抖音-来客订单数": x["抖音-来客订单数"],
+            "订单KPI目标": x["订单KPI目标"],
+            "订单KPI完成率": x["订单KPI完成率"],
             "线索费用月目标": x["lead_cost_target_month"].map(lambda v: num_trim(v, 2)),
             "CPL目标": x["cpl_target"].map(lambda v: num_trim(v, 2)),
             "CPS目标": x["cps_target"].map(lambda v: num_trim(v, 2)),
@@ -113,6 +146,7 @@ def anchor_table(anc: pd.DataFrame) -> pd.DataFrame:
     build_xy_column(x, "累计线索/月目标", "mtd_leads", "lead_target_month", actual_digits=2, target_digits=0)
     build_xy_column(x, "当日实销/目标", "daily_deals", "daily_deal_target", actual_digits=2, target_digits=2)
     build_xy_column(x, "累计实销/月目标", "mtd_deals", "deal_target_month", actual_digits=2, target_digits=0)
+    _add_order_columns(x)
     add_num_columns(
         x,
         {
@@ -136,6 +170,9 @@ def anchor_table(anc: pd.DataFrame) -> pd.DataFrame:
             "daily_deal_attain_pct",
             "累计实销/月目标",
             "mtd_deal_attain_pct",
+            "抖音-来客订单数",
+            "订单KPI目标",
+            "订单KPI完成率",
             "单人线索费用目标",
             "单人CPL目标",
             "单人CPS目标",
@@ -151,6 +188,7 @@ def anchor_table(anc: pd.DataFrame) -> pd.DataFrame:
 def anchor_table_tsv(anc: pd.DataFrame) -> pd.DataFrame:
     x = sort_by_order(anc, ANCHOR_ORDER, scope_col="scope_name")
     x["归属账号"] = x["parent_account"].map(lambda v: format_parent_account_label(v, ACCOUNT_LABEL_MAP))
+    _add_order_columns(x)
     out = pd.DataFrame(
         {
             "主播": x["scope_name"],
@@ -167,6 +205,9 @@ def anchor_table_tsv(anc: pd.DataFrame) -> pd.DataFrame:
             "累计实销": x["mtd_deals"].map(lambda v: f"{v:.2f}"),
             "实销月目标": x["deal_target_month"].map(lambda v: f"{v:.0f}"),
             "累计实销达成率": x["mtd_deal_attain_pct"],
+            "抖音-来客订单数": x["抖音-来客订单数"],
+            "订单KPI目标": x["订单KPI目标"],
+            "订单KPI完成率": x["订单KPI完成率"],
             "单人线索费用目标": x["lead_cost_target_month"].map(lambda v: num_trim(v, 2)),
             "单人CPL目标": x["cpl_target"].map(lambda v: num_trim(v, 2)),
             "单人CPS目标": x["cps_target"].map(lambda v: num_trim(v, 0)),
@@ -177,4 +218,3 @@ def anchor_table_tsv(anc: pd.DataFrame) -> pd.DataFrame:
     )
     format_pct_columns(out, ["当日线索达成率", "累计线索达成率", "当日实销达成率", "累计实销达成率"])
     return out
-

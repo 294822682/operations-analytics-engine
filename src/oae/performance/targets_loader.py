@@ -92,7 +92,7 @@ def load_targets(path: Path) -> pd.DataFrame:
     targets["lead_target_month"] = pd.to_numeric(targets["lead_target_month"], errors="coerce").fillna(0.0)
     targets["deal_target_month"] = pd.to_numeric(targets["deal_target_month"], errors="coerce").fillna(0.0)
 
-    for column in ["lead_cost_target_month", "cpl_target", "cps_target"]:
+    for column in ["lead_cost_target_month", "cpl_target", "cps_target", "order_target_month"]:
         if column not in targets.columns:
             targets[column] = np.nan
         targets[column] = pd.to_numeric(targets[column], errors="coerce")

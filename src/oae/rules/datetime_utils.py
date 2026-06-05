@@ -36,6 +36,22 @@ def parse_time_to_timedelta(series: pd.Series) -> pd.Series:
     if remaining.any():
         text = series.loc[remaining].astype(str).str.strip()
         text = text.replace({"": np.nan, "nan": np.nan, "None": np.nan, "<NA>": np.nan, "NaT": np.nan})
+        hms = text.str.extract(r"^(?P<h>\d{1,2}):(?P<m>\d{2})(?::(?P<s>\d{2})(?:\.\d+)?)?$")
+        valid = hms["h"].notna()
+        if valid.any():
+            hours = pd.to_numeric(hms.loc[valid, "h"], errors="coerce")
+            minutes = pd.to_numeric(hms.loc[valid, "m"], errors="coerce")
+            seconds = pd.to_numeric(hms.loc[valid, "s"].fillna("0"), errors="coerce")
+            okay = hours.between(0, 23) & minutes.between(0, 59) & seconds.between(0, 59)
+            if okay.any():
+                idx = hms.loc[valid].index[okay]
+                total_seconds = hours.loc[okay] * 3600 + minutes.loc[okay] * 60 + seconds.loc[okay]
+                result.loc[idx] = pd.to_timedelta(total_seconds.astype("int64"), unit="s")
+
+    remaining = result.isna()
+    if remaining.any():
+        text = series.loc[remaining].astype(str).str.strip()
+        text = text.replace({"": np.nan, "nan": np.nan, "None": np.nan, "<NA>": np.nan, "NaT": np.nan})
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             parsed = pd.to_datetime(text, errors="coerce")
