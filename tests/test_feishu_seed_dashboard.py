@@ -15,6 +15,103 @@ from oae.exports.feishu_topline import FullAccountTopline, SegmentTopline, Topli
 from oae.quality import tsv_verify
 
 
+def test_feishu_report_and_tsv_verify_config_loaders_prefer_monthly_metric_contract(tmp_path: Path) -> None:
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    contract_path = config_dir / "monthly_metric_contract.json"
+    contract_path.write_text(
+        """
+{
+  "version": 1,
+  "months": {
+    "2026-06": {
+      "monthly_targets": [],
+      "seed_monthly_targets": [
+        {
+          "scope_type": "account",
+          "scope_name": "EXEED星途",
+          "parent_scope": "",
+          "parent_account": "",
+          "impression_target_month": 25000000,
+          "spend_target_month": null,
+          "cpm_target": null,
+          "target_pool": "种草组目标池"
+        }
+      ],
+      "report_topline_config": {
+        "full_account_targets": {
+          "impressions": 25000000,
+          "leads": 0,
+          "deals": 100,
+          "cpl": 0,
+          "cps": 1500
+        },
+        "ex7_rules": {
+          "keywords": ["EX7"],
+          "live_model_field_candidates": ["车型"],
+          "lead_model_field_candidates": ["首次意向车型"],
+          "deal_model_field_candidates": ["成交车型"]
+        },
+        "pending_rules": {
+          "primary_date_field": "下订日期",
+          "fallback_date_fields": ["成交日期"]
+        }
+      }
+    }
+  }
+}
+""".strip(),
+        encoding="utf-8",
+    )
+    legacy_topline_path = config_dir / "report_topline_config.json"
+    legacy_topline_path.write_text(
+        '{"full_account_targets":{"impressions":1,"leads":1,"deals":1,"cpl":1,"cps":1},"ex7_rules":{"keywords":["OLD"],"lead_model_field_candidates":["旧字段"],"deal_model_field_candidates":["旧字段"],"live_model_field_candidates":["旧字段"]},"pending_rules":{"primary_date_field":"旧日期","fallback_date_fields":[]}}',
+        encoding="utf-8",
+    )
+    legacy_seed_path = config_dir / "seed_monthly_targets.csv"
+    legacy_seed_path.write_text(
+        "month,scope_type,scope_name,parent_scope,parent_account,impression_target_month,spend_target_month,cpm_target,target_pool\n"
+        "2026-06,account,旧种草池,,,1,,,旧目标池\n",
+        encoding="utf-8",
+    )
+
+    report_topline = feishu_report.load_report_topline_config(legacy_topline_path, month="2026-06")
+    report_seed_targets = feishu_report.load_report_seed_monthly_targets(legacy_seed_path, month="2026-06")
+    verify_topline = tsv_verify.g.load_report_topline_config(legacy_topline_path, month="2026-06")
+    missing_month_topline = feishu_report.load_report_topline_config(legacy_topline_path, month="2026-05")
+    missing_month_seed_targets = feishu_report.load_report_seed_monthly_targets(legacy_seed_path, month="2026-05")
+
+    assert report_topline["full_account_targets"]["impressions"] == 25000000
+    assert report_topline["ex7_rules"]["lead_model_field_candidates"] == ["首次意向车型"]
+    assert report_seed_targets["scope_name"].tolist() == ["EXEED星途"]
+    assert report_seed_targets["impression_target_month"].tolist() == [25000000]
+    assert verify_topline["pending_rules"]["primary_date_field"] == "下订日期"
+    assert missing_month_topline["full_account_targets"]["impressions"] == 1
+    assert missing_month_seed_targets["scope_name"].tolist() == ["旧种草池"]
+
+
+def test_feishu_report_config_loaders_fallback_to_legacy_files_when_contract_missing(tmp_path: Path) -> None:
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    legacy_topline_path = config_dir / "report_topline_config.json"
+    legacy_topline_path.write_text(
+        '{"full_account_targets":{"impressions":9,"leads":8,"deals":7,"cpl":6,"cps":5},"ex7_rules":{"keywords":["OLD"],"lead_model_field_candidates":["车型"],"deal_model_field_candidates":["车型"],"live_model_field_candidates":["车型"]},"pending_rules":{"primary_date_field":"下订日期","fallback_date_fields":[]}}',
+        encoding="utf-8",
+    )
+    legacy_seed_path = config_dir / "seed_monthly_targets.csv"
+    legacy_seed_path.write_text(
+        "month,scope_type,scope_name,parent_scope,parent_account,impression_target_month,spend_target_month,cpm_target,target_pool\n"
+        "2026-06,account,旧种草池,,,123,,,旧目标池\n",
+        encoding="utf-8",
+    )
+
+    report_topline = feishu_report.load_report_topline_config(legacy_topline_path, month="2026-06")
+    report_seed_targets = feishu_report.load_report_seed_monthly_targets(legacy_seed_path, month="2026-06")
+
+    assert report_topline["full_account_targets"]["impressions"] == 9
+    assert report_seed_targets["scope_name"].tolist() == ["旧种草池"]
+
+
 def test_build_seed_dashboard_tables_uses_seed_target_pool_contract(tmp_path: Path) -> None:
     targets_path = tmp_path / "seed_monthly_targets.csv"
     targets_path.write_text(

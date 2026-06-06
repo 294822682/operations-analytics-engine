@@ -8,6 +8,13 @@ from pathlib import Path
 
 import pandas as pd
 
+from oae.contracts.monthly_metric_contract import (
+    contract_has_month,
+    load_monthly_metric_contract,
+    monthly_metric_contract_path_for,
+    project_report_topline_config,
+    project_seed_monthly_targets,
+)
 from oae.contracts.models import RunMetadata
 from oae.exports.feishu_content import ReportContext, build_markdown_content, build_tsv_content
 from oae.exports.feishu_dashboard_source import build_dashboard_source_rows, dashboard_source_tsv
@@ -35,7 +42,7 @@ from oae.exports.feishu_panels import (
 )
 from oae.exports.feishu_seed_dashboard import (
     build_seed_dashboard_tables,
-    load_seed_monthly_targets,
+    load_seed_monthly_targets as load_legacy_seed_monthly_targets,
     load_seed_sessions_from_workbooks,
     resolve_seed_workbook_paths,
 )
@@ -43,7 +50,7 @@ from oae.exports.feishu_topline import (
     build_topline_summary,
     load_deals_source,
     load_leads_source,
-    load_topline_config,
+    load_topline_config as load_legacy_topline_config,
     resolve_latest_source_file,
 )
 from oae.overrides import load_fact_with_manual_overrides
@@ -136,6 +143,28 @@ def _expand_search_dirs(base_dirs: list[Path]) -> list[Path]:
                 seen.add(key)
                 out.append(candidate)
     return out
+
+
+def load_report_topline_config(path: str | Path, *, month: str | None = None) -> dict:
+    topline_config_path = Path(path).expanduser().resolve()
+    contract_path = monthly_metric_contract_path_for(topline_config_path)
+    if contract_path.exists():
+        contract = load_monthly_metric_contract(contract_path)
+        if contract_has_month(contract, month):
+            return project_report_topline_config(contract, month)
+    return load_legacy_topline_config(topline_config_path)
+
+
+def load_report_seed_monthly_targets(path: str | Path | None, *, month: str | None = None) -> pd.DataFrame:
+    if not path:
+        return load_legacy_seed_monthly_targets(path)
+    seed_targets_path = Path(path).expanduser().resolve()
+    contract_path = monthly_metric_contract_path_for(seed_targets_path)
+    if contract_path.exists():
+        contract = load_monthly_metric_contract(contract_path)
+        if contract_has_month(contract, month):
+            return project_seed_monthly_targets(contract, month)
+    return load_legacy_seed_monthly_targets(seed_targets_path)
 
 
 def parse_args() -> argparse.Namespace:
@@ -242,7 +271,7 @@ def main() -> None:
     live_df = pd.read_excel(live_path) if live_path.exists() else pd.DataFrame()
     leads_source = load_leads_source(leads_path)
     deals_source = load_deals_source(deals_path)
-    topline_config = load_topline_config(topline_config_path)
+    topline_config = load_report_topline_config(topline_config_path, month=report_date_str[:7])
     report_date = pd.to_datetime(report_date_str)
     month_start = pd.to_datetime(f"{report_date_str[:7]}-01")
     topline_summary = build_topline_summary(
@@ -298,7 +327,7 @@ def main() -> None:
     acc_tsv_out = account_table_tsv(acc, target_accounts=target_accounts)
     anc_tsv_out = anchor_table_tsv(anc)
     seed_workbook_paths = resolve_seed_workbook_paths(args.seed_workbook_file, search_dirs)
-    seed_targets = load_seed_monthly_targets(seed_targets_path)
+    seed_targets = load_report_seed_monthly_targets(seed_targets_path, month=report_date_str[:7])
     seed_sessions = load_seed_sessions_from_workbooks(seed_workbook_paths)
     seed_acc_tsv_out, seed_anc_tsv_out = build_seed_dashboard_tables(
         report_date=report_date_str,

@@ -16,7 +16,6 @@ import oae.exports.feishu_report as g
 from oae.exports.feishu_content import build_tsv_order_breakdown_lines
 from oae.exports.feishu_seed_dashboard import (
     build_seed_dashboard_tables,
-    load_seed_monthly_targets,
     load_seed_sessions_from_workbooks,
     resolve_seed_workbook_paths,
 )
@@ -25,7 +24,6 @@ from oae.exports.feishu_topline import (
     build_tsv_topline_lines,
     load_deals_source,
     load_leads_source,
-    load_topline_config,
     resolve_latest_source_file,
 )
 from oae.overrides import load_fact_with_manual_overrides
@@ -199,9 +197,9 @@ def main() -> int:
     live_df = pd.read_excel(live_path) if live_path.exists() else pd.DataFrame()
     leads_source = load_leads_source(leads_path)
     deals_source = load_deals_source(deals_path)
-    topline_config = load_topline_config(topline_config_path)
+    topline_config = g.load_report_topline_config(topline_config_path, month=report_date_str[:7])
     seed_workbook_paths = resolve_seed_workbook_paths(args.seed_workbook_file, search_dirs)
-    seed_targets = load_seed_monthly_targets(seed_targets_path)
+    seed_targets = g.load_report_seed_monthly_targets(seed_targets_path, month=report_date_str[:7])
     seed_sessions = load_seed_sessions_from_workbooks(seed_workbook_paths)
     seed_acc_tsv_out, _ = build_seed_dashboard_tables(
         report_date=report_date_str,

@@ -10,6 +10,14 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from oae.contracts.monthly_metric_contract import (
+    DEFAULT_CONTRACT_FILENAME,
+    contract_has_month,
+    load_monthly_metric_contract,
+    project_monthly_targets,
+    project_report_topline_config,
+    project_seed_monthly_targets,
+)
 from oae.exports.feishu_dashboard_interactive_html import DashboardSource, Metric
 from oae.exports.feishu_douyin_laike import build_douyin_laike_order_metrics
 from oae.exports.feishu_panel_utils import ACCOUNT_LABEL_MAP
@@ -915,7 +923,7 @@ class DashboardDailyService:
             deal_rows=current["deal_rows"],
             live_range=current["core_live_range"],
             window=window,
-            target_config=self._load_topline_targets(),
+            target_config=self._load_topline_targets(month=window["end_date"][:7]),
             douyin_laike_order_daily=self._douyin_laike_order_mtd_points(
                 live_source,
                 raw_leads,
@@ -970,7 +978,7 @@ class DashboardDailyService:
             deal_rows=previous["deal_rows"],
             live_range=previous["core_live_range"],
             window=previous_window,
-            target_config=self._load_topline_targets(),
+            target_config=self._load_topline_targets(month=previous_window["end_date"][:7]),
             douyin_laike_order_daily=self._douyin_laike_order_mtd_points(
                 live_source,
                 raw_leads,
@@ -1127,6 +1135,18 @@ class DashboardDailyService:
         return out
 
     def _load_targets(self) -> pd.DataFrame:
+        legacy = self._load_legacy_monthly_targets()
+        contract_path = self._monthly_metric_contract_path()
+        if contract_path.exists():
+            try:
+                out = self._normalize_monthly_targets(project_monthly_targets(load_monthly_metric_contract(contract_path)))
+            except Exception:
+                return legacy
+            return self._merge_contract_target_rows(legacy, out)
+
+        return legacy
+
+    def _load_legacy_monthly_targets(self) -> pd.DataFrame:
         path = self.repo_root / "config" / "monthly_targets.csv"
         if not path.exists():
             return pd.DataFrame()
@@ -1134,19 +1154,35 @@ class DashboardDailyService:
             out = pd.read_csv(path, encoding="utf-8-sig")
         except Exception:
             return pd.DataFrame()
+        return self._normalize_monthly_targets(out)
+
+    @staticmethod
+    def _normalize_monthly_targets(out: pd.DataFrame) -> pd.DataFrame:
         out.columns = [str(column).strip() for column in out.columns]
         if "month" not in out.columns or "scope_type" not in out.columns or "scope_name" not in out.columns:
             return pd.DataFrame()
         out["month"] = out["month"].astype(str).str.strip()
         out["scope_type"] = out["scope_type"].astype(str).str.strip()
         out["scope_name"] = out["scope_name"].astype(str).str.strip()
-        for column in ["lead_target_month", "deal_target_month", "lead_cost_target_month", "cpl_target", "cps_target"]:
+        for column in ["lead_target_month", "deal_target_month", "lead_cost_target_month", "cpl_target", "cps_target", "order_target_month"]:
             if column not in out.columns:
                 out[column] = np.nan
             out[column] = pd.to_numeric(out[column], errors="coerce")
         return out
 
     def _load_seed_targets(self) -> pd.DataFrame:
+        legacy = self._load_legacy_seed_targets()
+        contract_path = self._monthly_metric_contract_path()
+        if contract_path.exists():
+            try:
+                out = self._normalize_seed_targets(project_seed_monthly_targets(load_monthly_metric_contract(contract_path)))
+            except Exception:
+                return legacy
+            return self._merge_contract_target_rows(legacy, out)
+
+        return legacy
+
+    def _load_legacy_seed_targets(self) -> pd.DataFrame:
         path = self.repo_root / "config" / "seed_monthly_targets.csv"
         if not path.exists():
             return pd.DataFrame()
@@ -1154,6 +1190,10 @@ class DashboardDailyService:
             out = pd.read_csv(path, encoding="utf-8-sig")
         except Exception:
             return pd.DataFrame()
+        return self._normalize_seed_targets(out)
+
+    @staticmethod
+    def _normalize_seed_targets(out: pd.DataFrame) -> pd.DataFrame:
         out.columns = [str(column).strip() for column in out.columns]
         if "month" not in out.columns or "scope_type" not in out.columns or "scope_name" not in out.columns:
             return pd.DataFrame()
@@ -1167,6 +1207,20 @@ class DashboardDailyService:
             out["impression_target_month"] = np.nan
         out["impression_target_month"] = pd.to_numeric(out["impression_target_month"], errors="coerce")
         return out
+
+    @staticmethod
+    def _merge_contract_target_rows(legacy: pd.DataFrame, contract: pd.DataFrame) -> pd.DataFrame:
+        if legacy.empty:
+            return contract.copy()
+        if contract.empty:
+            return legacy.copy()
+        keys = ["month", "scope_type", "scope_name"]
+        if any(column not in legacy.columns for column in keys) or any(column not in contract.columns for column in keys):
+            return contract.copy()
+
+        contract_keys = set(map(tuple, contract[keys].astype(str).to_numpy()))
+        keep_legacy = ~legacy[keys].astype(str).apply(tuple, axis=1).isin(contract_keys)
+        return pd.concat([legacy.loc[keep_legacy].copy(), contract.copy()], ignore_index=True, sort=False)
 
     def _prepare_fact_for_trends(self, fact: pd.DataFrame, *, raw_leads: pd.DataFrame, raw_deals: pd.DataFrame) -> pd.DataFrame:
         if fact.empty:
@@ -1189,8 +1243,7 @@ class DashboardDailyService:
                 out["is_perf_primary_lead"] = out["_perf_lead_key"].ne("").astype(int)
         out["visit_date"] = self._fact_visit_dates(out, raw_leads)
         try:
-            config_path = self.repo_root / "config" / "report_topline_config.json"
-            config = load_topline_config(config_path) if config_path.exists() and not raw_leads.empty and not raw_deals.empty else {}
+            config = self._load_topline_config_for_partition() if not raw_leads.empty and not raw_deals.empty else {}
             if config:
                 out = annotate_fact_with_ex7_partition(out, raw_leads, raw_deals, config)
             else:
@@ -1525,7 +1578,21 @@ class DashboardDailyService:
             )
         return rows
 
-    def _load_topline_targets(self) -> dict[str, float]:
+    def _load_topline_targets(self, *, month: str | None = None) -> dict[str, float]:
+        contract_path = self._monthly_metric_contract_path()
+        if contract_path.exists():
+            try:
+                contract = load_monthly_metric_contract(contract_path)
+            except Exception:
+                contract = {}
+            if contract and contract_has_month(contract, month):
+                try:
+                    payload = project_report_topline_config(contract, month)
+                    targets = payload.get("full_account_targets") if isinstance(payload, dict) else {}
+                    return self._normalize_topline_targets(targets)
+                except Exception:
+                    return {}
+
         path = self.repo_root / "config" / "report_topline_config.json"
         if not path.exists():
             return {}
@@ -1534,6 +1601,20 @@ class DashboardDailyService:
         except Exception:
             return {}
         targets = payload.get("full_account_targets") if isinstance(payload, dict) else {}
+        return self._normalize_topline_targets(targets)
+
+    def _load_topline_config_for_partition(self) -> dict[str, Any]:
+        contract_path = self._monthly_metric_contract_path()
+        if contract_path.exists():
+            return project_report_topline_config(load_monthly_metric_contract(contract_path))
+        config_path = self.repo_root / "config" / "report_topline_config.json"
+        return load_topline_config(config_path) if config_path.exists() else {}
+
+    def _monthly_metric_contract_path(self) -> Path:
+        return self.repo_root / "config" / DEFAULT_CONTRACT_FILENAME
+
+    @staticmethod
+    def _normalize_topline_targets(targets: Any) -> dict[str, float]:
         if not isinstance(targets, dict):
             return {}
         out: dict[str, float] = {}
