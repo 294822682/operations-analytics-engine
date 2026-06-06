@@ -1,0 +1,235 @@
+{
+  "version": 1,
+  "months": {
+    "2026-06": {
+      "monthly_targets": [
+        {
+          "scope_type": "account",
+          "scope_name": "抖音-星途汽车官方直播间",
+          "parent_account": "",
+          "lead_target_month": 0,
+          "deal_target_month": 100,
+          "lead_cost_target_month": 150000,
+          "cpl_target": null,
+          "cps_target": 1500,
+          "target_pool": "线索组目标池",
+          "order_target_month": 1000
+        },
+        {
+          "scope_type": "account",
+          "scope_name": "抖音-星途汽车直营中心",
+          "parent_account": "",
+          "lead_target_month": 0,
+          "deal_target_month": 100,
+          "lead_cost_target_month": 150000,
+          "cpl_target": null,
+          "cps_target": 1500,
+          "target_pool": "线索组目标池",
+          "order_target_month": 1000
+        },
+        {
+          "scope_type": "account",
+          "scope_name": "抖音-星途汽车直播营销中心",
+          "parent_account": "",
+          "lead_target_month": 0,
+          "deal_target_month": 100,
+          "lead_cost_target_month": 150000,
+          "cpl_target": null,
+          "cps_target": 1500,
+          "target_pool": "线索组目标池",
+          "order_target_month": 1000
+        },
+        {
+          "scope_type": "anchor",
+          "scope_name": "丁俐佳",
+          "parent_account": "抖音-星途汽车官方直播间/抖音-星途汽车直营中心/抖音-星途汽车直播营销中心",
+          "lead_target_month": 0,
+          "deal_target_month": 17,
+          "lead_cost_target_month": 25000,
+          "cpl_target": null,
+          "cps_target": 1470.5882352941176,
+          "target_pool": "",
+          "order_target_month": 167
+        },
+        {
+          "scope_type": "anchor",
+          "scope_name": "孙慧敏",
+          "parent_account": "抖音-星途汽车官方直播间/抖音-星途汽车直营中心/抖音-星途汽车直播营销中心",
+          "lead_target_month": 0,
+          "deal_target_month": 17,
+          "lead_cost_target_month": 25000,
+          "cpl_target": null,
+          "cps_target": 1470.5882352941176,
+          "target_pool": "",
+          "order_target_month": 167
+        },
+        {
+          "scope_type": "anchor",
+          "scope_name": "何雯",
+          "parent_account": "抖音-星途汽车官方直播间/抖音-星途汽车直营中心/抖音-星途汽车直播营销中心",
+          "lead_target_month": 0,
+          "deal_target_month": 17,
+          "lead_cost_target_month": 25000,
+          "cpl_target": null,
+          "cps_target": 1470.5882352941176,
+          "target_pool": "",
+          "order_target_month": 167
+        },
+        {
+          "scope_type": "anchor",
+          "scope_name": "徐幻",
+          "parent_account": "抖音-星途汽车官方直播间/抖音-星途汽车直营中心/抖音-星途汽车直播营销中心",
+          "lead_target_month": 0,
+          "deal_target_month": 17,
+          "lead_cost_target_month": 25000,
+          "cpl_target": null,
+          "cps_target": 1470.5882352941176,
+          "target_pool": "",
+          "order_target_month": 167
+        },
+        {
+          "scope_type": "anchor",
+          "scope_name": "徐欣悦",
+          "parent_account": "抖音-星途汽车官方直播间/抖音-星途汽车直营中心/抖音-星途汽车直播营销中心",
+          "lead_target_month": 0,
+          "deal_target_month": 17,
+          "lead_cost_target_month": 25000,
+          "cpl_target": null,
+          "cps_target": 1470.5882352941176,
+          "target_pool": "",
+          "order_target_month": 167
+        },
+        {
+          "scope_type": "anchor",
+          "scope_name": "侯翩翩",
+          "parent_account": "抖音-星途汽车官方直播间/抖音-星途汽车直营中心/抖音-星途汽车直播营销中心",
+          "lead_target_month": 0,
+          "deal_target_month": 17,
+          "lead_cost_target_month": 25000,
+          "cpl_target": null,
+          "cps_target": 1470.5882352941176,
+          "target_pool": "",
+          "order_target_month": 167
+        }
+      ],
+      "seed_monthly_targets": [
+        {
+          "scope_type": "account",
+          "scope_name": "EXEED星途",
+          "parent_scope": "",
+          "parent_account": "",
+          "impression_target_month": 25000000,
+          "spend_target_month": null,
+          "cpm_target": null,
+          "target_pool": "种草组目标池"
+        },
+        {
+          "scope_type": "host",
+          "scope_name": "刘花旗",
+          "parent_scope": "",
+          "parent_account": "EXEED星途",
+          "impression_target_month": 3571428.57142857,
+          "spend_target_month": null,
+          "cpm_target": null,
+          "target_pool": "种草组目标池"
+        },
+        {
+          "scope_type": "host",
+          "scope_name": "桂婕",
+          "parent_scope": "",
+          "parent_account": "EXEED星途",
+          "impression_target_month": 3571428.57142857,
+          "spend_target_month": null,
+          "cpm_target": null,
+          "target_pool": "种草组目标池"
+        },
+        {
+          "scope_type": "host",
+          "scope_name": "王雪",
+          "parent_scope": "",
+          "parent_account": "EXEED星途",
+          "impression_target_month": 3571428.57142857,
+          "spend_target_month": null,
+          "cpm_target": null,
+          "target_pool": "种草组目标池"
+        },
+        {
+          "scope_type": "host",
+          "scope_name": "岳浩然",
+          "parent_scope": "",
+          "parent_account": "EXEED星途",
+          "impression_target_month": 3571428.57142857,
+          "spend_target_month": null,
+          "cpm_target": null,
+          "target_pool": "种草组目标池"
+        },
+        {
+          "scope_type": "host",
+          "scope_name": "陶雯义",
+          "parent_scope": "",
+          "parent_account": "EXEED星途",
+          "impression_target_month": 3571428.57142857,
+          "spend_target_month": null,
+          "cpm_target": null,
+          "target_pool": "种草组目标池"
+        },
+        {
+          "scope_type": "host",
+          "scope_name": "丁汉韬",
+          "parent_scope": "",
+          "parent_account": "EXEED星途",
+          "impression_target_month": 3571428.57142857,
+          "spend_target_month": null,
+          "cpm_target": null,
+          "target_pool": "种草组目标池"
+        },
+        {
+          "scope_type": "host",
+          "scope_name": "曹嘉洋",
+          "parent_scope": "",
+          "parent_account": "EXEED星途",
+          "impression_target_month": 3571428.57142857,
+          "spend_target_month": null,
+          "cpm_target": null,
+          "target_pool": "种草组目标池"
+        }
+      ],
+      "report_topline_config": {
+        "full_account_targets": {
+          "impressions": 25000000,
+          "leads": 0,
+          "deals": 100,
+          "cpl": 0,
+          "cps": 1500
+        },
+        "ex7_rules": {
+          "keywords": [
+            "EX7"
+          ],
+          "live_model_field_candidates": [
+            "车型"
+          ],
+          "lead_model_field_candidates": [
+            "首次意向车型",
+            "意向车型",
+            "试驾车型",
+            "下订车型",
+            "成交车型"
+          ],
+          "deal_model_field_candidates": [
+            "下订车型",
+            "成交车型"
+          ]
+        },
+        "pending_rules": {
+          "primary_date_field": "下订日期",
+          "fallback_date_fields": [
+            "下订时间",
+            "成交日期",
+            "成交时间"
+          ]
+        }
+      }
+    }
+  }
+}

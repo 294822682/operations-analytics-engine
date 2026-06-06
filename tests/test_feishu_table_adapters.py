@@ -1,11 +1,117 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pandas as pd
 
+from oae.contracts.monthly_metric_contract import (
+    load_monthly_metric_contract,
+    project_monthly_targets,
+    project_report_topline_config,
+    project_seed_monthly_targets,
+)
 from oae.exports.feishu_table_adapters import account_table_tsv, anchor_table_tsv
 from oae.performance.targets_loader import load_targets
+
+
+def test_monthly_metric_contract_projects_legacy_config_shapes(tmp_path: Path) -> None:
+    contract_path = tmp_path / "monthly_metric_contract.json"
+    contract_path.write_text(
+        json.dumps(
+            {
+                "version": 1,
+                "months": {
+                    "2026-06": {
+                        "monthly_targets": [
+                            {
+                                "scope_type": "account",
+                                "scope_name": "抖音-星途汽车直播营销中心",
+                                "parent_account": "",
+                                "lead_target_month": 0,
+                                "deal_target_month": 100,
+                                "lead_cost_target_month": 150000,
+                                "cpl_target": None,
+                                "cps_target": 1500,
+                                "target_pool": "线索组目标池",
+                                "order_target_month": 1000,
+                            }
+                        ],
+                        "seed_monthly_targets": [
+                            {
+                                "scope_type": "account",
+                                "scope_name": "EXEED星途",
+                                "parent_scope": "",
+                                "parent_account": "",
+                                "impression_target_month": 25000000,
+                                "spend_target_month": None,
+                                "cpm_target": None,
+                                "target_pool": "种草组目标池",
+                            }
+                        ],
+                        "report_topline_config": {
+                            "full_account_targets": {
+                                "impressions": 25000000,
+                                "leads": 0,
+                                "deals": 100,
+                                "cpl": 0,
+                                "cps": 1500,
+                            },
+                            "ex7_rules": {
+                                "keywords": ["EX7"],
+                                "live_model_field_candidates": ["车型"],
+                                "lead_model_field_candidates": ["首次意向车型"],
+                                "deal_model_field_candidates": ["成交车型"],
+                            },
+                            "pending_rules": {
+                                "primary_date_field": "下订日期",
+                                "fallback_date_fields": ["成交日期"],
+                            },
+                        },
+                    }
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    contract = load_monthly_metric_contract(contract_path)
+    monthly_targets = project_monthly_targets(contract, "2026-06")
+    seed_targets = project_seed_monthly_targets(contract, "2026-06")
+    topline_config = project_report_topline_config(contract, "2026-06")
+
+    assert monthly_targets.to_dict("records") == [
+        {
+            "month": "2026-06",
+            "scope_type": "account",
+            "scope_name": "抖音-星途汽车直播营销中心",
+            "parent_account": "",
+            "lead_target_month": 0,
+            "deal_target_month": 100,
+            "lead_cost_target_month": 150000,
+            "cpl_target": None,
+            "cps_target": 1500,
+            "target_pool": "线索组目标池",
+            "order_target_month": 1000,
+        }
+    ]
+    assert seed_targets.to_dict("records") == [
+        {
+            "month": "2026-06",
+            "scope_type": "account",
+            "scope_name": "EXEED星途",
+            "parent_scope": "",
+            "parent_account": "",
+            "impression_target_month": 25000000,
+            "spend_target_month": None,
+            "cpm_target": None,
+            "target_pool": "种草组目标池",
+        }
+    ]
+    assert topline_config["full_account_targets"]["impressions"] == 25000000
+    assert topline_config["ex7_rules"]["lead_model_field_candidates"] == ["首次意向车型"]
+    assert topline_config["pending_rules"]["fallback_date_fields"] == ["成交日期"]
 
 
 def test_load_targets_preserves_order_target_month(tmp_path: Path) -> None:

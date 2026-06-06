@@ -68,6 +68,104 @@ def test_get_daily_dashboard_missing_source_returns_404(tmp_path: Path) -> None:
     assert payload["error"]["details"]["report_date"] == "2026-05-14"
 
 
+def test_dashboard_daily_service_prefers_monthly_metric_contract_targets(tmp_path: Path) -> None:
+    repo_root, _ = build_temp_repo(tmp_path)
+    config_dir = repo_root / "config"
+    (config_dir / "monthly_targets.csv").write_text(
+        "month,scope_type,scope_name,parent_account,lead_target_month,deal_target_month,lead_cost_target_month,cpl_target,cps_target,target_pool,order_target_month\n"
+        "2026-05,account,抖音-星途汽车官方直播间,,555,5,5000,9,99,旧目标池,55\n"
+        "2026-06,account,抖音-星途汽车官方直播间,,1,1,1,1,1,旧目标池,1\n",
+        encoding="utf-8-sig",
+    )
+    (config_dir / "seed_monthly_targets.csv").write_text(
+        "month,scope_type,scope_name,parent_scope,parent_account,impression_target_month,spend_target_month,cpm_target,target_pool\n"
+        "2026-05,account,EXEED星途,,,555555,,,旧种草池\n"
+        "2026-06,account,EXEED星途,,,1,,,旧种草池\n",
+        encoding="utf-8-sig",
+    )
+    (config_dir / "report_topline_config.json").write_text(
+        '{"full_account_targets":{"impressions":5,"leads":4,"deals":3,"cpl":2,"cps":1},"ex7_rules":{"keywords":["OLD"],"lead_model_field_candidates":["旧字段"],"deal_model_field_candidates":["旧字段"],"live_model_field_candidates":["旧字段"]},"pending_rules":{"primary_date_field":"旧日期","fallback_date_fields":[]}}',
+        encoding="utf-8",
+    )
+    (config_dir / "monthly_metric_contract.json").write_text(
+        json.dumps(
+            {
+                "version": 1,
+                "months": {
+                    "2026-06": {
+                        "monthly_targets": [
+                            {
+                                "scope_type": "account",
+                                "scope_name": "抖音-星途汽车官方直播间",
+                                "parent_account": "",
+                                "lead_target_month": 321,
+                                "deal_target_month": 12,
+                                "lead_cost_target_month": 6543,
+                                "cpl_target": 20.38,
+                                "cps_target": 545.25,
+                                "target_pool": "线索组目标池",
+                                "order_target_month": 99,
+                            }
+                        ],
+                        "seed_monthly_targets": [
+                            {
+                                "scope_type": "account",
+                                "scope_name": "EXEED星途",
+                                "parent_scope": "",
+                                "parent_account": "",
+                                "impression_target_month": 7654321,
+                                "spend_target_month": None,
+                                "cpm_target": None,
+                                "target_pool": "种草组目标池",
+                            }
+                        ],
+                        "report_topline_config": {
+                            "full_account_targets": {
+                                "impressions": 25000000,
+                                "leads": 0,
+                                "deals": 100,
+                                "cpl": 0,
+                                "cps": 1500,
+                            },
+                            "ex7_rules": {
+                                "keywords": ["EX7"],
+                                "live_model_field_candidates": ["车型"],
+                                "lead_model_field_candidates": ["首次意向车型"],
+                                "deal_model_field_candidates": ["成交车型"],
+                            },
+                            "pending_rules": {
+                                "primary_date_field": "下订日期",
+                                "fallback_date_fields": ["成交日期"],
+                            },
+                        },
+                    }
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    service = DashboardDailyService(repo_root=repo_root)
+    targets = service._load_targets()
+    seed_targets = service._load_seed_targets()
+    june_topline_targets = service._load_topline_targets(month="2026-06")
+    may_topline_targets = service._load_topline_targets(month="2026-05")
+
+    target_row = targets[targets["month"].eq("2026-06") & targets["scope_name"].eq("抖音-星途汽车官方直播间")].iloc[0]
+    seed_row = seed_targets[seed_targets["month"].eq("2026-06") & seed_targets["scope_name"].eq("EXEED星途")].iloc[0]
+    legacy_target_row = targets[targets["month"].eq("2026-05") & targets["scope_name"].eq("抖音-星途汽车官方直播间")].iloc[0]
+    legacy_seed_row = seed_targets[seed_targets["month"].eq("2026-05") & seed_targets["scope_name"].eq("EXEED星途")].iloc[0]
+    assert target_row["lead_target_month"] == 321
+    assert target_row["order_target_month"] == 99
+    assert seed_row["impression_target_month"] == 7654321
+    assert legacy_target_row["lead_target_month"] == 555
+    assert legacy_target_row["order_target_month"] == 55
+    assert legacy_seed_row["impression_target_month"] == 555555
+    assert june_topline_targets == {"impressions": 25000000.0, "leads": 0.0, "deals": 100.0, "cpl": 0.0, "cps": 1500.0}
+    assert may_topline_targets == {"impressions": 5.0, "leads": 4.0, "deals": 3.0, "cpl": 2.0, "cps": 1.0}
+
+
 def test_get_latest_daily_dashboard_returns_newest_source_tsv(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
     reports_dir = repo_root / "output" / "sql_reports"
