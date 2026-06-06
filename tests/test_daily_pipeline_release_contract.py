@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from oae.jobs.daily_pipeline import _resolve_target_report_month
+from oae.jobs.daily_pipeline import _daily_report_required_artifacts, _resolve_target_report_month
 
 
 def _write_targets(path: Path, months: list[str]) -> None:
@@ -69,3 +69,15 @@ def test_resolve_target_report_month_blocks_mixed_dynamic_input_months(tmp_path:
             explicit_report_date="",
         )
 
+
+def test_daily_report_required_artifacts_include_static_dashboard_visuals() -> None:
+    reports_dir = Path("output") / "sql_reports"
+
+    paths = _daily_report_required_artifacts(reports_dir, "2026-06-05")
+
+    assert paths == [
+        reports_dir / "feishu_report_latest_2026-06-05.md",
+        reports_dir / "feishu_dashboard_source_latest_2026-06-05.tsv",
+        reports_dir / "feishu_dashboard_visual_p1_p5_long_compact_latest_2026-06-05.svg",
+        reports_dir / "feishu_dashboard_visual_p1_p5_long_compact_latest_2026-06-05.png",
+    ]

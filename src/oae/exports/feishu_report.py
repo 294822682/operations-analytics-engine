@@ -11,6 +11,7 @@ import pandas as pd
 from oae.contracts.models import RunMetadata
 from oae.exports.feishu_content import ReportContext, build_markdown_content, build_tsv_content
 from oae.exports.feishu_dashboard_source import build_dashboard_source_rows, dashboard_source_tsv
+from oae.exports.feishu_dashboard_visual import write_dashboard_visual_long_compact_files
 from oae.exports.feishu_douyin_laike import build_douyin_laike_order_metrics
 from oae.exports.feishu_manifest import write_feishu_manifests
 from oae.exports.feishu_panels import (
@@ -159,6 +160,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-md", default="", help="输出md文件；留空自动命名")
     parser.add_argument("--output-tsv", default="", help="输出tsv文件；留空自动命名")
     parser.add_argument("--output-dashboard-source-tsv", default="", help="输出 dashboard source TSV；留空自动命名")
+    parser.add_argument("--output-dashboard-visual-svg", default="", help="输出数据驾驶舱长图 SVG；留空自动命名")
+    parser.add_argument("--output-dashboard-visual-png", default="", help="输出数据驾驶舱长图 PNG；留空自动命名")
+    parser.add_argument("--skip-dashboard-visual-png", action="store_true", help="只写 SVG，不尝试生成 PNG")
     parser.add_argument("--seed-targets-file", default="config/seed_monthly_targets.csv", help="种草曝光月目标配置")
     parser.add_argument("--seed-workbook-file", default="", help="种草台账文件；留空自动搜索 EXEED星途台账")
     return parser.parse_args()
@@ -338,6 +342,19 @@ def main() -> None:
         if args.output_dashboard_source_tsv
         else reports_dir / f"feishu_dashboard_source_latest_{report_date_str}.tsv"
     )
+    dashboard_visual_svg_path = (
+        Path(getattr(args, "output_dashboard_visual_svg", "")).expanduser().resolve()
+        if getattr(args, "output_dashboard_visual_svg", "")
+        else reports_dir / f"feishu_dashboard_visual_p1_p5_long_compact_latest_{report_date_str}.svg"
+    )
+    skip_dashboard_visual_png = bool(getattr(args, "skip_dashboard_visual_png", False))
+    dashboard_visual_png_path = None
+    if not skip_dashboard_visual_png:
+        dashboard_visual_png_path = (
+            Path(getattr(args, "output_dashboard_visual_png", "")).expanduser().resolve()
+            if getattr(args, "output_dashboard_visual_png", "")
+            else reports_dir / f"feishu_dashboard_visual_p1_p5_long_compact_latest_{report_date_str}.png"
+        )
     md_path.parent.mkdir(parents=True, exist_ok=True)
     tsv_path.parent.mkdir(parents=True, exist_ok=True)
     dashboard_source_path.parent.mkdir(parents=True, exist_ok=True)
@@ -351,6 +368,12 @@ def main() -> None:
         metric_version=(acc["metric_version"].iloc[0] if "metric_version" in acc.columns else args.metric_version),
         template_version=args.template_version,
         freeze_id=(acc["freeze_id"].iloc[0] if "freeze_id" in acc.columns else args.freeze_id),
+    )
+    dashboard_visual_written = write_dashboard_visual_long_compact_files(
+        pd.DataFrame(dashboard_source_rows),
+        svg_path=dashboard_visual_svg_path,
+        png_path=dashboard_visual_png_path,
+        run_id=metadata.run_id,
     )
     write_feishu_manifests(
         export_dir=export_dir,
@@ -370,6 +393,11 @@ def main() -> None:
     print(f"[OK] markdown file: {md_path}")
     print(f"[OK] tsv file: {tsv_path}")
     print(f"[OK] dashboard source tsv file: {dashboard_source_path}")
+    print(f"[OK] dashboard visual svg file: {dashboard_visual_written['svg']}")
+    if "png" in dashboard_visual_written:
+        print(f"[OK] dashboard visual png file: {dashboard_visual_written['png']}")
+    elif dashboard_visual_png_path is not None:
+        print(f"[WARN] dashboard visual png not written: rsvg-convert not available")
     print(f"[OK] export manifest dir: {export_dir}")
     print(f"[INFO] leads source: {leads_path}")
     print(f"[INFO] deals source: {deals_path}")

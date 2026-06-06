@@ -137,6 +137,30 @@ def test_feishu_report_writes_seed_rows_to_dashboard_source(tmp_path: Path, monk
         ]
     )
     fact.attrs["manual_override_summary"] = {}
+    visual_calls = []
+
+    def fake_write_dashboard_visual_long_compact_files(
+        table: pd.DataFrame,
+        *,
+        svg_path: Path,
+        png_path: Path | None = None,
+        run_id: str = "",
+    ) -> dict[str, Path]:
+        visual_calls.append(
+            {
+                "source_tables": set(table["source_table"].astype(str)),
+                "svg_path": svg_path,
+                "png_path": png_path,
+                "run_id": run_id,
+            }
+        )
+        svg_path.parent.mkdir(parents=True, exist_ok=True)
+        svg_path.write_text("<svg>fixture</svg>", encoding="utf-8")
+        written = {"svg": svg_path}
+        if png_path is not None:
+            png_path.write_text("png", encoding="utf-8")
+            written["png"] = png_path
+        return written
 
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(feishu_report, "parse_args", lambda: SimpleNamespace(
@@ -160,6 +184,9 @@ def test_feishu_report_writes_seed_rows_to_dashboard_source(tmp_path: Path, monk
         output_md=str(reports_dir / "feishu_report_latest_2026-06-03.md"),
         output_tsv=str(reports_dir / "feishu_table_latest_2026-06-03.tsv"),
         output_dashboard_source_tsv=str(reports_dir / "feishu_dashboard_source_latest_2026-06-03.tsv"),
+        output_dashboard_visual_svg=str(reports_dir / "feishu_dashboard_visual_p1_p5_long_compact_latest_2026-06-03.svg"),
+        output_dashboard_visual_png=str(reports_dir / "feishu_dashboard_visual_p1_p5_long_compact_latest_2026-06-03.png"),
+        skip_dashboard_visual_png=False,
         seed_targets_file=str(seed_targets_path),
         seed_workbook_file="",
     ))
@@ -169,6 +196,7 @@ def test_feishu_report_writes_seed_rows_to_dashboard_source(tmp_path: Path, monk
     monkeypatch.setattr(feishu_report, "deal_accounts_text", lambda **kwargs: ("无", "无", "无"))
     monkeypatch.setattr(feishu_report, "pending_accounts_text", lambda **kwargs: (0, 0, "无", "无", "无"))
     monkeypatch.setattr(feishu_report, "lead_quality_text", lambda **kwargs: "")
+    monkeypatch.setattr(feishu_report, "write_dashboard_visual_long_compact_files", fake_write_dashboard_visual_long_compact_files)
 
     feishu_report.main()
 
@@ -193,6 +221,16 @@ def test_feishu_report_writes_seed_rows_to_dashboard_source(tmp_path: Path, monk
 
     markdown = (reports_dir / "feishu_report_latest_2026-06-03.md").read_text(encoding="utf-8")
     assert "曝光：目标 1万，实际 0.8万，达成率 80.00%" in markdown
+    assert visual_calls == [
+        {
+            "source_tables": {"topline", "topline_segment", "lead_account", "lead_anchor", "seed_account", "seed_anchor"},
+            "svg_path": reports_dir / "feishu_dashboard_visual_p1_p5_long_compact_latest_2026-06-03.svg",
+            "png_path": reports_dir / "feishu_dashboard_visual_p1_p5_long_compact_latest_2026-06-03.png",
+            "run_id": "run-test",
+        }
+    ]
+    assert (reports_dir / "feishu_dashboard_visual_p1_p5_long_compact_latest_2026-06-03.svg").exists()
+    assert (reports_dir / "feishu_dashboard_visual_p1_p5_long_compact_latest_2026-06-03.png").exists()
 
 
 def test_tsv_verify_uses_snapshot_and_seed_inputs_from_report_contract(tmp_path: Path, monkeypatch) -> None:

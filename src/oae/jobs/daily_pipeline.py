@@ -486,8 +486,7 @@ def main() -> None:
         required_artifacts=[
             *output_files,
             _pick_latest(reports_dir, "daily_goal_anchor_latest_*.csv"),
-            reports_dir / f"feishu_report_latest_{report_date_tag}.md",
-            reports_dir / f"feishu_dashboard_source_latest_{report_date_tag}.tsv",
+            *_daily_report_required_artifacts(reports_dir, report_date_tag),
             snapshot_csv,
             ledger_csv,
             analysis_snapshot_csv,
@@ -522,6 +521,15 @@ def main() -> None:
             indent=2,
         )
     )
+
+
+def _daily_report_required_artifacts(reports_dir: Path, report_date_tag: str) -> list[Path]:
+    return [
+        reports_dir / f"feishu_report_latest_{report_date_tag}.md",
+        reports_dir / f"feishu_dashboard_source_latest_{report_date_tag}.tsv",
+        reports_dir / f"feishu_dashboard_visual_p1_p5_long_compact_latest_{report_date_tag}.svg",
+        reports_dir / f"feishu_dashboard_visual_p1_p5_long_compact_latest_{report_date_tag}.png",
+    ]
 
 
 def _pick_latest(directory: Path, pattern: str) -> Path:
