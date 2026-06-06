@@ -143,6 +143,8 @@ def test_render_feishu_link_dashboard_html_exposes_business_workbench_without_en
     assert "bar-track-cell" in html
     assert 'class="metric-value-cell"' in html
     assert 'class="metric-value-header"' in html
+    assert "function metricProgressRate(metric)" in html
+    assert "const progressRate = metricProgressRate(metric);" in html
     assert "线索进度" in html
     assert "曝光进度" in html
     assert 'class="bar-metric"' in html

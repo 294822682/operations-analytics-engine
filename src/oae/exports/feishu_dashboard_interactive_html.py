@@ -1190,6 +1190,20 @@ function targetValueText(metric) {{
   return fmtInt(target);
 }}
 
+function isCostMetric(metric) {{
+  const key = String(metric?.key || "").toLowerCase();
+  const label = String(metric?.label || "").toLowerCase();
+  return key.includes("cpl") || key.includes("cps") || label.includes("cpl") || label.includes("cps");
+}}
+
+function metricProgressRate(metric) {{
+  if (hasValue(metric?.attain_rate)) return Number(metric.attain_rate);
+  if (!hasValue(metric?.actual) || !hasValue(metric?.target)) return null;
+  if (Number(metric.actual) <= 0 || Number(metric.target) <= 0) return null;
+  if (isCostMetric(metric)) return Number(metric.target) / Number(metric.actual);
+  return null;
+}}
+
 function rateText(metric) {{
   const progressRate = metricProgressRate(metric);
   if (!hasValue(progressRate)) return "未提供";
