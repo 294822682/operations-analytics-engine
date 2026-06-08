@@ -53,6 +53,24 @@ def test_get_daily_dashboard_returns_read_only_bi_payload(tmp_path: Path) -> Non
     assert "mtd_impressions" in payload["interactions"]["seed_anchor_sort_keys"]
 
 
+def test_dashboard_daily_service_normalizes_legacy_douyin_laike_order_label() -> None:
+    metric = DashboardDailyService._metric_from_row(
+        "mtd_douyin_laike_orders",
+        {
+            "metric_name": "抖音-来客订单",
+            "actual": "38",
+            "target": "1000",
+            "attain_rate": "0.038",
+            "unit": "个",
+            "source_column": "账号层（母集）.线索组汇总.抖音-来客订单数",
+        },
+    )
+
+    assert metric.label == "抖音-来客线索（手机号去重）"
+    assert metric.unit == "条"
+    assert metric.note == "账号层（母集）.线索组汇总.抖音-来客线索数（手机号去重）"
+
+
 def test_get_daily_dashboard_missing_source_returns_404(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
     app = create_test_app(repo_root, runs_root)
@@ -546,7 +564,7 @@ def test_get_daily_dashboard_trends_supplements_visit_metrics_without_ex7_from_d
     assert "EX7" not in anchor["metric_groups"]
     assert payload["metric_source_status"] == [
         {
-            "metric": "曝光/唯一线索/来客订单/实销/费用/CPL/CPS/账号/主播/种草曝光/月度对比",
+            "metric": "曝光/唯一线索/来客线索/实销/费用/CPL/CPS/账号/主播/种草曝光/月度对比",
             "status": "available",
             "source": "output/sql_reports/feishu_dashboard_source_latest_*.tsv",
         },
@@ -1181,7 +1199,7 @@ def test_get_latest_daily_dashboard_feishu_link_returns_read_only_trial_html(tmp
     assert "曝光" in html
     assert "线索" in html
     assert "唯一线索" in html
-    assert "订单" in html
+    assert "来客线索" in html
     assert "实销" in html
     assert "CPL" in html
     assert "CPS" in html
@@ -1356,7 +1374,7 @@ def _minimal_dashboard_source_rows(
         _dated_row(report_date, "topline", "department", "全量", "", "mtd_deals", "累计实销", str(deals), "", "", "台"),
     ]
     if orders is not None:
-        rows.append(_dated_row(report_date, "topline", "department", "全量", "", "mtd_douyin_laike_orders", "抖音-来客订单", str(orders), "", "", "个"))
+        rows.append(_dated_row(report_date, "topline", "department", "全量", "", "mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", str(orders), "", "", "条"))
     if include_spend:
         rows.append(_dated_row(report_date, "topline", "department", "全量", "", "mtd_spend", "累计线索费用", "" if spend is None else str(spend), "", "", "元"))
     if cpl is not None:

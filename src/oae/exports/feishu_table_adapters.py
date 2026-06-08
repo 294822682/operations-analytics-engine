@@ -63,9 +63,9 @@ def account_table(acc: pd.DataFrame, target_accounts: list[str]) -> pd.DataFrame
             "daily_deal_attain_pct",
             "累计实销/月目标",
             "mtd_deal_attain_pct",
-            "抖音-来客订单数",
-            "订单KPI目标",
-            "订单KPI完成率",
+            "抖音-来客线索数（手机号去重）",
+            "来客线索KPI目标",
+            "来客线索KPI完成率",
             "线索费用月目标",
             "CPL目标",
             "CPS目标",
@@ -96,10 +96,10 @@ def _order_attain_pct(df: pd.DataFrame, actual: pd.Series, target: pd.Series) ->
 def _add_order_columns(df: pd.DataFrame) -> None:
     actual = _numeric_series(df, "mtd_douyin_laike_orders")
     target = _numeric_series(df, "order_target_month")
-    df["抖音-来客订单数"] = actual.map(lambda value: num_trim(value, 0))
-    df["订单KPI目标"] = target.map(lambda value: num_trim(value, 0))
-    df["订单KPI完成率"] = _order_attain_pct(df, actual, target)
-    format_pct_columns(df, ["订单KPI完成率"])
+    df["抖音-来客线索数（手机号去重）"] = actual.map(lambda value: num_trim(value, 0))
+    df["来客线索KPI目标"] = target.map(lambda value: num_trim(value, 0))
+    df["来客线索KPI完成率"] = _order_attain_pct(df, actual, target)
+    format_pct_columns(df, ["来客线索KPI完成率"])
 
 
 def account_table_tsv(acc: pd.DataFrame, target_accounts: list[str]) -> pd.DataFrame:
@@ -123,9 +123,9 @@ def account_table_tsv(acc: pd.DataFrame, target_accounts: list[str]) -> pd.DataF
             "累计实销": x["mtd_deals"].map(lambda v: f"{v:.0f}"),
             "实销月目标": x["deal_target_month"].map(lambda v: f"{v:.2f}"),
             "累计实销达成率": x["mtd_deal_attain_pct"],
-            "抖音-来客订单数": x["抖音-来客订单数"],
-            "订单KPI目标": x["订单KPI目标"],
-            "订单KPI完成率": x["订单KPI完成率"],
+            "抖音-来客线索数（手机号去重）": x["抖音-来客线索数（手机号去重）"],
+            "来客线索KPI目标": x["来客线索KPI目标"],
+            "来客线索KPI完成率": x["来客线索KPI完成率"],
             "线索费用月目标": x["lead_cost_target_month"].map(lambda v: num_trim(v, 2)),
             "CPL目标": x["cpl_target"].map(lambda v: num_trim(v, 2)),
             "CPS目标": x["cps_target"].map(lambda v: num_trim(v, 2)),
@@ -170,9 +170,9 @@ def anchor_table(anc: pd.DataFrame) -> pd.DataFrame:
             "daily_deal_attain_pct",
             "累计实销/月目标",
             "mtd_deal_attain_pct",
-            "抖音-来客订单数",
-            "订单KPI目标",
-            "订单KPI完成率",
+            "抖音-来客线索数（手机号去重）",
+            "来客线索KPI目标",
+            "来客线索KPI完成率",
             "单人线索费用目标",
             "单人CPL目标",
             "单人CPS目标",
@@ -205,9 +205,9 @@ def anchor_table_tsv(anc: pd.DataFrame) -> pd.DataFrame:
             "累计实销": x["mtd_deals"].map(lambda v: f"{v:.2f}"),
             "实销月目标": x["deal_target_month"].map(lambda v: f"{v:.0f}"),
             "累计实销达成率": x["mtd_deal_attain_pct"],
-            "抖音-来客订单数": x["抖音-来客订单数"],
-            "订单KPI目标": x["订单KPI目标"],
-            "订单KPI完成率": x["订单KPI完成率"],
+            "抖音-来客线索数（手机号去重）": x["抖音-来客线索数（手机号去重）"],
+            "来客线索KPI目标": x["来客线索KPI目标"],
+            "来客线索KPI完成率": x["来客线索KPI完成率"],
             "单人线索费用目标": x["lead_cost_target_month"].map(lambda v: num_trim(v, 2)),
             "单人CPL目标": x["cpl_target"].map(lambda v: num_trim(v, 2)),
             "单人CPS目标": x["cps_target"].map(lambda v: num_trim(v, 0)),

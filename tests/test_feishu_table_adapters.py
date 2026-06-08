@@ -169,9 +169,9 @@ def test_account_table_tsv_outputs_douyin_laike_order_columns() -> None:
 
     out = account_table_tsv(account_panel, target_accounts=["抖音-星途汽车直播营销中心"])
 
-    assert out["抖音-来客订单数"].tolist() == ["3"]
-    assert out["订单KPI目标"].tolist() == ["1000"]
-    assert out["订单KPI完成率"].tolist() == ["0.30%"]
+    assert out["抖音-来客线索数（手机号去重）"].tolist() == ["3"]
+    assert out["来客线索KPI目标"].tolist() == ["1000"]
+    assert out["来客线索KPI完成率"].tolist() == ["0.30%"]
 
 
 def test_anchor_table_tsv_outputs_douyin_laike_order_columns() -> None:
@@ -208,6 +208,6 @@ def test_anchor_table_tsv_outputs_douyin_laike_order_columns() -> None:
 
     out = anchor_table_tsv(anchor_panel)
 
-    assert out["抖音-来客订单数"].tolist() == ["2"]
-    assert out["订单KPI目标"].tolist() == ["167"]
-    assert out["订单KPI完成率"].tolist() == ["1.20%"]
+    assert out["抖音-来客线索数（手机号去重）"].tolist() == ["2"]
+    assert out["来客线索KPI目标"].tolist() == ["167"]
+    assert out["来客线索KPI完成率"].tolist() == ["1.20%"]

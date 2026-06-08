@@ -46,6 +46,10 @@ HIDDEN_ANCHOR_PERFORMANCE_NAMES = HIDDEN_ANCHOR_SUMMARY_NAMES | {normalize_text(
 FIXED_SEED_ANCHOR_NAMES = {normalize_text(name) for name in ["桂婕"]}
 SOURCE_ENTITY_SUPPLEMENT_METRICS = ("visits", "visit_rate", "visit_deal_rate")
 VISIT_DETAIL_SOURCE_LABEL = "fact_attribution + 总部新媒体线索到店日期"
+DOUYIN_LAIKE_METRIC_KEY = "mtd_douyin_laike_orders"
+DOUYIN_LAIKE_DISPLAY_LABEL = "抖音-来客线索（手机号去重）"
+DOUYIN_LAIKE_DISPLAY_UNIT = "条"
+DOUYIN_LAIKE_DISPLAY_SOURCE = "抖音-来客线索数（手机号去重）"
 
 class DashboardDailyService:
     def __init__(self, *, repo_root: Path) -> None:
@@ -581,7 +585,7 @@ class DashboardDailyService:
         return [
             ("impressions", "impressions", "曝光"),
             ("mtd_unique_leads", "leads", "唯一线索"),
-            ("mtd_douyin_laike_orders", "douyin_laike_orders", "来客订单"),
+            ("mtd_douyin_laike_orders", "douyin_laike_orders", "来客线索"),
             ("mtd_deals", "deals", "实销"),
             ("mtd_spend", "spend", "费用"),
             ("mtd_cpl", "cpl", "CPL"),
@@ -625,7 +629,7 @@ class DashboardDailyService:
                 "leads": metrics["leads"],
                 "unique_leads": metrics["unique_leads"],
             },
-            "来客订单": {
+            "来客线索": {
                 "douyin_laike_orders": metrics["douyin_laike_orders"],
             },
             "成交": {
@@ -801,7 +805,7 @@ class DashboardDailyService:
         douyin_laike_orders = cls._summary_from_series(
             series_by_key.get("mtd_douyin_laike_orders", {}),
             "douyin_laike_orders",
-            "来客订单",
+            "来客线索",
         )
         deals = cls._summary_from_series(series_by_key.get("mtd_deals", {}), "deals", "实销")
         spend = cls._summary_from_series(series_by_key.get("mtd_spend", {}), "spend", "费用")
@@ -937,7 +941,7 @@ class DashboardDailyService:
     def _dashboard_source_status() -> list[dict[str, Any]]:
         return [
             {
-                "metric": "曝光/唯一线索/来客订单/实销/费用/CPL/CPS/账号/主播/种草曝光/月度对比",
+                "metric": "曝光/唯一线索/来客线索/实销/费用/CPL/CPS/账号/主播/种草曝光/月度对比",
                 "status": "available",
                 "source": "output/sql_reports/feishu_dashboard_source_latest_*.tsv",
             },
@@ -1522,7 +1526,7 @@ class DashboardDailyService:
         trend_specs = [
             ("impressions", "曝光", "人次", impression_daily),
             ("leads", "线索", "条", lead_daily),
-            ("douyin_laike_orders", "来客订单", "个", douyin_laike_order_daily),
+            ("douyin_laike_orders", "来客线索", "条", douyin_laike_order_daily),
             ("deals", "实销", "台", deal_daily),
             ("spend", "费用", "元", spend_daily),
             ("cpl", "CPL", "元/条", cpl_daily),
@@ -1541,7 +1545,7 @@ class DashboardDailyService:
         summary = [
             cls._metric_summary("impressions", "曝光", totals["impressions"], cls._range_target(target_config.get("impressions"), window), "人次"),
             cls._metric_summary("leads", "线索", totals["leads"], cls._range_target(target_config.get("leads"), window), "条"),
-            cls._metric_summary("douyin_laike_orders", "来客订单", totals["douyin_laike_orders"], None, "个"),
+            cls._metric_summary("douyin_laike_orders", "来客线索", totals["douyin_laike_orders"], None, "条"),
             cls._metric_summary("deals", "实销", totals["deals"], cls._range_target(target_config.get("deals"), window), "台"),
             cls._metric_summary("spend", "费用", totals["spend"], None, "元"),
             cls._metric_summary("cpl", "CPL", totals["cpl"], target_config.get("cpl"), "元/条"),
@@ -1617,7 +1621,7 @@ class DashboardDailyService:
                     "metrics": {
                         "impressions": metric("impressions", "曝光", "人次", impressions),
                         "leads": metric("leads", "唯一线索", "条", leads),
-                        "douyin_laike_orders": metric("douyin_laike_orders", "来客订单", "个", douyin_laike_orders),
+                        "douyin_laike_orders": metric("douyin_laike_orders", "来客线索", "条", douyin_laike_orders),
                         "deals": metric("deals", "实销", "台", deals),
                         "spend": metric("spend", "费用", "元", spend),
                         "cpl": metric("cpl", "CPL", "元/条", cpl),
@@ -2528,14 +2532,21 @@ class DashboardDailyService:
 
     @staticmethod
     def _metric_payload(metric: Metric) -> dict[str, Any]:
+        label = metric.label
+        unit = metric.unit
+        note = metric.note
+        if metric.key == DOUYIN_LAIKE_METRIC_KEY:
+            label = DOUYIN_LAIKE_DISPLAY_LABEL
+            unit = DOUYIN_LAIKE_DISPLAY_UNIT
+            note = note.replace("抖音-来客订单数", DOUYIN_LAIKE_DISPLAY_SOURCE)
         return {
             "key": metric.key,
-            "label": metric.label,
+            "label": label,
             "actual": metric.actual,
             "target": metric.target,
             "attain_rate": metric.rate,
-            "unit": metric.unit,
-            "source_column": metric.note,
+            "unit": unit,
+            "source_column": note,
         }
 
     @classmethod
@@ -2661,14 +2672,21 @@ class DashboardDailyService:
 
     @classmethod
     def _metric_from_row(cls, metric_key: str, row: dict[str, str]) -> Metric:
+        label = row.get("metric_name") or metric_key
+        unit = row.get("unit", "")
+        note = row.get("source_column", "")
+        if metric_key == DOUYIN_LAIKE_METRIC_KEY:
+            label = DOUYIN_LAIKE_DISPLAY_LABEL
+            unit = DOUYIN_LAIKE_DISPLAY_UNIT
+            note = note.replace("抖音-来客订单数", DOUYIN_LAIKE_DISPLAY_SOURCE)
         return Metric(
             key=metric_key,
-            label=row.get("metric_name") or metric_key,
+            label=label,
             actual=cls._parse_num(row.get("actual")),
             target=cls._parse_optional_num(row.get("target")),
             rate=cls._parse_optional_num(row.get("attain_rate")),
-            unit=row.get("unit", ""),
-            note=row.get("source_column", ""),
+            unit=unit,
+            note=note,
         )
 
     @staticmethod

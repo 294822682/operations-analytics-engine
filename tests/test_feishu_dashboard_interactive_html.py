@@ -27,7 +27,7 @@ def test_render_interactive_dashboard_html_contains_required_modules_and_control
     assert 'id="seed-exposure"' in html
     assert "总览 KPI" in html
     assert "全链路转化" in html
-    assert "线索组主播唯一线索与来客订单 KPI" in html
+    assert "线索组主播唯一线索与来客线索 KPI" in html
     assert "种草曝光累计达成" in html
     assert "2,188.63万" in html
     assert "13,323" in html
@@ -35,9 +35,9 @@ def test_render_interactive_dashboard_html_contains_required_modules_and_control
     assert "无目标" not in html
     assert "0 / 21" in html
     assert "0.00万" in html
-    assert "来客订单" in html
+    assert "来客线索" in html
     assert "按唯一线索排序" in html
-    assert "按来客订单排序" in html
+    assert "按来客线索排序" in html
     assert "按累计曝光排序" in html
     assert 'data-sort-table="lead-anchor-table"' in html
     assert 'data-sort-table="seed-anchor-table"' in html
@@ -78,7 +78,7 @@ def test_render_api_connected_dashboard_html_fetches_daily_dashboard_api() -> No
     assert 'id="seed-exposure"' in html
     assert "renderDashboard(payload)" in html
     assert "function sortTable(" in html
-    assert "按来客订单排序" in html
+    assert "按来客线索排序" in html
     assert "按累计曝光排序" in html
 
 
@@ -116,7 +116,7 @@ def test_render_feishu_link_dashboard_html_exposes_business_workbench_without_en
     assert "曝光" in html
     assert "线索" in html
     assert "唯一线索" in html
-    assert "订单" in html
+    assert "来客线索" in html
     assert "实销" in html
     assert "CPL" in html
     assert "CPS" in html
@@ -157,6 +157,12 @@ def test_render_feishu_link_dashboard_html_exposes_business_workbench_without_en
     assert "bar-track-cell" in html
     assert 'class="metric-value-cell"' in html
     assert 'class="metric-value-header"' in html
+    assert "所属账号 / 直播间" in html
+    assert "const spend = anchorMetric(anchor, \"mtd_spend\");" in html
+    assert 'class="anchor-parent-cell"' in html
+    assert "<th>到店数</th>" in html
+    assert "<th>到店率</th>" in html
+    assert '<th>费用</th>' in html
     assert "function metricProgressRate(metric)" in html
     assert "const progressRate = metricProgressRate(metric);" in html
     assert "线索进度" in html
@@ -1097,7 +1103,7 @@ def _sample_rows() -> list[dict[str, str]]:
         _row("topline", "department", "全量", "", "mtd_cps", "总体CPS", "12584.337804878049", "9060.02", "", "元/台"),
         _row("topline", "department", "全量", "", "pending_day", "待交车（当日）", "0", "", "", "台"),
         _row("topline", "department", "全量", "", "pending_cumulative", "待交车（累计）", "21", "", "", "台"),
-        _row("topline", "department", "全量", "", "mtd_douyin_laike_orders", "抖音-来客订单", "106", "300", "0.35333333333333333", "个"),
+        _row("topline", "department", "全量", "", "mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", "106", "300", "0.35333333333333333", "条"),
         _row("lead_quality", "department", "全量", "", "raw_leads", "原始线索", "14775", "", "", "条"),
         _row("lead_quality", "department", "全量", "", "unique_rate", "唯一率", "0.9017", "", "", "比例"),
         _row("lead_quality", "department", "全量", "", "unowned_leads", "无主线索", "150", "", "", "条"),
@@ -1113,12 +1119,12 @@ def _sample_rows() -> list[dict[str, str]]:
         _row("topline_segment", "segment", "不含 EX7", "", "mtd_cpl", "实际CPL", "49.23604532163742", "", "", "元/条"),
         _row("topline_segment", "segment", "不含 EX7", "", "mtd_cps", "实际CPS", "5773.277999999999", "", "", "元/台"),
         _row("lead_anchor", "anchor", "徐幻", "星途汽车官方直播间", "mtd_unique_leads", "累计唯一线索", "2634", "3713", "0.7094", "条"),
-        _row("lead_anchor", "anchor", "徐幻", "星途汽车官方直播间", "mtd_douyin_laike_orders", "抖音-来客订单", "35", "37.5", "0.9333", "个"),
+        _row("lead_anchor", "anchor", "徐幻", "星途汽车官方直播间", "mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", "35", "37.5", "0.9333", "条"),
         _row("lead_anchor", "anchor", "徐幻", "星途汽车官方直播间", "mtd_deals", "累计实销", "4.08", "13", "0.3141", "台"),
         _row("lead_anchor", "anchor", "徐幻", "星途汽车官方直播间", "mtd_cpl", "实际CPL", "28.47", "55", "", "元/条"),
         _row("lead_anchor", "anchor", "徐幻", "星途汽车官方直播间", "mtd_cps", "实际CPS", "18364.39", "9060", "", "元/台"),
         _row("lead_anchor", "anchor", "丁俐佳", "星途汽车官方直播间", "mtd_unique_leads", "累计唯一线索", "1821", "3713", "0.4904", "条"),
-        _row("lead_anchor", "anchor", "丁俐佳", "星途汽车官方直播间", "mtd_douyin_laike_orders", "抖音-来客订单", "20", "37.5", "0.5333", "个"),
+        _row("lead_anchor", "anchor", "丁俐佳", "星途汽车官方直播间", "mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", "20", "37.5", "0.5333", "条"),
         _row("lead_anchor", "anchor", "丁俐佳", "星途汽车官方直播间", "mtd_deals", "累计实销", "8.92", "13", "0.6859", "台"),
         _row("lead_anchor", "anchor", "丁俐佳", "星途汽车官方直播间", "mtd_cpl", "实际CPL", "35.26", "55", "", "元/条"),
         _row("lead_anchor", "anchor", "丁俐佳", "星途汽车官方直播间", "mtd_cps", "实际CPS", "7201.75", "9060", "", "元/台"),

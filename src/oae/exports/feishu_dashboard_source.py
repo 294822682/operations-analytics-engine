@@ -46,8 +46,8 @@ def build_dashboard_source_rows(
     account_summary_spend = _account_summary_spend(account_table)
     order_actual = getattr(topline_summary, "douyin_laike_orders", None)
     if order_actual is None:
-        order_actual = _account_summary_metric(account_table, "抖音-来客订单数")
-    order_target = _account_summary_metric(account_table, "订单KPI目标")
+        order_actual = _account_summary_metric(account_table, "抖音-来客线索数（手机号去重）")
+    order_target = _account_summary_metric(account_table, "来客线索KPI目标")
     full_spend = account_summary_spend
     if full_spend is None and full.cpl_actual is not None:
         full_spend = float(full.cpl_actual) * float(full.lead_actual)
@@ -188,12 +188,12 @@ def build_dashboard_source_rows(
         "全量",
         "",
         "mtd_douyin_laike_orders",
-        "抖音-来客订单",
+        "抖音-来客线索（手机号去重）",
         order_actual,
         order_target,
         _safe_div(order_actual, order_target),
-        "个",
-        "账号层（母集）.线索组汇总.抖音-来客订单数",
+        "条",
+        "账号层（母集）.线索组汇总.抖音-来客线索数（手机号去重）",
         90,
     )
 
@@ -246,7 +246,7 @@ def _append_account_rows(rows: list[dict[str, str]], report_date: str, account_t
             ("mtd_unique_leads", "累计唯一线索", "累计线索", "线索月目标", "累计线索达成率", "条"),
             ("daily_deals", "当日实销", "当日实销", "当日实销目标", "当日实销达成率", "台"),
             ("mtd_deals", "累计实销", "累计实销", "实销月目标", "累计实销达成率", "台"),
-            ("mtd_douyin_laike_orders", "抖音-来客订单", "抖音-来客订单数", "订单KPI目标", "订单KPI完成率", "个"),
+            ("mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", "抖音-来客线索数（手机号去重）", "来客线索KPI目标", "来客线索KPI完成率", "条"),
             ("mtd_spend", "累计线索费用", "累计线索费用", "线索费用月目标", "", "元"),
             ("mtd_cpl", "实际 CPL", "实际CPL", "CPL目标", "", "元/条"),
             ("mtd_cps", "实际 CPS", "实际CPS", "CPS目标", "", "元/台"),
@@ -315,7 +315,7 @@ def _append_anchor_rows(rows: list[dict[str, str]], report_date: str, anchor_tab
             ("mtd_unique_leads", "累计唯一线索", "累计线索", "线索月目标", "累计线索达成率", "条"),
             ("daily_deals", "当日实销", "当日实销", "当日实销目标", "当日实销达成率", "台"),
             ("mtd_deals", "累计实销", "累计实销", "实销月目标", "累计实销达成率", "台"),
-            ("mtd_douyin_laike_orders", "抖音-来客订单", "抖音-来客订单数", "订单KPI目标", "订单KPI完成率", "个"),
+            ("mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", "抖音-来客线索数（手机号去重）", "来客线索KPI目标", "来客线索KPI完成率", "条"),
             ("mtd_spend", "累计线索费用", "累计线索费用", "单人线索费用目标", "", "元"),
             ("mtd_cpl", "实际 CPL", "实际CPL", "单人CPL目标", "", "元/条"),
             ("mtd_cps", "实际 CPS", "实际CPS", "单人CPS目标", "", "元/台"),

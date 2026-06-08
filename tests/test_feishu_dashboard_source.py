@@ -69,7 +69,10 @@ def test_build_dashboard_source_rows_includes_seed_quality_and_order_contract_ro
         lead_quality_line="线索质量：原始线索（去重前）24759，唯一线索（去重后）22682，唯一率 91.61%；无主线索 35；人工确认归属 12 条，影响样本 19 行。",
     )
 
-    assert _find(rows, "topline", "department", "全量", "mtd_douyin_laike_orders")["actual"] == "90"
+    topline_laike = _find(rows, "topline", "department", "全量", "mtd_douyin_laike_orders")
+    assert topline_laike["actual"] == "90"
+    assert topline_laike["metric_name"] == "抖音-来客线索（手机号去重）"
+    assert topline_laike["unit"] == "条"
     assert _find(rows, "lead_account", "account", "星途汽车直播营销中心", "mtd_douyin_laike_orders")["actual"] == "38"
     assert _find(rows, "lead_anchor", "anchor", "徐欣悦", "mtd_douyin_laike_orders")["actual"] == "20"
     assert _find(rows, "seed_account", "account", "EXEED星途", "mtd_impressions")["actual"] == "7221796"
@@ -220,17 +223,17 @@ def _release_anchor_table() -> pd.DataFrame:
 
 def _release_account_table_with_orders() -> pd.DataFrame:
     table = _release_account_table().copy()
-    table["抖音-来客订单数"] = ["38", "90"]
-    table["订单KPI目标"] = ["60", "300"]
-    table["订单KPI完成率"] = ["63.33%", "30.00%"]
+    table["抖音-来客线索数（手机号去重）"] = ["38", "90"]
+    table["来客线索KPI目标"] = ["60", "300"]
+    table["来客线索KPI完成率"] = ["63.33%", "30.00%"]
     return table
 
 
 def _release_anchor_table_with_orders() -> pd.DataFrame:
     table = _release_anchor_table().copy()
-    table["抖音-来客订单数"] = ["20"]
-    table["订单KPI目标"] = ["37.5"]
-    table["订单KPI完成率"] = ["53.33%"]
+    table["抖音-来客线索数（手机号去重）"] = ["20"]
+    table["来客线索KPI目标"] = ["37.5"]
+    table["来客线索KPI完成率"] = ["53.33%"]
     return table
 
 

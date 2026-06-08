@@ -50,16 +50,16 @@ DASHBOARD_PAGE_FIELD_SPECS: dict[str, dict[str, tuple[DashboardFieldSpec, ...]]]
     "p2_lead_detail": {
         "scope_metrics": (
             DashboardFieldSpec("mtd_unique_leads", "唯一线索", formatter="int"),
-            DashboardFieldSpec("mtd_douyin_laike_orders", "来客订单", formatter="int"),
-            DashboardFieldSpec("mtd_douyin_laike_orders", "订单达成", value_kind="rate", formatter="pct"),
+            DashboardFieldSpec("mtd_douyin_laike_orders", "来客线索", formatter="int"),
+            DashboardFieldSpec("mtd_douyin_laike_orders", "来客线索达成", value_kind="rate", formatter="pct"),
             DashboardFieldSpec("mtd_deals", "实销", formatter="decimal"),
             DashboardFieldSpec("mtd_cpl", "CPL", formatter="money"),
             DashboardFieldSpec("mtd_cps", "CPS", formatter="money"),
         ),
         "anchor_metrics": (
             DashboardFieldSpec("mtd_unique_leads", "唯一线索", formatter="int"),
-            DashboardFieldSpec("mtd_douyin_laike_orders", "来客订单", formatter="int"),
-            DashboardFieldSpec("mtd_douyin_laike_orders", "订单达成", value_kind="rate", formatter="pct"),
+            DashboardFieldSpec("mtd_douyin_laike_orders", "来客线索", formatter="int"),
+            DashboardFieldSpec("mtd_douyin_laike_orders", "来客线索达成", value_kind="rate", formatter="pct"),
             DashboardFieldSpec("mtd_deals", "实销", formatter="decimal"),
             DashboardFieldSpec("mtd_spend", "个人消耗", formatter="money"),
             DashboardFieldSpec("mtd_cpl", "CPL", formatter="money"),
@@ -79,7 +79,7 @@ DASHBOARD_PAGE_FIELD_SPECS: dict[str, dict[str, tuple[DashboardFieldSpec, ...]]]
         "lead_account_metrics": (
             DashboardFieldSpec("daily_leads", "当日", formatter="int"),
             DashboardFieldSpec("mtd_unique_leads", "累计", formatter="int"),
-            DashboardFieldSpec("mtd_douyin_laike_orders", "订单", formatter="int"),
+            DashboardFieldSpec("mtd_douyin_laike_orders", "来客线索", formatter="int"),
             DashboardFieldSpec("mtd_deals", "实销", formatter="int"),
             DashboardFieldSpec("mtd_cpl", "CPL", formatter="money"),
             DashboardFieldSpec("mtd_cps", "CPS", formatter="money"),
@@ -274,7 +274,7 @@ def render_dashboard_svg(table: pd.DataFrame, *, run_id: str = "", width: int = 
         [
             card(x0, y0, "累计曝光", _fmt_wan(impressions), f"目标 {_fmt_wan(impressions_target)}", impressions_rate, "url(#cyan)"),
             card(x0 + 450, y0, "累计唯一线索", _fmt_count_compact(unique), f"目标 {_fmt_count_compact(unique_target)}", unique_rate, colors["green"]),
-            card(x0 + 900, y0, "抖音-来客订单", _fmt_int(orders), f"目标 {_fmt_int(orders_target)}", orders_rate, "url(#gold)"),
+            card(x0 + 900, y0, "抖音-来客线索（手机号去重）", _fmt_int(orders), f"目标 {_fmt_int(orders_target)}", orders_rate, "url(#gold)"),
             card(x0 + 1350, y0, "累计实销", _fmt_int(deals), f"目标 {_fmt_int(deals_target)}", deals_rate, "url(#red)"),
         ]
     )
@@ -310,14 +310,14 @@ def render_dashboard_svg(table: pd.DataFrame, *, run_id: str = "", width: int = 
     svg.extend(
         [
             rect(54, main_y, 870, main_h, "url(#panelGrad)", stroke=colors["line"], rx=32, extra="filter='url(#shadow)'"),
-            section_title(88, main_y + 50, "全链路转化", "曝光 / 原始线索 / 唯一线索 / 来客订单 / 实销"),
+            section_title(88, main_y + 50, "全链路转化", "曝光 / 原始线索 / 唯一线索 / 来客线索 / 实销"),
         ]
     )
     funnel = [
         ("曝光", impressions, _fmt_wan(impressions), "url(#cyan)"),
         ("原始线索", raw_leads, _fmt_count_compact(raw_leads), "#18C6D9"),
         ("唯一线索", unique, _fmt_count_compact(unique), "url(#green)"),
-        ("来客订单", orders, _fmt_int(orders), "url(#gold)"),
+        ("来客线索", orders, _fmt_int(orders), "url(#gold)"),
         ("实销", deals, _fmt_int(deals), "url(#red)"),
     ]
     funnel = [item for item in funnel if item[1] > 0]
@@ -359,7 +359,7 @@ def render_dashboard_svg(table: pd.DataFrame, *, run_id: str = "", width: int = 
     svg.extend(
         [
             rect(954, main_y, 912, main_h, "url(#panelGrad)", stroke=colors["line"], rx=32, extra="filter='url(#shadow)'"),
-            section_title(988, main_y + 50, "来客订单拆解", "账号 / 主播累计订单、线索与实销"),
+            section_title(988, main_y + 50, "来客线索拆解", "账号 / 主播累计来客线索、唯一线索与实销"),
         ]
     )
     max_account_orders = max([item.get("mtd_douyin_laike_orders_actual", 0.0) for item in lead_accounts] + [1])
@@ -397,7 +397,7 @@ def render_dashboard_svg(table: pd.DataFrame, *, run_id: str = "", width: int = 
     svg.extend(
         [
             rect(54, bottom_y, 870, bottom_h, "url(#panelGrad)", stroke=colors["line"], rx=32, extra="filter='url(#shadow)'"),
-            section_title(88, bottom_y + 50, "线索组主播累计：唯一线索 / 来客订单 KPI", "蓝条：累计唯一线索；金条：来客订单KPI"),
+            section_title(88, bottom_y + 50, "线索组主播累计：唯一线索 / 来客线索 KPI", "蓝条：累计唯一线索；金条：来客线索KPI"),
         ]
     )
     max_anchor_leads = max([item.get("mtd_unique_leads_actual", 0.0) for item in lead_anchors] + [1])
@@ -642,7 +642,7 @@ def _render_lead_detail_page(
         source,
         page_id="p2_lead_detail",
         title="P2 线索组明细",
-        subtitle="账号与主播的唯一线索、来客订单、实销、个人消耗、费用效率",
+        subtitle="账号与主播的唯一线索、来客线索、实销、个人消耗、费用效率",
         sections=[
             ("线索组账号", ["账号", "归属", *[field.header for field in fields]], rows),
             ("线索组主播", ["主播", "归属账号", *[field.header for field in anchor_fields]], anchor_rows),

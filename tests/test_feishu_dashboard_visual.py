@@ -30,7 +30,7 @@ def test_long_compact_dashboard_uses_fixed_pages_without_ex7_comparison() -> Non
     assert "P2 线索组明细" in svg
     assert "P3 种草组明细" in svg
     assert "P4 账号拆解" in svg
-    assert "来客订单拆解" in svg
+    assert "来客线索拆解" in svg
     assert "种草账号" in svg
     assert "种草主播" in svg
     for removed in ["EX7 / 不含", "车型对比", "P4 车型", "车型/EX7"]:
@@ -58,7 +58,7 @@ def _dashboard_source_frame() -> pd.DataFrame:
     rows = [
         _row("topline", "department", "全量", "", "impressions", "曝光", 1_250_000, 25_000_000, 0.05),
         _row("topline", "department", "全量", "", "mtd_unique_leads", "唯一线索", 138, 0, 0),
-        _row("topline", "department", "全量", "", "mtd_douyin_laike_orders", "抖音-来客订单", 19, 1000, 0.019),
+        _row("topline", "department", "全量", "", "mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", 19, 1000, 0.019),
         _row("topline", "department", "全量", "", "mtd_deals", "实销", 16, 100, 0.16),
         _row("topline", "department", "全量", "", "mtd_spend", "累计消耗", 0, 0, 0),
         _row("topline", "department", "全量", "", "mtd_cpl", "总体 CPL", 0, 0, 0),
@@ -71,20 +71,20 @@ def _dashboard_source_frame() -> pd.DataFrame:
         _row("lead_quality", "department", "全量", "", "manual_overrides", "人工归属", 5, "", ""),
         _row("lead_account", "account", "星途汽车官方直播间", "", "daily_leads", "当日线索", 7, "", ""),
         _row("lead_account", "account", "星途汽车官方直播间", "", "mtd_unique_leads", "累计唯一线索", 42, 0, 0),
-        _row("lead_account", "account", "星途汽车官方直播间", "", "mtd_douyin_laike_orders", "抖音-来客订单", 15, 1000, 0.015),
+        _row("lead_account", "account", "星途汽车官方直播间", "", "mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", 15, 1000, 0.015),
         _row("lead_account", "account", "星途汽车官方直播间", "", "mtd_deals", "累计实销", 9, 100, 0.09),
         _row("lead_account", "account", "星途汽车直播营销中心", "", "daily_leads", "当日线索", 1, "", ""),
         _row("lead_account", "account", "星途汽车直播营销中心", "", "mtd_unique_leads", "累计唯一线索", 20, 0, 0),
-        _row("lead_account", "account", "星途汽车直播营销中心", "", "mtd_douyin_laike_orders", "抖音-来客订单", 4, 1000, 0.004),
+        _row("lead_account", "account", "星途汽车直播营销中心", "", "mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", 4, 1000, 0.004),
         _row("lead_account", "account", "星途汽车直播营销中心", "", "mtd_deals", "累计实销", 4, 100, 0.04),
         _row("lead_account", "account", "线索组汇总", "", "daily_leads", "当日线索", 8, "", ""),
         _row("lead_account", "account", "线索组汇总", "", "mtd_unique_leads", "累计唯一线索", 64, 0, 0),
-        _row("lead_account", "account", "线索组汇总", "", "mtd_douyin_laike_orders", "抖音-来客订单", 19, 1000, 0.019),
+        _row("lead_account", "account", "线索组汇总", "", "mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", 19, 1000, 0.019),
         _row("lead_account", "account", "线索组汇总", "", "mtd_deals", "累计实销", 13, 100, 0.13),
         _row("lead_anchor", "anchor", "丁俐佳", "当日未开播", "mtd_unique_leads", "累计唯一线索", 4, 0, 0),
-        _row("lead_anchor", "anchor", "丁俐佳", "当日未开播", "mtd_douyin_laike_orders", "抖音-来客订单", 4, 167, 0.024),
+        _row("lead_anchor", "anchor", "丁俐佳", "当日未开播", "mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", 4, 167, 0.024),
         _row("lead_anchor", "anchor", "何雯", "当日未开播", "mtd_unique_leads", "累计唯一线索", 5, 0, 0),
-        _row("lead_anchor", "anchor", "何雯", "当日未开播", "mtd_douyin_laike_orders", "抖音-来客订单", 5, 167, 0.0299),
+        _row("lead_anchor", "anchor", "何雯", "当日未开播", "mtd_douyin_laike_orders", "抖音-来客线索（手机号去重）", 5, 167, 0.0299),
         _row("seed_account", "account", "EXEED星途", "", "daily_impressions", "当日曝光", 0, 0, 0),
         _row("seed_account", "account", "EXEED星途", "", "mtd_impressions", "累计曝光", 967_200, 25_000_000, 0.0387),
         _row("seed_anchor", "anchor", "刘花旗", "EXEED星途", "daily_impressions", "当日曝光", 0, 35714, 0),

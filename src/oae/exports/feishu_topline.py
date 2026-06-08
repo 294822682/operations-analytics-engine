@@ -465,7 +465,7 @@ def build_tsv_topline_lines(report_date_str: str, summary: ToplineSummary) -> li
     ]
     if order_actual is not None:
         lines.append(
-            f"抖音-来客订单\t{format_metric(order_target, 0)}\t{format_metric(order_actual, 0)}\t{_format_order_attain(order_actual, order_target)}"
+            f"抖音-来客线索（手机号去重）\t{format_metric(order_target, 0)}\t{format_metric(order_actual, 0)}\t{_format_order_attain(order_actual, order_target)}"
         )
     lines.extend(
         [

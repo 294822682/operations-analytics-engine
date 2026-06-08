@@ -76,9 +76,9 @@ def build_markdown_order_breakdown_lines(
     if actual is None:
         return []
     return [
-        "来客订单数",
-        f"累计订单数（账号）：{_format_order_breakdown(acc_tsv_out, '账号')}",
-        f"累计订单数（主播）：{_format_order_breakdown(anc_tsv_out, '主播')}",
+        "来客线索数（手机号去重）",
+        f"累计来客线索数（账号）：{_format_order_breakdown(acc_tsv_out, '账号')}",
+        f"累计来客线索数（主播）：{_format_order_breakdown(anc_tsv_out, '主播')}",
     ]
 
 
@@ -91,12 +91,12 @@ def build_tsv_order_breakdown_lines(
     if actual is None:
         return []
     return [
-        "抖音-来客订单数",
-        f"累计订单数\t{_format_count(actual)}",
-        f"订单目标\t{_format_count(target)}",
-        f"订单达成率\t{_format_rate(actual, target)}",
-        f"累计订单数（账号）\t{_format_order_breakdown(acc_tsv_out, '账号')}",
-        f"累计订单数（主播）\t{_format_order_breakdown(anc_tsv_out, '主播')}",
+        "抖音-来客线索数（手机号去重）",
+        f"累计来客线索数\t{_format_count(actual)}",
+        f"来客线索目标\t{_format_count(target)}",
+        f"来客线索达成率\t{_format_rate(actual, target)}",
+        f"累计来客线索数（账号）\t{_format_order_breakdown(acc_tsv_out, '账号')}",
+        f"累计来客线索数（主播）\t{_format_order_breakdown(anc_tsv_out, '主播')}",
     ]
 
 
@@ -110,11 +110,11 @@ def _order_actual_and_target(topline_summary: ToplineSummary, acc_tsv_out: pd.Da
 
 
 def _sum_order_breakdown(df: pd.DataFrame, name_col: str) -> float | None:
-    if "抖音-来客订单数" not in df.columns or name_col not in df.columns:
+    if "抖音-来客线索数（手机号去重）" not in df.columns or name_col not in df.columns:
         return None
     rows = [
         value
-        for name, value in zip(df[name_col], df["抖音-来客订单数"])
+        for name, value in zip(df[name_col], df["抖音-来客线索数（手机号去重）"])
         if str(name).strip() not in {"线索组汇总", "合计", "汇总"}
     ]
     if not rows:
@@ -123,10 +123,10 @@ def _sum_order_breakdown(df: pd.DataFrame, name_col: str) -> float | None:
 
 
 def _format_order_breakdown(df: pd.DataFrame, name_col: str) -> str:
-    if "抖音-来客订单数" not in df.columns or name_col not in df.columns:
+    if "抖音-来客线索数（手机号去重）" not in df.columns or name_col not in df.columns:
         return "暂无"
     items: list[str] = []
-    for name, raw_count in zip(df[name_col], df["抖音-来客订单数"]):
+    for name, raw_count in zip(df[name_col], df["抖音-来客线索数（手机号去重）"]):
         name_text = str(name).strip()
         if not name_text or name_text in {"线索组汇总", "合计", "汇总"}:
             continue

@@ -182,7 +182,7 @@ def render_interactive_dashboard_html(source: DashboardSource, *, source_label: 
           <p class="kicker">02 · FUNNEL</p>
           <h2>全链路转化</h2>
         </div>
-        <p class="section-note">曝光、原始线索、唯一线索、来客订单、实销按同一源表展示；条形宽度使用对数比例，仅用于视觉阅读。</p>
+        <p class="section-note">曝光、原始线索、唯一线索、来客线索、实销按同一源表展示；条形宽度使用对数比例，仅用于视觉阅读。</p>
       </div>
       {funnel}
     </section>
@@ -190,11 +190,11 @@ def render_interactive_dashboard_html(source: DashboardSource, *, source_label: 
       <div class="section-head">
         <div>
           <p class="kicker">04 · LIVE ANCHORS</p>
-          <h2>线索组主播唯一线索与来客订单 KPI</h2>
+          <h2>线索组主播唯一线索与来客线索 KPI</h2>
         </div>
         <div class="sort-controls" aria-label="线索主播排序">
           <button type="button" data-sort-table="lead-anchor-table" data-sort-key="mtd_unique_leads_actual" data-sort-dir="desc">按唯一线索排序</button>
-          <button type="button" data-sort-table="lead-anchor-table" data-sort-key="mtd_douyin_laike_orders_actual" data-sort-dir="desc">按来客订单排序</button>
+          <button type="button" data-sort-table="lead-anchor-table" data-sort-key="mtd_douyin_laike_orders_actual" data-sort-dir="desc">按来客线索排序</button>
           <button type="button" data-sort-table="lead-anchor-table" data-sort-key="mtd_cpl_actual" data-sort-dir="asc">按 CPL 排序</button>
         </div>
       </div>
@@ -263,7 +263,7 @@ def render_api_connected_dashboard_html(
     <div>
       <div class="eyebrow">经营链路 + 维度工作台</div>
       <h1>{_escape(title)}</h1>
-      <p class="subtitle">以曝光、唯一线索、来客订单、实销、费用、CPL、CPS 串起经营链路，并保留主播、账号渠道、种草曝光、历史趋势和月度对比。</p>
+      <p class="subtitle">以曝光、唯一线索、来客线索、实销、费用、CPL、CPS 串起经营链路，并保留主播、账号渠道、种草曝光、历史趋势和月度对比。</p>
       <div class="dashboard-meta business-meta" aria-label="日报看板信息">
         <div>
           <span>报表日期</span>
@@ -336,7 +336,7 @@ def render_api_connected_dashboard_html(
         """
     )
     overview_note = "总览保留核心指标卡，便于和经营链路交叉核对。" if business_view else "指标卡从 API payload 渲染；悬停查看字段来源和说明。"
-    funnel_note = "从曝光到线索、订单、实销和成本效率的主要经营链路。" if business_view else "曝光、原始线索、唯一线索、来客订单、实销按后端只读 JSON 展示。"
+    funnel_note = "从曝光到线索、订单、实销和成本效率的主要经营链路。" if business_view else "曝光、原始线索、唯一线索、来客线索、实销按后端只读 JSON 展示。"
     decision_section = (
         """
     <section id="decision" class="section decision-section business-home band-plain" data-module="decision">
@@ -492,7 +492,7 @@ def render_api_connected_dashboard_html(
       <div class="section-head">
         <div>
           <p class="kicker">{_escape(lead_kicker)}</p>
-          <h2>线索组主播唯一线索与来客订单 KPI</h2>
+          <h2>线索组主播唯一线索与来客线索 KPI</h2>
         </div>
         <div class="table-actions">
           <label class="table-search" for="lead-anchor-search">
@@ -863,7 +863,7 @@ def _overview_cards(topline: dict[str, Metric]) -> str:
     cards = [
         ("曝光", _fmt_wan(topline["impressions"].actual), topline["impressions"], "teal"),
         ("唯一线索", _fmt_int(topline["unique"].actual), topline["unique"], "green"),
-        ("来客订单", _fmt_int(topline["orders"].actual), topline["orders"], "amber"),
+        ("来客线索", _fmt_int(topline["orders"].actual), topline["orders"], "amber"),
         ("实销", _fmt_int(topline["deals"].actual), topline["deals"], "red"),
         ("费用", _fmt_money_wan(topline["spend"].actual), topline["spend"], "ink"),
         ("CPL", _fmt_money(topline["cpl"].actual), topline["cpl"], "blue"),
@@ -898,7 +898,7 @@ def _funnel_html(topline: dict[str, Metric]) -> str:
         ("曝光", topline["impressions"].actual, _fmt_wan(topline["impressions"].actual), "曝光口径"),
         ("原始线索", topline["raw_leads"].actual, _fmt_int(topline["raw_leads"].actual), "lead_quality.raw_leads"),
         ("唯一线索", topline["unique"].actual, _fmt_int(topline["unique"].actual), "mtd_unique_leads"),
-        ("来客订单", topline["orders"].actual, _fmt_int(topline["orders"].actual), "mtd_douyin_laike_orders"),
+        ("来客线索", topline["orders"].actual, _fmt_int(topline["orders"].actual), "mtd_douyin_laike_orders"),
         ("实销", topline["deals"].actual, _fmt_int(topline["deals"].actual), "mtd_deals"),
     ]
     max_value = max([value for _, value, _, _ in steps] + [1])
@@ -1013,7 +1013,7 @@ def _lead_anchor_table(anchors: list[dict[str, Any]]) -> str:
             <tr>
               <th>主播</th>
               <th>累计唯一线索</th>
-              <th>来客订单 / 达成</th>
+              <th>来客线索 / 达成</th>
               <th>累计实销</th>
               <th>CPL</th>
               <th>CPS</th>
@@ -1255,7 +1255,7 @@ function renderDecision(payload) {{
     decisionKpiCard("曝光", overview.impressions, "teal"),
     decisionKpiCard("线索", overview.raw_leads, "blue"),
     decisionKpiCard("唯一线索", overview.mtd_unique_leads, "green"),
-    decisionKpiCard("订单", overview.mtd_douyin_laike_orders, "amber"),
+    decisionKpiCard("来客线索", overview.mtd_douyin_laike_orders, "amber"),
     decisionKpiCard("实销", overview.mtd_deals, "red"),
     decisionKpiCard("CPL", overview.mtd_cpl, "blue"),
     decisionKpiCard("CPS", overview.mtd_cps, "red"),
@@ -1264,7 +1264,7 @@ function renderDecision(payload) {{
 
   document.getElementById("decision-status").innerHTML = [
     statusRow("线索达成", overview.mtd_unique_leads),
-    statusRow("来客订单达成", overview.mtd_douyin_laike_orders),
+    statusRow("来客线索达成", overview.mtd_douyin_laike_orders),
     statusRow("实销达成", overview.mtd_deals),
     statusRow("种草曝光达成", payload.seed_account),
   ].join("");
@@ -1319,7 +1319,7 @@ function renderWorkbench(payload) {{
 
 const LEAD_SORT_CONTROLS = {{
   mtd_unique_leads: {{ label: "按唯一线索排序", direction: "desc" }},
-  mtd_douyin_laike_orders: {{ label: "按来客订单排序", direction: "desc" }},
+  mtd_douyin_laike_orders: {{ label: "按来客线索排序", direction: "desc" }},
   mtd_cpl: {{ label: "按 CPL 排序", direction: "asc" }},
 }};
 
@@ -1345,7 +1345,7 @@ function renderOverview(payload) {{
   const cards = [
     ["曝光", overview.impressions, "teal"],
     ["唯一线索", overview.mtd_unique_leads, "green"],
-    ["来客订单", overview.mtd_douyin_laike_orders, "amber"],
+    ["来客线索", overview.mtd_douyin_laike_orders, "amber"],
     ["实销", overview.mtd_deals, "red"],
     ["费用", overview.mtd_spend, "ink"],
     ["CPL", overview.mtd_cpl, "blue"],
@@ -1435,12 +1435,15 @@ function leadColgroup() {{
   return `
         <colgroup>
           <col class="col-label">
+          <col class="col-parent">
           <col class="col-bar">
           <col class="col-value">
           <col class="col-orders">
           <col class="col-visits">
           <col class="col-visit-rate">
+          <col class="col-visit-deal-rate">
           <col class="col-number">
+          <col class="col-spend">
           <col class="col-money">
           <col class="col-money">
         </colgroup>`;
@@ -1461,9 +1464,9 @@ function seedColgroup() {{
 
 function leadTableHeader() {{
   if (!IS_BUSINESS_MODE) {{
-    return `<thead><tr><th>主播</th><th>累计唯一线索</th><th>来客订单 / 达成</th><th>到店数 / 到店率</th><th>到店成交率</th><th>累计实销</th><th>CPL</th><th>CPS</th></tr></thead>`;
+    return `<thead><tr><th>主播</th><th>所属账号 / 直播间</th><th>线索进度</th><th>累计唯一线索</th><th>来客线索 / 达成</th><th>到店数</th><th>到店率</th><th>到店成交率</th><th>累计实销</th><th>费用</th><th>CPL</th><th>CPS</th></tr></thead>`;
   }}
-  return `<thead><tr><th>主播</th><th class="bar-header">线索进度</th><th class="metric-value-header">累计唯一线索</th><th>来客订单 / 达成</th><th>到店数 / 到店率</th><th>到店成交率</th><th>累计实销</th><th>CPL</th><th>CPS</th></tr></thead>`;
+  return `<thead><tr><th>主播</th><th>所属账号 / 直播间</th><th class="bar-header">线索进度</th><th class="metric-value-header">累计唯一线索</th><th>来客线索 / 达成</th><th>到店数</th><th>到店率</th><th>到店成交率</th><th>累计实销</th><th>费用</th><th>CPL</th><th>CPS</th></tr></thead>`;
 }}
 
 function seedTableHeader() {{
@@ -1482,16 +1485,21 @@ function renderLeadAnchors(payload) {{
     const visitRate = anchorOptionalMetric(anchor, "visit_rate", "到店率", "比例");
     const visitDealRate = anchorOptionalMetric(anchor, "visit_deal_rate", "到店成交率", "比例");
     const deals = anchorMetric(anchor, "mtd_deals");
+    const spend = anchorMetric(anchor, "mtd_spend");
     const cpl = anchorMetric(anchor, "mtd_cpl");
     const cps = anchorMetric(anchor, "mtd_cps");
+    const parentScope = anchor.parent_scope || "未提供";
     return `
-      <tr data-search-text="${{escapeHtml(rowSearchText(anchor))}}" data-mtd_unique_leads="${{metricValue(leads)}}" data-mtd_douyin_laike_orders="${{metricValue(orders)}}" data-visits="${{metricValue(visits)}}" data-mtd_cpl="${{metricValue(cpl)}}">
-        <th scope="row"><span class="anchor-name">${{escapeHtml(anchor.name)}}</span><small>${{escapeHtml(anchor.parent_scope || "")}}</small></th>
+      <tr data-search-text="${{escapeHtml(rowSearchText(anchor))}}" data-mtd_unique_leads="${{metricValue(leads)}}" data-mtd_douyin_laike_orders="${{metricValue(orders)}}" data-visits="${{metricValue(visits)}}" data-mtd_spend="${{metricValue(spend)}}" data-mtd_cpl="${{metricValue(cpl)}}">
+        <th scope="row"><span class="anchor-name">${{escapeHtml(anchor.name)}}</span></th>
+        <td class="anchor-parent-cell" title="${{escapeHtml(parentScope)}}">${{escapeHtml(parentScope)}}</td>
         ${{barMetricCells((metricValue(leads) / maxLeads) * 100, fmtInt(metricValue(leads)))}}
         <td class="metric-number-cell"><span class="metric-rate-pair"><span class="number-main">${{fmtInt(metricValue(orders))}}</span><small class="rate-chip">${{rateText(orders)}}</small></span></td>
-        <td class="metric-number-cell"><span class="metric-rate-pair"><span class="number-main">${{escapeHtml(fmtNullableMetric(visits))}}</span><small class="rate-chip">${{escapeHtml(fmtNullableMetric(visitRate))}}</small></span></td>
+        <td class="metric-number-cell">${{escapeHtml(fmtNullableMetric(visits))}}</td>
+        <td class="metric-rate-cell">${{escapeHtml(fmtNullableMetric(visitRate))}}</td>
         <td class="metric-rate-cell">${{escapeHtml(fmtNullableMetric(visitDealRate))}}</td>
         <td class="metric-number-cell">${{fmtFloat(metricValue(deals))}}</td>
+        <td class="metric-money-cell">${{fmtMoney(metricValue(spend))}}</td>
         <td class="metric-money-cell">${{fmtMoney(metricValue(cpl))}}</td>
         <td class="metric-money-cell">${{fmtMoney(metricValue(cps))}}</td>
       </tr>`;
@@ -2531,7 +2539,7 @@ function accountDetailPanel(entity, expanded) {{
   return `
     <div class="${{panelClass}}"${{expanded ? "" : " hidden"}} aria-hidden="${{expanded ? "false" : "true"}}">
       ${{accountMetricGroup("线索组", [["线索数", "leads"], ["唯一线索数", "unique_leads"]], entity)}}
-      ${{accountMetricGroup("来客订单", [["来客订单", "douyin_laike_orders"]], entity)}}
+      ${{accountMetricGroup("来客线索", [["来客线索", "douyin_laike_orders"]], entity)}}
       ${{accountMetricGroup("到店组", [["到店数", "visits"], ["到店率", "visit_rate"], ["到店成交率", "visit_deal_rate"]], entity)}}
       ${{accountMetricGroup("成交组", [["成交数", "deals"], ["线索成交率", "lead_deal_rate"]], entity)}}
       ${{accountMetricGroup("成本组", [["费用", "spend"], ["CPL", "cpl"], ["CPS", "cps"]], entity)}}
@@ -2870,7 +2878,7 @@ function anchorDetailPanel(entity, expanded) {{
         <strong>${{escapeHtml(anchorParentScope(entity))}}</strong>
       </div>
       ${{anchorMetricGroup("线索组", [["线索数", "leads"], ["唯一线索数", "unique_leads"]], entity)}}
-      ${{anchorMetricGroup("来客订单", [["来客订单", "douyin_laike_orders"]], entity)}}
+      ${{anchorMetricGroup("来客线索", [["来客线索", "douyin_laike_orders"]], entity)}}
       ${{anchorMetricGroup("到店组", [["到店数", "visits"], ["到店率", "visit_rate"], ["到店成交率", "visit_deal_rate"]], entity)}}
       ${{anchorMetricGroup("成交组", [["成交数", "deals"], ["线索成交率", "lead_deal_rate"]], entity)}}
       ${{anchorMetricGroup("成本组", [["费用", "spend"], ["CPL", "cpl"], ["CPS", "cps"]], entity)}}
@@ -4722,16 +4730,19 @@ body[data-dashboard-mode="business"] .metric-table {
   min-width: 1120px;
 }
 body[data-dashboard-mode="business"] .lead-metric-table {
-  min-width: 1480px;
+  min-width: 1280px;
 }
-body[data-dashboard-mode="business"] .lead-metric-table .col-label { width: 18%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-bar { width: 18%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-value { width: 9%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-orders { width: 12%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-visits { width: 12%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-visit-rate { width: 10%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-number { width: 8%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-money { width: 6.5%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-label { width: 8%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-parent { width: 13%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-bar { width: 12%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-value { width: 7%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-orders { width: 9%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-visits { width: 7%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-visit-rate { width: 7%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-visit-deal-rate { width: 8%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-number { width: 7%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-spend { width: 7%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-money { width: 5%; }
 body[data-dashboard-mode="business"] .seed-metric-table .col-label { width: 26%; }
 body[data-dashboard-mode="business"] .seed-metric-table .col-bar { width: 25%; }
 body[data-dashboard-mode="business"] .seed-metric-table .col-value { width: 11%; }
@@ -4740,14 +4751,27 @@ body[data-dashboard-mode="business"] .seed-metric-table .col-rate { width: 12%; 
 body[data-dashboard-mode="business"] .seed-metric-table .col-number { width: 14%; }
 body[data-dashboard-mode="business"] .metric-table th,
 body[data-dashboard-mode="business"] .metric-table td {
-  height: 64px;
-  padding: 14px 16px;
+  min-height: 64px;
+  padding: 12px 10px;
 }
 body[data-dashboard-mode="business"] .metric-table thead th {
   white-space: nowrap;
 }
 body[data-dashboard-mode="business"] .metric-table th:first-child {
   padding-left: 18px;
+}
+body[data-dashboard-mode="business"] .lead-metric-table th,
+body[data-dashboard-mode="business"] .lead-metric-table td {
+  height: auto;
+  vertical-align: middle;
+}
+body[data-dashboard-mode="business"] .anchor-parent-cell {
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
 }
 body[data-dashboard-mode="business"] .metric-table .bar-metric-cell,
 body[data-dashboard-mode="business"] .metric-table .bar-track-cell {
