@@ -113,8 +113,6 @@ def render_interactive_dashboard_html(source: DashboardSource, *, source_label: 
     if not topline["raw_leads"].actual:
         topline["raw_leads"] = source.metric("department", "全量", "lead_quality_unique_leads")
 
-    ex7 = _segment(source, ["EX7 专项", "EX7专项"])
-    non_ex7 = _segment(source, ["不含 EX7", "不含EX7"])
     lead_anchors = source.anchor_rows(
         "lead_anchor",
         ["daily_leads", "mtd_unique_leads", "mtd_deals", "mtd_douyin_laike_orders", "mtd_cpl", "mtd_cps"],
@@ -127,14 +125,12 @@ def render_interactive_dashboard_html(source: DashboardSource, *, source_label: 
     nav_items = [
         ("overview", "总览 KPI"),
         ("funnel", "全链路转化"),
-        ("segment-compare", "EX7 对比"),
         ("lead-anchors", "线索主播"),
         ("seed-exposure", "种草曝光"),
     ]
     nav = _nav_html(nav_items)
     cards = _overview_cards(topline)
     funnel = _funnel_html(topline)
-    segment = _segment_html(ex7, non_ex7)
     lead_table = _lead_anchor_table(lead_anchors)
     seed_table = _seed_anchor_table(seed_anchors, seed_account)
     raw_payload = json.dumps(
@@ -190,16 +186,6 @@ def render_interactive_dashboard_html(source: DashboardSource, *, source_label: 
       </div>
       {funnel}
     </section>
-    <section id="segment-compare" class="section">
-      <div class="section-head">
-        <div>
-          <p class="kicker">03 · SEGMENT</p>
-          <h2>EX7 / 不含 EX7 对比</h2>
-        </div>
-        <p class="section-note">突出 EX7 与不含 EX7 的线索、实销、CPL、CPS 差异，便于后续接 API 后做筛选联动。</p>
-      </div>
-      {segment}
-    </section>
     <section id="lead-anchors" class="section">
       <div class="section-head">
         <div>
@@ -243,10 +229,10 @@ def render_api_connected_dashboard_html(
     carrier_note: str | None = None,
     business_view: bool = False,
 ) -> str:
-    """Render the API-connected local prototype shell."""
+    """Render the API-connected dashboard shell."""
 
     api_path = api_path or f"/dashboard/daily/{report_date}"
-    title_prefix = "运营日报看板" if business_view else "日报可交互 BI 原型"
+    title_prefix = "运营日报 BI" if business_view else "日报可交互 BI 原型"
     title = f"{title_prefix} · {report_date}"
     carrier_note = carrier_note or (
         "启动 FastAPI 后打开本页；页面只调用 <code>GET /dashboard/daily/latest</code> "
@@ -258,15 +244,14 @@ def render_api_connected_dashboard_html(
             ("funnel", "经营链路"),
             ("workbench", "维度工作台"),
             ("overview", "总览"),
-            ("segment-compare", "车型 / EX7"),
             ("lead-anchors", "主播"),
             ("seed-exposure", "种草"),
+            ("daily-bi-trends", "历史趋势"),
         ]
         if business_view
         else [
             ("overview", "总览 KPI"),
             ("funnel", "全链路转化"),
-            ("segment-compare", "EX7 对比"),
             ("lead-anchors", "线索主播"),
             ("seed-exposure", "种草曝光"),
         ]
@@ -278,7 +263,7 @@ def render_api_connected_dashboard_html(
     <div>
       <div class="eyebrow">经营链路 + 维度工作台</div>
       <h1>{_escape(title)}</h1>
-      <p class="subtitle">以曝光、线索、唯一线索、订单、实销、CPL、CPS 串起经营链路，并保留车型、主播、账号渠道、种草和成本效率的扩展入口。</p>
+      <p class="subtitle">以曝光、唯一线索、来客订单、实销、费用、CPL、CPS 串起经营链路，并保留主播、账号渠道、种草曝光、历史趋势和月度对比。</p>
       <div class="dashboard-meta business-meta" aria-label="日报看板信息">
         <div>
           <span>报表日期</span>
@@ -293,8 +278,8 @@ def render_api_connected_dashboard_html(
           <strong id="freshness-value">等待日报数据</strong>
         </div>
         <div>
-          <span>本地预览边界</span>
-          <strong id="preview-boundary-value">本地只读预览</strong>
+          <span>BI 数据口径</span>
+          <strong id="preview-boundary-value">日报详细版</strong>
         </div>
       </div>
     </div>
@@ -352,7 +337,6 @@ def render_api_connected_dashboard_html(
     )
     overview_note = "总览保留核心指标卡，便于和经营链路交叉核对。" if business_view else "指标卡从 API payload 渲染；悬停查看字段来源和说明。"
     funnel_note = "从曝光到线索、订单、实销和成本效率的主要经营链路。" if business_view else "曝光、原始线索、唯一线索、来客订单、实销按后端只读 JSON 展示。"
-    segment_note = "车型 / EX7 维度下对比线索规模、实销和成本效率。" if business_view else "EX7 与不含 EX7 对比由 `/dashboard/daily/{report_date}` 返回，前端只做展示。"
     decision_section = (
         """
     <section id="decision" class="section decision-section business-home band-plain" data-module="decision">
@@ -378,10 +362,11 @@ def render_api_connected_dashboard_html(
           </div>
           <div class="dimension-rail" aria-label="多维工作台入口">
             <a href="#overview">总览</a>
-            <a href="#segment-compare">车型 / EX7</a>
             <a href="#lead-anchors">主播贡献</a>
             <a href="#workbench">账号 / 渠道</a>
             <a href="#seed-exposure">种草</a>
+            <a href="#daily-bi-trends">历史趋势</a>
+            <a href="#daily-bi-monthly-comparison">月度对比</a>
             <a href="#workbench">成本效率</a>
           </div>
         </div>
@@ -417,10 +402,11 @@ def render_api_connected_dashboard_html(
       </div>
       <div class="dimension-tabs" aria-label="维度工作台标签">
         <span>总览</span>
-        <span>车型 / EX7</span>
         <span>主播贡献</span>
         <span>账号 / 渠道</span>
         <span>种草</span>
+        <span>历史趋势</span>
+        <span>月度对比</span>
         <span>成本效率</span>
       </div>
       <div class="workbench-grid">
@@ -430,9 +416,9 @@ def render_api_connected_dashboard_html(
           <small>曝光、线索、订单、实销合并扫描</small>
         </article>
         <article class="workbench-panel">
-          <span>车型 / EX7</span>
-          <strong id="wb-ex7-primary">等待数据</strong>
-          <small id="wb-ex7-secondary">专项线索与实销表现</small>
+          <span>历史趋势</span>
+          <strong id="wb-trend-primary">等待数据</strong>
+          <small id="wb-trend-secondary">日报源表历史文件</small>
         </article>
         <article class="workbench-panel">
           <span>主播贡献</span>
@@ -462,9 +448,9 @@ def render_api_connected_dashboard_html(
     )
     overview_kicker = "02 · KPI" if business_view else "01 · OVERVIEW"
     funnel_kicker = "03 · FUNNEL" if business_view else "02 · FUNNEL"
-    segment_kicker = "05 · MODEL / EX7" if business_view else "03 · SEGMENT"
-    lead_kicker = "06 · LIVE ANCHORS" if business_view else "04 · LIVE ANCHORS"
-    seed_kicker = "07 · SEED EXPOSURE" if business_view else "05 · SEED EXPOSURE"
+    lead_kicker = "05 · LIVE ANCHORS" if business_view else "04 · LIVE ANCHORS"
+    seed_kicker = "06 · SEED EXPOSURE" if business_view else "05 · SEED EXPOSURE"
+    trend_kicker = "07 · 历史经营趋势"
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -502,16 +488,6 @@ def render_api_connected_dashboard_html(
       <div id="funnel-content"><div class="loading">等待 API 数据...</div></div>
     </section>
     {workbench_section}
-    <section id="segment-compare" class="section" data-module="segment-compare">
-      <div class="section-head">
-        <div>
-          <p class="kicker">{_escape(segment_kicker)}</p>
-          <h2>EX7 / 不含 EX7 对比</h2>
-        </div>
-        <p class="section-note">{_escape(segment_note)}</p>
-      </div>
-      <div id="segment-content"><div class="loading">等待 API 数据...</div></div>
-    </section>
     <section id="lead-anchors" class="section" data-module="lead-anchors">
       <div class="section-head">
         <div>
@@ -544,6 +520,24 @@ def render_api_connected_dashboard_html(
       </div>
       <div id="seed-anchor-content"><div class="loading">等待 API 数据...</div></div>
     </section>
+    {f'''
+    <section id="daily-bi-trends" class="section" data-module="daily-bi-trends">
+      <div class="section-head">
+        <div>
+          <p class="kicker">{_escape(trend_kicker)}</p>
+          <h2>历史趋势与月度对比</h2>
+        </div>
+        <p class="section-note">仅基于日报源表历史文件派生，不混入线索明细或其他口径。</p>
+      </div>
+      <div class="source-contract-strip">
+        <span>数据源</span>
+        <strong>feishu_dashboard_source_latest_*.tsv</strong>
+      </div>
+      <div id="daily-bi-trend-core" class="daily-bi-trend-core"><div class="loading">等待趋势数据...</div></div>
+      <div id="daily-bi-history" class="daily-bi-history"><div class="loading">等待历史趋势...</div></div>
+      <div id="daily-bi-monthly-comparison" class="daily-bi-monthly-comparison"><div class="loading">等待月度对比...</div></div>
+    </section>
+    ''' if business_view else ""}
   </main>
   <script>{api_js}</script>
 </body>
@@ -552,7 +546,7 @@ def render_api_connected_dashboard_html(
 
 
 def render_feishu_link_trial_dashboard_html(report_date: str, *, api_path: str | None = None) -> str:
-    """Render the N9-B internal read-only link trial shell."""
+    """Render the Feishu BI acceptance shell."""
 
     return render_api_connected_dashboard_html(
         report_date,
@@ -586,7 +580,7 @@ def render_trend_dashboard_html(*, api_path: str = "/dashboard/daily/trends") ->
   <header class="topbar">
     <div>
       <h1>{_escape(title)}</h1>
-      <p class="subtitle">查看近期核心经营指标变化、车型结构、账号表现、主播表现与种草曝光情况，辅助日常经营复盘。</p>
+      <p class="subtitle">查看近期核心经营指标变化、账号表现、主播表现与种草曝光情况，辅助日常经营复盘。</p>
       <form class="date-filter-panel trend-filter-toolbar" id="trend-date-filter" aria-label="日期筛选">
         <div class="date-input-group" aria-label="日期输入">
           <label>
@@ -636,7 +630,6 @@ def render_trend_dashboard_html(*, api_path: str = "/dashboard/daily/trends") ->
   <nav class="nav" aria-label="经营趋势板块导航">
     <a href="#core-trends">核心经营表现</a>
     <a href="#history-trends">历史趋势</a>
-    <a href="#segment-trends">车型结构</a>
     <a href="#account-trends">账号表现</a>
     <a href="#anchor-trends">主播表现</a>
     <a href="#seed-trends">种草曝光</a>
@@ -658,20 +651,10 @@ def render_trend_dashboard_html(*, api_path: str = "/dashboard/daily/trends") ->
           <p class="kicker">历史趋势</p>
           <h2>历史趋势</h2>
         </div>
-        <p class="section-note">按日期查看曝光、线索、实销、费用、CPL、CPS 的实际变化。</p>
+        <p class="section-note">按日期查看曝光、线索、实销趋势、费用、CPL、CPS 的实际变化。</p>
       </div>
       <div id="trend-history"><div class="loading">等待历史趋势...</div></div>
       <div id="trend-monthly-comparison" class="monthly-comparison-slot"><div class="loading">月度对比等待数据...</div></div>
-    </section>
-    <section id="segment-trends" class="section">
-      <div class="section-head">
-        <div>
-          <p class="kicker">车型结构</p>
-          <h2>车型结构对比</h2>
-        </div>
-        <p class="section-note">对比 EX7 与不含 EX7 的线索、实销、费用和成本效率。</p>
-      </div>
-      <div id="trend-segments"><div class="loading">等待经营数据...</div></div>
     </section>
     <section id="account-trends" class="section">
       <div class="section-head">
@@ -691,14 +674,11 @@ def render_trend_dashboard_html(*, api_path: str = "/dashboard/daily/trends") ->
           <select id="account-sort-select" class="account-sort-select">
             <option value="default">默认排序</option>
             <option value="leads">线索数</option>
-            <option value="visits">到店数</option>
             <option value="deals">成交数</option>
             <option value="spend">费用</option>
             <option value="cpl">CPL</option>
             <option value="cps">CPS</option>
             <option value="target_rate">当前 / 目标</option>
-            <option value="ex7_leads">EX7 线索数</option>
-            <option value="ex7_deals">EX7 成交数</option>
           </select>
         </label>
         <div class="account-filter-control" role="group" aria-label="账号筛选">
@@ -708,8 +688,6 @@ def render_trend_dashboard_html(*, api_path: str = "/dashboard/daily/trends") ->
           <button type="button" class="account-filter-chip" data-account-filter="target_missing" aria-pressed="false">目标未提供</button>
           <button type="button" class="account-filter-chip" data-account-filter="has_deals" aria-pressed="false">有成交</button>
           <button type="button" class="account-filter-chip" data-account-filter="has_spend" aria-pressed="false">有费用</button>
-          <button type="button" class="account-filter-chip" data-account-filter="ex7_has_deals" aria-pressed="false">EX7 有成交</button>
-          <button type="button" class="account-filter-chip" data-account-filter="not_connected" aria-pressed="false">字段未接入</button>
           <button type="button" class="account-filter-chip" data-account-filter="over_100" aria-pressed="false">比率超过 100%</button>
         </div>
         <button type="button" id="account-clear-filters" class="account-clear-filters">清除条件</button>
@@ -725,7 +703,7 @@ def render_trend_dashboard_html(*, api_path: str = "/dashboard/daily/trends") ->
           <p class="kicker">主播贡献</p>
           <h2>主播表现</h2>
         </div>
-        <p class="section-note">查看主播线索、到店、成交、成本和 EX7 明细。</p>
+        <p class="section-note">查看主播线索、成交、成本和趋势明细。</p>
       </div>
       <div id="anchor-toolbar" class="anchor-toolbar" aria-label="主播表现筛选工具栏">
         <label class="anchor-search-control">
@@ -737,14 +715,11 @@ def render_trend_dashboard_html(*, api_path: str = "/dashboard/daily/trends") ->
           <select id="anchor-sort-select" class="anchor-sort-select">
             <option value="default">默认排序</option>
             <option value="leads">线索数</option>
-            <option value="visits">到店数</option>
             <option value="deals">成交数</option>
             <option value="spend">费用</option>
             <option value="cpl">CPL</option>
             <option value="cps">CPS</option>
             <option value="target_rate">当前 / 目标</option>
-            <option value="ex7_leads">EX7 线索数</option>
-            <option value="ex7_deals">EX7 成交数</option>
           </select>
         </label>
         <div class="anchor-filter-control" role="group" aria-label="主播筛选">
@@ -754,8 +729,6 @@ def render_trend_dashboard_html(*, api_path: str = "/dashboard/daily/trends") ->
           <button type="button" class="anchor-filter-chip" data-anchor-filter="target_missing" aria-pressed="false">目标未提供</button>
           <button type="button" class="anchor-filter-chip" data-anchor-filter="has_deals" aria-pressed="false">有成交</button>
           <button type="button" class="anchor-filter-chip" data-anchor-filter="has_spend" aria-pressed="false">有费用</button>
-          <button type="button" class="anchor-filter-chip" data-anchor-filter="ex7_has_deals" aria-pressed="false">EX7 有成交</button>
-          <button type="button" class="anchor-filter-chip" data-anchor-filter="not_connected" aria-pressed="false">字段未接入</button>
           <button type="button" class="anchor-filter-chip" data-anchor-filter="over_100" aria-pressed="false">比率超过 100%</button>
         </div>
         <button type="button" id="anchor-clear-filters" class="anchor-clear-filters">清除条件</button>
@@ -797,7 +770,6 @@ def render_trend_dashboard_html(*, api_path: str = "/dashboard/daily/trends") ->
           <button type="button" class="seed-filter-chip" data-seed-filter="target_missing" aria-pressed="false">目标未提供</button>
           <button type="button" class="seed-filter-chip" data-seed-filter="positive_exposure" aria-pressed="false">曝光大于 0</button>
           <button type="button" class="seed-filter-chip" data-seed-filter="over_100" aria-pressed="false">当前 / 目标超过 100%</button>
-          <button type="button" class="seed-filter-chip" data-seed-filter="not_connected" aria-pressed="false">字段未接入</button>
         </div>
         <button type="button" id="seed-clear-filters" class="seed-clear-filters">清除条件</button>
         <p id="seed-filter-summary" class="seed-filter-summary" aria-live="polite">当前条件：全部种草</p>
@@ -810,8 +782,8 @@ def render_trend_dashboard_html(*, api_path: str = "/dashboard/daily/trends") ->
       <summary>指标说明</summary>
       <div>
         <p>本页仅供内部经营复盘参考，最终以原始日报与人工确认为准。</p>
-        <p>转化率按当前展示周期内的到店 / 成交结果与线索数计算；因历史线索延续、跨期到店、跨期成交、账号调整或停播后继续转化，部分比例可能超过 100%，页面按原始数据如实展示。</p>
-        <p>真实 0 保持 0；缺失值显示未提供；字段未接入显示未接入；缺失趋势点不补 0。</p>
+        <p>转化率按日报源表中的线索、成交和目标参考计算；因历史线索延续、跨期成交、账号调整或停播后继续转化，部分比例可能超过 100%，页面按原始数据如实展示。</p>
+        <p>真实 0 保持 0；缺失值显示未提供；缺失趋势点不补 0。</p>
       </div>
     </details>
   </footer>
@@ -893,9 +865,9 @@ def _overview_cards(topline: dict[str, Metric]) -> str:
         ("唯一线索", _fmt_int(topline["unique"].actual), topline["unique"], "green"),
         ("来客订单", _fmt_int(topline["orders"].actual), topline["orders"], "amber"),
         ("实销", _fmt_int(topline["deals"].actual), topline["deals"], "red"),
-        ("累计消耗", _fmt_money_wan(topline["spend"].actual), topline["spend"], "ink"),
-        ("总体 CPL", _fmt_money(topline["cpl"].actual), topline["cpl"], "blue"),
-        ("总体 CPS", _fmt_money(topline["cps"].actual), topline["cps"], "red"),
+        ("费用", _fmt_money_wan(topline["spend"].actual), topline["spend"], "ink"),
+        ("CPL", _fmt_money(topline["cpl"].actual), topline["cpl"], "blue"),
+        ("CPS", _fmt_money(topline["cps"].actual), topline["cps"], "red"),
         (
             "待交车",
             f"{_fmt_int(topline['pending_day'].actual)} / {_fmt_int(topline['pending_cumulative'].actual)}",
@@ -1111,6 +1083,7 @@ def _api_js(api_path: str, *, business_view: bool = False, title_prefix: str = "
     expose_source_column = "false" if business_view else "true"
     return f"""
 const API_PATH = "{_script_string(api_path)}";
+const TREND_API_PATH = "/dashboard/daily/trends";
 const PAGE_TITLE_PREFIX = "{_script_string(title_prefix)}";
 const READONLY_STATUS_TEXT = "{_script_string(readonly_label)}";
 const FAILURE_PREFIX = "{_script_string(failure_prefix)}";
@@ -1296,15 +1269,11 @@ function renderDecision(payload) {{
     statusRow("种草曝光达成", payload.seed_account),
   ].join("");
 
-  const ex7 = payload.segments?.ex7;
-  const ex7Leads = metricValue(ex7?.metrics?.mtd_unique_leads);
-  const ex7Deals = metricValue(ex7?.metrics?.mtd_deals);
   const cpl = metricValue(overview.mtd_cpl);
   const cps = metricValue(overview.mtd_cps);
   const topLead = topAnchorByMetric(payload.lead_anchors, "mtd_unique_leads");
   const topSeed = topAnchorByMetric(payload.seed_anchors, "mtd_impressions");
   document.getElementById("decision-attention").innerHTML = [
-    attentionItem("EX7 专项", `${{fmtInt(ex7Leads)}} 线索 / ${{fmtFloat(ex7Deals)}} 实销`, "关注专项线索到实销转化", "blue"),
     attentionItem(
       "主播线索",
       topLead ? `${{topLead.name}} · ${{fmtInt(metricValue(anchorMetric(topLead, "mtd_unique_leads")))}} 条` : "未提供",
@@ -1325,18 +1294,14 @@ function renderWorkbench(payload) {{
   const section = document.getElementById("workbench");
   if (!section) return;
   const overview = payload.overview || {{}};
-  const ex7 = payload.segments?.ex7;
   const topLead = topAnchorByMetric(payload.lead_anchors, "mtd_unique_leads");
   const topSeed = topAnchorByMetric(payload.seed_anchors, "mtd_impressions");
   setText(
     "wb-overview-primary",
     `${{fmtWan(metricValue(overview.impressions))}}曝光 · ${{fmtInt(metricValue(overview.mtd_unique_leads))}}唯一线索`
   );
-  setText(
-    "wb-ex7-primary",
-    `${{fmtInt(metricValue(ex7?.metrics?.mtd_unique_leads))}}线索 · ${{fmtFloat(metricValue(ex7?.metrics?.mtd_deals))}}实销`
-  );
-  setText("wb-ex7-secondary", `CPL ${{fmtMoney(metricValue(ex7?.metrics?.mtd_cpl))}} · CPS ${{fmtMoney(metricValue(ex7?.metrics?.mtd_cps))}}`);
+  setText("wb-trend-primary", "历史趋势 / 月度对比");
+  setText("wb-trend-secondary", "日报源表历史文件");
   setText(
     "wb-anchor-primary",
     topLead ? `${{topLead.name}} · ${{fmtInt(metricValue(anchorMetric(topLead, "mtd_unique_leads")))}}条` : "未提供"
@@ -1382,9 +1347,9 @@ function renderOverview(payload) {{
     ["唯一线索", overview.mtd_unique_leads, "green"],
     ["来客订单", overview.mtd_douyin_laike_orders, "amber"],
     ["实销", overview.mtd_deals, "red"],
-    ["累计消耗", overview.mtd_spend, "ink"],
-    ["总体 CPL", overview.mtd_cpl, "blue"],
-    ["总体 CPS", overview.mtd_cps, "red"],
+    ["费用", overview.mtd_spend, "ink"],
+    ["CPL", overview.mtd_cpl, "blue"],
+    ["CPS", overview.mtd_cps, "red"],
     ["待交车", {{ ...overview.pending_cumulative, display: `${{fmtInt(metricValue(overview.pending_day))}} / ${{fmtInt(metricValue(overview.pending_cumulative))}}`, unit: "" }}, "green"],
   ];
   document.getElementById("overview-cards").innerHTML = cards.map(([title, metric, tone]) => metricCard(title, metric, tone)).join("");
@@ -1397,56 +1362,46 @@ function renderFunnel(payload) {{
     const width = Math.max(2, (Math.log10(value + 1) / Math.log10(maxValue + 1)) * 100);
     const display = step.unit === "人次" ? fmtWan(value) : fmtInt(value);
     const conversion = step.conversion_from_previous === null ? "基准" : fmtPct(step.conversion_from_previous);
+    const funnelConversion = IS_BUSINESS_MODE ? "" : `<div class="funnel-conversion">${{escapeHtml(conversion)}}</div>`;
     return `
       <div class="funnel-row">
         <div class="funnel-index">${{String(index + 1).padStart(2, "0")}}</div>
         <div class="funnel-main">
-          <div class="funnel-label"><strong>${{escapeHtml(step.label)}}</strong><span>${{escapeHtml(step.key)}}</span></div>
+          <div class="funnel-label"><strong>${{escapeHtml(step.label)}}</strong>${{IS_BUSINESS_MODE ? "" : `<span>${{escapeHtml(step.key)}}</span>`}}</div>
           <div class="funnel-track"><div class="funnel-fill" style="width:${{width.toFixed(2)}}%"></div></div>
         </div>
         <div class="funnel-value">${{escapeHtml(display)}}</div>
-        <div class="funnel-conversion">${{escapeHtml(conversion)}}</div>
+        ${{funnelConversion}}
       </div>`;
   }}).join("");
   const quality = payload.overview;
-  document.getElementById("funnel-content").innerHTML = `
-    <div class="funnel-panel">${{rows}}</div>
+  const qualityStrip = IS_BUSINESS_MODE ? "" : `
     <div class="quality-strip">
       <span>唯一率 <strong>${{fmtPct(metricValue(quality.unique_rate))}}</strong></span>
       <span>无主线索 <strong>${{fmtInt(metricValue(quality.unowned_leads))}}</strong></span>
       <span>人工归属 <strong>${{fmtInt(metricValue(quality.manual_overrides))}}</strong></span>
     </div>`;
-}}
-
-function renderSegmentPanel(segment, tone) {{
-  const metrics = segment.metrics;
-  const values = [
-    ["唯一线索", metrics.mtd_unique_leads],
-    ["实销", metrics.mtd_deals],
-    ["消耗", metrics.mtd_spend],
-    ["CPL", metrics.mtd_cpl],
-    ["CPS", metrics.mtd_cps],
-  ].map(([label, metric]) => `<li><span>${{escapeHtml(label)}}</span><strong>${{escapeHtml(fmtMetric(metric))}}</strong></li>`).join("");
-  return `<article class="segment-panel ${{tone}}"><h3>${{escapeHtml(segment.label)}}</h3><ul>${{values}}</ul></article>`;
-}}
-
-function renderSegments(payload) {{
-  const deltas = payload.segments.deltas;
-  document.getElementById("segment-content").innerHTML = `
-    <div class="segment-layout">
-      ${{renderSegmentPanel(payload.segments.ex7, "ex7")}}
-      ${{renderSegmentPanel(payload.segments.non_ex7, "non-ex7")}}
-    </div>
-    <div class="delta-grid">
-      <div class="delta-card"><span>线索差异</span><strong>${{fmtInt(deltas.leads_delta)}}</strong><small>EX7 - 不含 EX7</small></div>
-      <div class="delta-card"><span>实销差异</span><strong>${{fmtFloat(deltas.deals_delta)}}</strong><small>EX7 - 不含 EX7</small></div>
-      <div class="delta-card"><span>CPL 差异</span><strong>${{fmtMoney(deltas.cpl_delta)}}</strong><small>EX7 CPL - 不含 EX7 CPL</small></div>
-      <div class="delta-card"><span>CPS 差异</span><strong>${{fmtMoney(deltas.cps_delta)}}</strong><small>EX7 CPS - 不含 EX7 CPS</small></div>
-    </div>`;
+  document.getElementById("funnel-content").innerHTML = `
+    <div class="funnel-panel">${{rows}}</div>
+    ${{qualityStrip}}`;
 }}
 
 function anchorMetric(anchor, key) {{
   return anchor.metrics?.[key] || {{ actual: 0, target: null, attain_rate: null, unit: "" }};
+}}
+
+function anchorOptionalMetric(anchor, key, label, unit = "") {{
+  return anchor.metrics?.[key] || {{ key, label, actual: null, target: null, attain_rate: null, unit }};
+}}
+
+function fmtNullableMetric(metric) {{
+  if (!hasValue(metric?.actual) || Number.isNaN(Number(metric.actual))) return "未提供";
+  const value = Number(metric.actual);
+  const unit = metric?.unit || "";
+  if (unit.includes("元")) return fmtMoneyWan(value);
+  if (unit.includes("人次")) return fmtWan(value);
+  if (unit.includes("比例")) return fmtPct(value);
+  return Number.isInteger(value) ? fmtInt(value) : fmtFloat(value);
 }}
 
 function rowSearchText(anchor) {{
@@ -1483,6 +1438,8 @@ function leadColgroup() {{
           <col class="col-bar">
           <col class="col-value">
           <col class="col-orders">
+          <col class="col-visits">
+          <col class="col-visit-rate">
           <col class="col-number">
           <col class="col-money">
           <col class="col-money">
@@ -1504,9 +1461,9 @@ function seedColgroup() {{
 
 function leadTableHeader() {{
   if (!IS_BUSINESS_MODE) {{
-    return `<thead><tr><th>主播</th><th>累计唯一线索</th><th>来客订单 / 达成</th><th>累计实销</th><th>CPL</th><th>CPS</th></tr></thead>`;
+    return `<thead><tr><th>主播</th><th>累计唯一线索</th><th>来客订单 / 达成</th><th>到店数 / 到店率</th><th>到店成交率</th><th>累计实销</th><th>CPL</th><th>CPS</th></tr></thead>`;
   }}
-  return `<thead><tr><th>主播</th><th class="bar-header">线索进度</th><th class="metric-value-header">累计唯一线索</th><th>来客订单 / 达成</th><th>累计实销</th><th>CPL</th><th>CPS</th></tr></thead>`;
+  return `<thead><tr><th>主播</th><th class="bar-header">线索进度</th><th class="metric-value-header">累计唯一线索</th><th>来客订单 / 达成</th><th>到店数 / 到店率</th><th>到店成交率</th><th>累计实销</th><th>CPL</th><th>CPS</th></tr></thead>`;
 }}
 
 function seedTableHeader() {{
@@ -1521,14 +1478,19 @@ function renderLeadAnchors(payload) {{
   const rows = payload.lead_anchors.map((anchor) => {{
     const leads = anchorMetric(anchor, "mtd_unique_leads");
     const orders = anchorMetric(anchor, "mtd_douyin_laike_orders");
+    const visits = anchorOptionalMetric(anchor, "visits", "到店数", "条");
+    const visitRate = anchorOptionalMetric(anchor, "visit_rate", "到店率", "比例");
+    const visitDealRate = anchorOptionalMetric(anchor, "visit_deal_rate", "到店成交率", "比例");
     const deals = anchorMetric(anchor, "mtd_deals");
     const cpl = anchorMetric(anchor, "mtd_cpl");
     const cps = anchorMetric(anchor, "mtd_cps");
     return `
-      <tr data-search-text="${{escapeHtml(rowSearchText(anchor))}}" data-mtd_unique_leads="${{metricValue(leads)}}" data-mtd_douyin_laike_orders="${{metricValue(orders)}}" data-mtd_cpl="${{metricValue(cpl)}}">
+      <tr data-search-text="${{escapeHtml(rowSearchText(anchor))}}" data-mtd_unique_leads="${{metricValue(leads)}}" data-mtd_douyin_laike_orders="${{metricValue(orders)}}" data-visits="${{metricValue(visits)}}" data-mtd_cpl="${{metricValue(cpl)}}">
         <th scope="row"><span class="anchor-name">${{escapeHtml(anchor.name)}}</span><small>${{escapeHtml(anchor.parent_scope || "")}}</small></th>
         ${{barMetricCells((metricValue(leads) / maxLeads) * 100, fmtInt(metricValue(leads)))}}
-        <td class="metric-number-cell metric-rate-pair"><span class="number-main">${{fmtInt(metricValue(orders))}}</span><small class="rate-chip">${{rateText(orders)}}</small></td>
+        <td class="metric-number-cell"><span class="metric-rate-pair"><span class="number-main">${{fmtInt(metricValue(orders))}}</span><small class="rate-chip">${{rateText(orders)}}</small></span></td>
+        <td class="metric-number-cell"><span class="metric-rate-pair"><span class="number-main">${{escapeHtml(fmtNullableMetric(visits))}}</span><small class="rate-chip">${{escapeHtml(fmtNullableMetric(visitRate))}}</small></span></td>
+        <td class="metric-rate-cell">${{escapeHtml(fmtNullableMetric(visitDealRate))}}</td>
         <td class="metric-number-cell">${{fmtFloat(metricValue(deals))}}</td>
         <td class="metric-money-cell">${{fmtMoney(metricValue(cpl))}}</td>
         <td class="metric-money-cell">${{fmtMoney(metricValue(cps))}}</td>
@@ -1686,11 +1648,293 @@ function renderMetadata(payload) {{
   const freshnessNode = document.getElementById("freshness-value");
   if (freshnessNode) freshnessNode.textContent = payload.report_date ? `${{payload.report_date}} 最新可用日报` : "等待日报数据";
   const previewBoundaryNode = document.getElementById("preview-boundary-value");
-  if (previewBoundaryNode) previewBoundaryNode.textContent = "本地只读预览";
+  if (previewBoundaryNode) previewBoundaryNode.textContent = "日报详细版";
   const sourcePill = document.querySelector(".source-pill");
   const sourcePillStrong = document.querySelector(".source-pill strong");
   if (sourcePillStrong) sourcePillStrong.textContent = sourcePath;
   if (sourcePill) sourcePill.title = sourcePath;
+}}
+
+function trendMetricDisplay(metric) {{
+  const value = hasValue(metric?.value) ? metric.value : metric?.actual;
+  return fmtMetric({{ ...metric, actual: value }});
+}}
+
+function trendMetricCard(metric) {{
+  return `
+    <article class="metric-card tone-teal">
+      <div class="metric-label">${{escapeHtml(metric?.label || metric?.key || "未提供")}}</div>
+      <div class="metric-value">${{escapeHtml(trendMetricDisplay(metric || {{}}))}}</div>
+      <div class="metric-sub">最新日报</div>
+    </article>`;
+}}
+
+function renderDailyBiTrendCore(trendPayload) {{
+  const container = document.getElementById("daily-bi-trend-core");
+  if (!container) return;
+  const summary = trendPayload.core_kpi_summary || [];
+  container.innerHTML = summary.length
+    ? `<div class="metric-grid">${{summary.map(trendMetricCard).join("")}}</div>`
+    : `<div class="loading">未提供趋势核心指标</div>`;
+}}
+
+function latestPointText(series) {{
+  const points = series?.points || [];
+  const point = [...points].reverse().find((item) => item?.value !== null && item?.value !== undefined);
+  if (!point) return "未提供";
+  return `${{point.date || "未提供"}} · ${{fmtMetric({{ key: series?.key || "", unit: series?.unit || "", actual: point.value }})}}`;
+}}
+
+function dailyBiSeriesMap(seriesList) {{
+  return Object.fromEntries((seriesList || []).map((series) => [series.key, series]));
+}}
+
+function dailyBiNormalizePoint(point) {{
+  const rawValue = point?.value;
+  const value = rawValue === null || rawValue === undefined || rawValue === "" ? null : Number(rawValue);
+  return {{
+    date: point?.date || "",
+    value: Number.isFinite(value) ? value : null,
+  }};
+}}
+
+function dailyBiRangeLabel(points) {{
+  const normalized = (points || []).map(dailyBiNormalizePoint);
+  const first = normalized[0]?.date || "未提供";
+  const last = normalized[normalized.length - 1]?.date || first;
+  return first === last ? first : `${{first}} 至 ${{last}}`;
+}}
+
+function dailyBiChartScale(values) {{
+  const rawMin = Math.min(...values);
+  const rawMax = Math.max(...values);
+  if (rawMin >= 0) {{
+    return {{ min: 0, max: rawMax > 0 ? rawMax * 1.12 : 1 }};
+  }}
+  const min = rawMin;
+  const max = rawMax;
+  if (min === max) {{
+    const baseline = Math.max(Math.abs(min), 1);
+    return {{ min: min - baseline * 0.2, max: max + baseline * 0.2 }};
+  }}
+  const padding = (max - min) * 0.12;
+  return {{ min: min - padding, max: max + padding }};
+}}
+
+function dailyBiPointPath(points, scale, dims) {{
+  const drawable = points.filter((point) => point.value !== null);
+  if (!drawable.length) return "";
+  const step = points.length > 1 ? dims.plotWidth / (points.length - 1) : 0;
+  return drawable.map((point) => {{
+    const index = points.indexOf(point);
+    const x = dims.left + step * index;
+    const y = dims.top + dims.plotHeight - ((point.value - scale.min) / (scale.max - scale.min)) * dims.plotHeight;
+    return `${{x.toFixed(2)}},${{y.toFixed(2)}}`;
+  }}).join(" ");
+}}
+
+function dailyBiLineChart(series, previousSeries = null) {{
+  const points = (series?.points || []).map(dailyBiNormalizePoint);
+  const previousPoints = (previousSeries?.points || []).map(dailyBiNormalizePoint);
+  const values = [...points, ...previousPoints].map((point) => point.value).filter((value) => value !== null);
+  if (!values.length) return `<div class="trend-chart empty-chart">未提供</div>`;
+  const width = 720;
+  const height = 230;
+  const dims = {{ left: 84, right: 18, top: 18, bottom: 42 }};
+  dims.plotWidth = width - dims.left - dims.right;
+  dims.plotHeight = height - dims.top - dims.bottom;
+  const scale = dailyBiChartScale(values);
+  const grid = [0, 0.5, 1].map((ratio) => {{
+    const y = dims.top + dims.plotHeight * ratio;
+    return `<line x1="${{dims.left}}" x2="${{width - dims.right}}" y1="${{y.toFixed(2)}}" y2="${{y.toFixed(2)}}"></line>`;
+  }}).join("");
+  const yLabels = [scale.max, (scale.max + scale.min) / 2, scale.min].map((value, index) => {{
+    const y = dims.top + dims.plotHeight * (index / 2);
+    return `<text x="${{dims.left - 10}}" y="${{(y + 4).toFixed(2)}}" text-anchor="end">${{escapeHtml(fmtMetric({{ key: series?.key || "", unit: series?.unit || "", actual: value }}))}}</text>`;
+  }}).join("");
+  const step = points.length > 1 ? dims.plotWidth / (points.length - 1) : 0;
+  const circles = points.map((point, index) => {{
+    if (point.value === null) return "";
+    const x = dims.left + step * index;
+    const y = dims.top + dims.plotHeight - ((point.value - scale.min) / (scale.max - scale.min)) * dims.plotHeight;
+    return `<circle class="chart-point current-point" data-index="${{index}}" cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="4" style="animation-delay:${{(index * 24).toFixed(0)}}ms"></circle>`;
+  }}).join("");
+  const targets = points.map((point, index) => {{
+    const x = dims.left + step * index;
+    const previous = previousPoints[index] || {{}};
+    const valueLabel = point.value === null ? "未提供" : fmtMetric({{ key: series?.key || "", unit: series?.unit || "", actual: point.value }});
+    const previousLabel = previous.value === null || previous.value === undefined
+      ? "未提供"
+      : fmtMetric({{ key: series?.key || "", unit: series?.unit || "", actual: previous.value }});
+    const pointLabel = `${{series?.label || series?.key || "指标"}} ${{point.date || "未提供"}} ${{valueLabel}}`;
+    return `<rect class="chart-hover-target" tabindex="0" role="img" aria-label="${{escapeHtml(pointLabel)}}" data-index="${{index}}" data-x="${{x.toFixed(2)}}" data-date="${{escapeHtml(point.date || "")}}" data-value-label="${{escapeHtml(valueLabel)}}" data-previous-date="${{escapeHtml(previous.date || "")}}" data-previous-value-label="${{escapeHtml(previousLabel)}}" x="${{(x - Math.max(step / 2, 10)).toFixed(2)}}" y="${{dims.top}}" width="${{Math.max(step, 20).toFixed(2)}}" height="${{dims.plotHeight}}"></rect>`;
+  }}).join("");
+  const xLabels = points.length
+    ? `<text x="${{dims.left}}" y="${{height - 10}}" text-anchor="start">${{escapeHtml(points[0].date)}}</text><text x="${{width - dims.right}}" y="${{height - 10}}" text-anchor="end">${{escapeHtml(points[points.length - 1].date)}}</text>`
+    : "";
+  const currentPath = dailyBiPointPath(points, scale, dims);
+  const previousPath = dailyBiPointPath(previousPoints, scale, dims);
+  return `
+    <div class="trend-chart daily-bi-chart" data-unit="${{escapeHtml(series?.unit || "")}}" data-metric-label="${{escapeHtml(series?.label || series?.key || "")}}">
+      <svg viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="${{escapeHtml(series?.label || series?.key || "历史趋势")}}">
+        <g class="chart-grid">${{grid}}</g>
+        <line class="chart-axis axis-line" x1="${{dims.left}}" x2="${{dims.left}}" y1="${{dims.top}}" y2="${{dims.top + dims.plotHeight}}"></line>
+        <line class="chart-axis axis-line" x1="${{dims.left}}" x2="${{width - dims.right}}" y1="${{dims.top + dims.plotHeight}}" y2="${{dims.top + dims.plotHeight}}"></line>
+        <g class="chart-axis axis-labels">${{yLabels}}${{xLabels}}</g>
+        ${{previousPath ? `<polyline class="chart-line previous-line chart-line-draw" points="${{previousPath}}" fill="none"></polyline>` : ""}}
+        <polyline class="chart-line current-line chart-line-draw" points="${{currentPath}}" fill="none"></polyline>
+        <g class="trend-points">${{circles}}</g>
+        <line class="chart-hover-line" x1="${{dims.left}}" x2="${{dims.left}}" y1="${{dims.top}}" y2="${{dims.top + dims.plotHeight}}"></line>
+        <g class="chart-hit-area">${{targets}}</g>
+      </svg>
+      <div class="chart-tooltip" role="status"></div>
+    </div>`;
+}}
+
+function dailyBiTooltipRows(target, chart) {{
+  const label = chart.dataset.metricLabel || "指标";
+  const previousDate = target.dataset.previousDate || "";
+  return [
+    `<strong>${{escapeHtml(target.dataset.date || "未提供")}}</strong>`,
+    `<span>${{escapeHtml(label)}}：${{escapeHtml(target.dataset.valueLabel || "未提供")}}</span>`,
+    previousDate ? `<span>上一周期 ${{escapeHtml(previousDate)}}：${{escapeHtml(target.dataset.previousValueLabel || "未提供")}}</span>` : "",
+  ].filter(Boolean).join("");
+}}
+
+function bindDailyBiChartInteractions(root = document) {{
+  root.querySelectorAll(".daily-bi-chart").forEach((chart) => {{
+    if (chart.dataset.bound === "1") return;
+    chart.dataset.bound = "1";
+    const tooltip = chart.querySelector(".chart-tooltip");
+    const hoverLine = chart.querySelector(".chart-hover-line");
+    const points = chart.querySelectorAll(".chart-point");
+    const clear = () => {{
+      if (tooltip) tooltip.classList.remove("is-visible");
+      if (hoverLine) hoverLine.classList.remove("is-visible");
+      points.forEach((point) => point.classList.remove("is-active"));
+    }};
+    chart.querySelectorAll(".chart-hover-target").forEach((target) => {{
+      const show = () => {{
+        const x = Number(target.dataset.x || 0);
+        if (hoverLine) {{
+          hoverLine.setAttribute("x1", String(x));
+          hoverLine.setAttribute("x2", String(x));
+          hoverLine.classList.add("is-visible");
+        }}
+        points.forEach((point) => point.classList.toggle("is-active", point.dataset.index === target.dataset.index));
+        if (tooltip) {{
+          tooltip.innerHTML = dailyBiTooltipRows(target, chart);
+          tooltip.classList.add("is-visible");
+          const scaledX = chart.clientWidth > 0 ? (x / 720) * chart.clientWidth : x;
+          const left = Math.min(Math.max(scaledX + 12, 12), Math.max(12, chart.clientWidth - 220));
+          tooltip.style.left = `${{left}}px`;
+          tooltip.style.top = "18px";
+        }}
+      }};
+      target.addEventListener("mouseenter", show);
+      target.addEventListener("focus", show);
+    }});
+    chart.addEventListener("mouseleave", clear);
+    chart.addEventListener("focusout", clear);
+  }});
+}}
+
+function dailyBiHistoryPanel(series, previousByKey) {{
+  const previousSeries = previousByKey?.[series?.key] || null;
+  return `
+    <article class="trend-panel history-chart-card daily-bi-history-card">
+      <div class="trend-panel-header history-card-head">
+        <div class="trend-panel-title">
+          <h3>${{escapeHtml(series?.label || series?.key || "未提供")}}</h3>
+          <span>范围：${{escapeHtml(dailyBiRangeLabel(series?.points || []))}}</span>
+        </div>
+        <div class="trend-panel-value">
+          <small>最新值</small>
+          <strong>${{escapeHtml(latestPointText(series))}}</strong>
+        </div>
+        <div class="trend-panel-meta">
+          <span>可悬停查看日期值</span>
+        </div>
+      </div>
+      ${{dailyBiLineChart(series, previousSeries)}}
+    </article>`;
+}}
+
+function renderDailyBiHistory(trendPayload) {{
+  const container = document.getElementById("daily-bi-history");
+  if (!container) return;
+  const trends = trendPayload.daily_trends || [];
+  const previousByKey = dailyBiSeriesMap(trendPayload.previous_period_trends || []);
+  container.innerHTML = trends.length
+    ? `<div class="daily-bi-history-grid history-chart-grid">${{trends.map((series) => dailyBiHistoryPanel(series, previousByKey)).join("")}}</div>`
+    : `<div class="loading">未提供历史趋势</div>`;
+  bindDailyBiChartInteractions(container);
+}}
+
+function monthlyMetricRow(row) {{
+  const metrics = row?.metrics || {{}};
+  const keys = ["impressions", "leads", "douyin_laike_orders", "deals", "spend", "cpl", "cps"];
+  return `
+    <article class="monthly-card daily-bi-month-card">
+      <header class="daily-bi-month-head">
+        <span>月度</span>
+        <h3>${{escapeHtml(row?.label || row?.month || "未提供")}}</h3>
+        <small>日报源表</small>
+      </header>
+      <div class="daily-bi-month-metrics">
+        ${{keys.map((key) => {{
+          const metric = metrics[key] || {{ key, label: key, value: null, unit: "" }};
+          return `<span data-month-metric="${{escapeHtml(key)}}"><small>${{escapeHtml(metric.label || key)}}</small><strong>${{escapeHtml(trendMetricDisplay(metric))}}</strong></span>`;
+        }}).join("")}}
+      </div>
+    </article>`;
+}}
+
+function renderDailyBiMonthlyComparison(trendPayload) {{
+  const container = document.getElementById("daily-bi-monthly-comparison");
+  if (!container) return;
+  const rows = trendPayload.monthly_comparison || [];
+  container.innerHTML = rows.length
+    ? `<div class="section-subhead"><h3>月度对比</h3><p>仅使用日报源表历史文件。</p></div><div class="monthly-grid">${{rows.map(monthlyMetricRow).join("")}}</div>`
+    : `<div class="loading">未提供月度对比</div>`;
+}}
+
+function dailyBiTrendPath(payload) {{
+  const url = new URL(TREND_API_PATH, window.location.origin);
+  if (payload?.report_date) url.searchParams.set("end_date", payload.report_date);
+  return `${{url.pathname}}${{url.search}}`;
+}}
+
+function isTrendReadOnlyPath(path) {{
+  try {{
+    const url = new URL(path, window.location.origin);
+    return url.pathname === TREND_API_PATH;
+  }} catch (error) {{
+    return path === TREND_API_PATH;
+  }}
+}}
+
+async function fetchDashboardTrend(path) {{
+  if (!isTrendReadOnlyPath(path)) throw new Error("禁止访问非只读趋势 API");
+  return fetch(path, {{ method: "GET" }});
+}}
+
+async function loadDailyBiTrends(payload) {{
+  if (!document.getElementById("daily-bi-trends")) return;
+  const path = dailyBiTrendPath(payload);
+  try {{
+    const response = await fetchDashboardTrend(path);
+    if (!response.ok) throw new Error(`API ${{response.status}}`);
+    const trendPayload = await response.json();
+    renderDailyBiTrendCore(trendPayload);
+    renderDailyBiHistory(trendPayload);
+    renderDailyBiMonthlyComparison(trendPayload);
+  }} catch (error) {{
+    ["daily-bi-trend-core", "daily-bi-history", "daily-bi-monthly-comparison"].forEach((id) => {{
+      const node = document.getElementById(id);
+      if (node) node.innerHTML = `<div class="loading">未提供：${{escapeHtml(error.message)}}</div>`;
+    }});
+  }}
 }}
 
 function renderDashboard(payload) {{
@@ -1701,9 +1945,9 @@ function renderDashboard(payload) {{
   renderOverview(payload);
   renderFunnel(payload);
   renderWorkbench(payload);
-  renderSegments(payload);
   renderLeadAnchors(payload);
   renderSeedAnchors(payload);
+  loadDailyBiTrends(payload);
   renderSortControls(payload);
   bindSortControls();
   bindSearchControls();
@@ -1738,7 +1982,7 @@ loadDashboard();
 def _trend_js(api_path: str) -> str:
     return f"""
 const DATA_URL = "{_script_string(api_path)}";
-const CORE_KPI_KEYS = ["impressions", "leads", "deals", "spend", "cpl", "cps"];
+const CORE_KPI_KEYS = ["impressions", "leads", "douyin_laike_orders", "deals", "spend", "cpl", "cps"];
 let currentRangeMode = "custom";
 
 function escapeHtml(value) {{
@@ -2136,27 +2380,6 @@ function miniMetric(label, item) {{
   return `<span><small>${{escapeHtml(label)}}</small><strong>${{escapeHtml(fmtMetricValue(item?.actual, item?.unit || ""))}}</strong></span>`;
 }}
 
-function segmentPanel(entity) {{
-  return `
-    <article class="model-compare-card">
-      <h3>${{escapeHtml(entity?.name || "未提供")}}</h3>
-      <div class="compare-primary">
-        <span>线索</span>
-        <strong>${{escapeHtml(fmtMetricValue(metric(entity, "leads").actual, metric(entity, "leads").unit))}}</strong>
-      </div>
-      <div class="compare-metrics">
-        ${{miniMetric("实销", metric(entity, "deals"))}}
-        ${{miniMetric("费用", metric(entity, "spend"))}}
-        ${{miniMetric("CPL", metric(entity, "cpl"))}}
-        ${{miniMetric("CPS", metric(entity, "cps"))}}
-      </div>
-      <div class="segment-trend-pair">
-        ${{compactTrendChart("线索趋势", entity?.daily_trends?.leads || [], "条")}}
-        ${{compactTrendChart("实销趋势", entity?.daily_trends?.deals || [], "台")}}
-      </div>
-    </article>`;
-}}
-
 function metricGroup(title, metrics) {{
   const items = Object.values(metrics || {{}}).map((item) => `
     <span>
@@ -2167,7 +2390,7 @@ function metricGroup(title, metrics) {{
 }}
 
 function metricDisplayText(item) {{
-  if (item?.source_status === "not_connected") return "未接入";
+  if (item?.source_status === "not_connected") return "未提供";
   return fmtMetricValue(item?.actual, item?.unit || "");
 }}
 
@@ -2207,14 +2430,11 @@ const HIDDEN_ACCOUNT_NAMES = new Set([
 const ACCOUNT_SORT_OPTIONS = {{
   default: {{ label: "默认排序" }},
   leads: {{ label: "线索数" }},
-  visits: {{ label: "到店数" }},
   deals: {{ label: "成交数" }},
   spend: {{ label: "费用" }},
   cpl: {{ label: "CPL" }},
   cps: {{ label: "CPS" }},
   target_rate: {{ label: "当前 / 目标" }},
-  ex7_leads: {{ label: "EX7 线索数" }},
-  ex7_deals: {{ label: "EX7 成交数" }},
 }};
 
 const ACCOUNT_FILTERS = {{
@@ -2223,8 +2443,6 @@ const ACCOUNT_FILTERS = {{
   target_missing: {{ label: "目标未提供" }},
   has_deals: {{ label: "有成交" }},
   has_spend: {{ label: "有费用" }},
-  ex7_has_deals: {{ label: "EX7 有成交" }},
-  not_connected: {{ label: "字段未接入" }},
   over_100: {{ label: "比率超过 100%" }},
 }};
 
@@ -2287,7 +2505,6 @@ function accountOver100Summary(entity) {{
 
 function accountSummaryGrid(entity) {{
   const leads = metric(entity, "leads");
-  const visits = metric(entity, "visits");
   const deals = metric(entity, "deals");
   const spend = metric(entity, "spend");
   const cpl = metric(entity, "cpl");
@@ -2295,7 +2512,6 @@ function accountSummaryGrid(entity) {{
   return `
     <div class="account-summary-grid">
       ${{accountMetricCell("线索数", leads)}}
-      ${{accountMetricCell("到店数", visits)}}
       ${{accountMetricCell("成交数", deals)}}
       ${{accountMetricCell("费用", spend)}}
       ${{accountMetricCell("CPL", cpl)}}
@@ -2315,10 +2531,10 @@ function accountDetailPanel(entity, expanded) {{
   return `
     <div class="${{panelClass}}"${{expanded ? "" : " hidden"}} aria-hidden="${{expanded ? "false" : "true"}}">
       ${{accountMetricGroup("线索组", [["线索数", "leads"], ["唯一线索数", "unique_leads"]], entity)}}
-      ${{accountMetricGroup("到店组", [["到店数", "visits"], ["到店率", "visit_rate"]], entity)}}
-      ${{accountMetricGroup("成交组", [["成交数", "deals"], ["线索成交率", "lead_deal_rate"], ["到店成交率", "visit_deal_rate"]], entity)}}
+      ${{accountMetricGroup("来客订单", [["来客订单", "douyin_laike_orders"]], entity)}}
+      ${{accountMetricGroup("到店组", [["到店数", "visits"], ["到店率", "visit_rate"], ["到店成交率", "visit_deal_rate"]], entity)}}
+      ${{accountMetricGroup("成交组", [["成交数", "deals"], ["线索成交率", "lead_deal_rate"]], entity)}}
       ${{accountMetricGroup("成本组", [["费用", "spend"], ["CPL", "cpl"], ["CPS", "cps"]], entity)}}
-      ${{accountMetricGroup("EX7 组", [["EX7 线索数", "ex7_leads"], ["EX7 成交数", "ex7_deals"], ["EX7 成交率", "ex7_deal_rate"]], entity)}}
     </div>`;
 }}
 
@@ -2411,13 +2627,10 @@ function accountSortValue(entity, key) {{
   }}
   const metricKey = {{
     leads: "leads",
-    visits: "visits",
     deals: "deals",
     spend: "spend",
     cpl: "cpl",
     cps: "cps",
-    ex7_leads: "ex7_leads",
-    ex7_deals: "ex7_deals",
   }}[key] || "leads";
   return accountMetricNumber(metric(entity, metricKey));
 }}
@@ -2444,8 +2657,6 @@ function accountMatchesFilter(entity, filterKey = accountListState.filter) {{
   if (filterKey === "target_missing") return !accountHasTarget(entity);
   if (filterKey === "has_deals") return (accountMetricNumber(metric(entity, "deals")) || 0) > 0;
   if (filterKey === "has_spend") return (accountMetricNumber(metric(entity, "spend")) || 0) !== 0;
-  if (filterKey === "ex7_has_deals") return (accountMetricNumber(metric(entity, "ex7_deals")) || 0) > 0;
-  if (filterKey === "not_connected") return accountHasNotConnectedField(entity);
   if (filterKey === "over_100") return accountHasOver100Ratio(entity);
   return true;
 }}
@@ -2552,14 +2763,11 @@ function renderAccounts(payload) {{
 const ANCHOR_SORT_OPTIONS = {{
   default: {{ label: "默认排序" }},
   leads: {{ label: "线索数" }},
-  visits: {{ label: "到店数" }},
   deals: {{ label: "成交数" }},
   spend: {{ label: "费用" }},
   cpl: {{ label: "CPL" }},
   cps: {{ label: "CPS" }},
   target_rate: {{ label: "当前 / 目标" }},
-  ex7_leads: {{ label: "EX7 线索数" }},
-  ex7_deals: {{ label: "EX7 成交数" }},
 }};
 
 const ANCHOR_FILTERS = {{
@@ -2568,8 +2776,6 @@ const ANCHOR_FILTERS = {{
   target_missing: {{ label: "目标未提供" }},
   has_deals: {{ label: "有成交" }},
   has_spend: {{ label: "有费用" }},
-  ex7_has_deals: {{ label: "EX7 有成交" }},
-  not_connected: {{ label: "字段未接入" }},
   over_100: {{ label: "比率超过 100%" }},
 }};
 
@@ -2600,7 +2806,6 @@ function anchorTargetSummary(metricItem) {{
 
 function anchorSummaryGrid(entity) {{
   const leads = metric(entity, "leads");
-  const visits = metric(entity, "visits");
   const deals = metric(entity, "deals");
   const spend = metric(entity, "spend");
   const cpl = metric(entity, "cpl");
@@ -2608,7 +2813,6 @@ function anchorSummaryGrid(entity) {{
   return `
     <div class="anchor-summary-grid">
       ${{anchorMetricCell("线索数", leads)}}
-      ${{anchorMetricCell("到店数", visits)}}
       ${{anchorMetricCell("成交数", deals)}}
       ${{anchorMetricCell("费用", spend)}}
       ${{anchorMetricCell("CPL", cpl)}}
@@ -2666,10 +2870,10 @@ function anchorDetailPanel(entity, expanded) {{
         <strong>${{escapeHtml(anchorParentScope(entity))}}</strong>
       </div>
       ${{anchorMetricGroup("线索组", [["线索数", "leads"], ["唯一线索数", "unique_leads"]], entity)}}
-      ${{anchorMetricGroup("到店组", [["到店数", "visits"], ["到店率", "visit_rate"]], entity)}}
-      ${{anchorMetricGroup("成交组", [["成交数", "deals"], ["线索成交率", "lead_deal_rate"], ["到店成交率", "visit_deal_rate"]], entity)}}
+      ${{anchorMetricGroup("来客订单", [["来客订单", "douyin_laike_orders"]], entity)}}
+      ${{anchorMetricGroup("到店组", [["到店数", "visits"], ["到店率", "visit_rate"], ["到店成交率", "visit_deal_rate"]], entity)}}
+      ${{anchorMetricGroup("成交组", [["成交数", "deals"], ["线索成交率", "lead_deal_rate"]], entity)}}
       ${{anchorMetricGroup("成本组", [["费用", "spend"], ["CPL", "cpl"], ["CPS", "cps"]], entity)}}
-      ${{anchorMetricGroup("EX7 组", [["EX7 线索数", "ex7_leads"], ["EX7 成交数", "ex7_deals"], ["EX7 成交率", "ex7_deal_rate"]], entity)}}
       ${{anchorTrendDetailNote(entity)}}
     </div>`;
 }}
@@ -2708,7 +2912,7 @@ function anchorHasTarget(entity) {{
 }}
 
 function anchorHasNotConnectedField(entity) {{
-  return anchorMetrics(entity).some((item) => item?.source_status === "not_connected" || metricDisplayText(item) === "未接入");
+  return anchorMetrics(entity).some((item) => item?.source_status === "not_connected" || metricDisplayText(item) === "未提供");
 }}
 
 function anchorHasOver100Ratio(entity) {{
@@ -2729,13 +2933,10 @@ function anchorSortValue(entity, key) {{
   }}
   const metricKey = {{
     leads: "leads",
-    visits: "visits",
     deals: "deals",
     spend: "spend",
     cpl: "cpl",
     cps: "cps",
-    ex7_leads: "ex7_leads",
-    ex7_deals: "ex7_deals",
   }}[key] || "leads";
   return anchorMetricNumber(metric(entity, metricKey));
 }}
@@ -2762,8 +2963,6 @@ function anchorMatchesFilter(entity, filterKey = anchorListState.filter) {{
   if (filterKey === "target_missing") return !anchorHasTarget(entity);
   if (filterKey === "has_deals") return (anchorMetricNumber(metric(entity, "deals")) || 0) > 0;
   if (filterKey === "has_spend") return (anchorMetricNumber(metric(entity, "spend")) || 0) !== 0;
-  if (filterKey === "ex7_has_deals") return (anchorMetricNumber(metric(entity, "ex7_deals")) || 0) > 0;
-  if (filterKey === "not_connected") return anchorHasNotConnectedField(entity);
   if (filterKey === "over_100") return anchorHasOver100Ratio(entity);
   return true;
 }}
@@ -2867,7 +3066,6 @@ const SEED_FILTERS = {{
   target_missing: {{ label: "目标未提供" }},
   positive_exposure: {{ label: "曝光大于 0" }},
   over_100: {{ label: "当前 / 目标超过 100%" }},
-  not_connected: {{ label: "字段未接入" }},
 }};
 
 const seedListState = {{ search: "", sort: "default", filter: "all" }};
@@ -2934,7 +3132,7 @@ function seedHasTarget(entity) {{
 }}
 
 function seedHasNotConnectedField(entity) {{
-  return seedMetrics(entity).some((item) => item?.source_status === "not_connected" || metricDisplayText(item) === "未接入");
+  return seedMetrics(entity).some((item) => item?.source_status === "not_connected" || metricDisplayText(item) === "未提供");
 }}
 
 function seedHasOver100Ratio(entity) {{
@@ -2947,7 +3145,7 @@ function seedMissingTargetMetric(metricItem) {{
 }}
 
 function seedMetricText(item) {{
-  if (item?.source_status === "not_connected") return "未接入";
+  if (item?.source_status === "not_connected") return "未提供";
   if (typeof item?.actual === "string" && item.actual.trim() && Number.isNaN(Number(item.actual))) return item.actual;
   return metricDisplayText(item);
 }}
@@ -2982,7 +3180,7 @@ function seedMetricGroup(title, items) {{
 }}
 
 function seedFieldStateText(entity) {{
-  if (seedHasNotConnectedField(entity)) return "未接入";
+  if (seedHasNotConnectedField(entity)) return "未提供";
   if (!seedHasTarget(entity)) return "未提供";
   return "";
 }}
@@ -3078,7 +3276,6 @@ function seedMatchesFilter(entity, filterKey = seedListState.filter) {{
   if (filterKey === "target_missing") return !seedHasTarget(entity);
   if (filterKey === "positive_exposure") return (seedMetricNumber(seedImpressionsMetric(entity)) || 0) > 0;
   if (filterKey === "over_100") return seedHasOver100Ratio(entity);
-  if (filterKey === "not_connected") return seedHasNotConnectedField(entity);
   return true;
 }}
 
@@ -3572,7 +3769,7 @@ function renderTrendDashboard(payload) {{
 
   const byKey = Object.fromEntries((payload.core_kpi_summary || []).map((item) => [item.key, item]));
   let coreSummary = CORE_KPI_KEYS.map((key) => byKey[key]).filter(Boolean);
-  coreSummary = coreSummary.slice(0, 6);
+  coreSummary = coreSummary.slice(0, 7);
   document.getElementById("trend-core-cards").innerHTML = coreSummary.length
     ? coreSummary.map((item) => trendCard(item)).join("")
     : `<div class="loading">未提供核心经营表现</div>`;
@@ -3582,10 +3779,6 @@ function renderTrendDashboard(payload) {{
     : `<div class="loading">未提供历史趋势</div>`;
   document.getElementById("trend-monthly-comparison").innerHTML = monthlyComparisonPanel(payload);
 
-  document.getElementById("trend-segments").innerHTML = `
-    <div class="model-compare-grid">
-      ${{(payload.model_segment_summary || []).map(segmentPanel).join("") || `<div class="loading">未提供车型结构</div>`}}
-    </div>`;
   renderAccounts(payload);
   renderAnchors(payload);
   renderSeed(payload);
@@ -4512,6 +4705,9 @@ body[data-dashboard-mode="business"] .topbar-tools {
   font-size: 13px;
 }
 body[data-dashboard-mode="business"] .nav {
+  position: static;
+  top: auto;
+  z-index: auto;
   background: rgba(248,250,246,0.96);
 }
 body[data-dashboard-mode="business"] .section {
@@ -4525,12 +4721,17 @@ body[data-dashboard-mode="business"] .metric-table {
   table-layout: fixed;
   min-width: 1120px;
 }
-body[data-dashboard-mode="business"] .lead-metric-table .col-label { width: 26%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-bar { width: 24%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-value { width: 8%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-orders { width: 14%; }
+body[data-dashboard-mode="business"] .lead-metric-table {
+  min-width: 1480px;
+}
+body[data-dashboard-mode="business"] .lead-metric-table .col-label { width: 18%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-bar { width: 18%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-value { width: 9%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-orders { width: 12%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-visits { width: 12%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-visit-rate { width: 10%; }
 body[data-dashboard-mode="business"] .lead-metric-table .col-number { width: 8%; }
-body[data-dashboard-mode="business"] .lead-metric-table .col-money { width: 10%; }
+body[data-dashboard-mode="business"] .lead-metric-table .col-money { width: 6.5%; }
 body[data-dashboard-mode="business"] .seed-metric-table .col-label { width: 26%; }
 body[data-dashboard-mode="business"] .seed-metric-table .col-bar { width: 25%; }
 body[data-dashboard-mode="business"] .seed-metric-table .col-value { width: 11%; }
@@ -4540,7 +4741,7 @@ body[data-dashboard-mode="business"] .seed-metric-table .col-number { width: 14%
 body[data-dashboard-mode="business"] .metric-table th,
 body[data-dashboard-mode="business"] .metric-table td {
   height: 64px;
-  padding: 14px 18px;
+  padding: 14px 16px;
 }
 body[data-dashboard-mode="business"] .metric-table thead th {
   white-space: nowrap;
@@ -5362,8 +5563,9 @@ body[data-dashboard-mode="trend"] .trend-meta {
 .account-detail-panel.is-expanded,
 .anchor-detail-panel.is-expanded,
 .seed-detail-panel.is-expanded {
-  max-height: 2200px;
   opacity: 1;
+  max-height: none;
+  overflow: visible;
 }
 .account-detail-panel .metric-group:first-child,
 .anchor-detail-panel .metric-group:first-child,
@@ -5981,9 +6183,111 @@ body[data-dashboard-mode="trend"] .trend-spark .spark-gap {
   color: var(--ink);
   text-align: right;
 }
+.daily-bi-history {
+  margin-top: 18px;
+}
+.daily-bi-history-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.daily-bi-history-grid .history-chart-card {
+  min-height: 300px;
+  padding: 16px;
+}
+.daily-bi-history-grid .trend-panel-title h3 {
+  font-size: 16px;
+}
+.daily-bi-history-grid .history-card-head {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  padding-bottom: 10px;
+}
+.daily-bi-history-grid .trend-panel-value {
+  text-align: left;
+}
+.daily-bi-history-grid .trend-panel-value strong {
+  margin: 2px 0 0;
+  font-size: 20px;
+}
+.daily-bi-chart {
+  min-height: 220px;
+}
+.daily-bi-chart svg {
+  min-height: 204px;
+}
+.daily-bi-chart .chart-point {
+  opacity: 0;
+  animation: chart-point-pop 0.28s ease-out forwards;
+}
+.daily-bi-monthly-comparison {
+  margin-top: 20px;
+}
+.daily-bi-month-card {
+  display: grid;
+  gap: 14px;
+  background: #ffffff;
+  border-top: 4px solid var(--teal);
+  box-shadow: var(--shadow);
+}
+.daily-bi-month-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  align-items: start;
+}
+.daily-bi-month-head span,
+.daily-bi-month-head small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.3;
+}
+.daily-bi-month-head h3 {
+  grid-column: 1;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.2;
+}
+.daily-bi-month-head small {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+.daily-bi-month-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+}
+.daily-bi-month-metrics span {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  padding-top: 8px;
+  border-top: 1px solid #e0e7e2;
+}
+.daily-bi-month-metrics small {
+  color: var(--muted);
+  font-weight: 900;
+}
+.daily-bi-month-metrics strong {
+  color: var(--ink);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
 @keyframes chart-draw {
   to {
     stroke-dashoffset: 0;
+  }
+}
+@keyframes chart-point-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 .model-compare-card {

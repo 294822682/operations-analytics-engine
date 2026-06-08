@@ -23,12 +23,10 @@ def test_render_interactive_dashboard_html_contains_required_modules_and_control
     assert "日报可交互 BI 原型 · 2026-05-14" in html
     assert 'id="overview"' in html
     assert 'id="funnel"' in html
-    assert 'id="segment-compare"' in html
     assert 'id="lead-anchors"' in html
     assert 'id="seed-exposure"' in html
     assert "总览 KPI" in html
     assert "全链路转化" in html
-    assert "EX7 / 不含 EX7 对比" in html
     assert "线索组主播唯一线索与来客订单 KPI" in html
     assert "种草曝光累计达成" in html
     assert "2,188.63万" in html
@@ -38,7 +36,6 @@ def test_render_interactive_dashboard_html_contains_required_modules_and_control
     assert "0 / 21" in html
     assert "0.00万" in html
     assert "来客订单" in html
-    assert "EX7 线索占比" in html
     assert "按唯一线索排序" in html
     assert "按来客订单排序" in html
     assert "按累计曝光排序" in html
@@ -47,6 +44,7 @@ def test_render_interactive_dashboard_html_contains_required_modules_and_control
     assert "function sortTable(" in html
     assert "data-tooltip=" in html
     assert "prototype_only" in html
+    assert "EX7" not in html
 
 
 def test_write_interactive_dashboard_html_uses_non_formal_output_path(tmp_path: Path) -> None:
@@ -76,7 +74,6 @@ def test_render_api_connected_dashboard_html_fetches_daily_dashboard_api() -> No
     assert "dashboardPathForSelection(selected)" in html
     assert 'id="overview"' in html
     assert 'id="funnel"' in html
-    assert 'id="segment-compare"' in html
     assert 'id="lead-anchors"' in html
     assert 'id="seed-exposure"' in html
     assert "renderDashboard(payload)" in html
@@ -111,11 +108,11 @@ def test_render_api_connected_dashboard_html_exposes_n7_read_only_bi_controls() 
 def test_render_feishu_link_dashboard_html_exposes_business_workbench_without_engineering_metadata() -> None:
     html = render_feishu_link_trial_dashboard_html("latest", api_path="/dashboard/daily/latest")
 
-    assert "运营日报看板" in html
+    assert "运营日报 BI" in html
     assert "经营链路" in html
     assert "维度工作台" in html
     assert "数据新鲜度" in html
-    assert "本地预览边界" in html
+    assert "BI 数据口径" in html
     assert "曝光" in html
     assert "线索" in html
     assert "唯一线索" in html
@@ -124,11 +121,28 @@ def test_render_feishu_link_dashboard_html_exposes_business_workbench_without_en
     assert "CPL" in html
     assert "CPS" in html
     assert "总览" in html
-    assert "车型 / EX7" in html
     assert "主播贡献" in html
     assert "账号 / 渠道" in html
     assert "种草" in html
     assert "成本效率" in html
+    assert "历史趋势" in html
+    assert "月度对比" in html
+    assert 'id="daily-bi-trends"' in html
+    assert 'id="daily-bi-monthly-comparison"' in html
+    assert 'const TREND_API_PATH = "/dashboard/daily/trends"' in html
+    assert "loadDailyBiTrends(payload)" in html
+    assert "daily-bi-history-grid history-chart-grid" in html
+    assert "function dailyBiLineChart" in html
+    assert "dailyBiHistoryPanel(series, previousByKey)" in html
+    assert "function bindDailyBiChartInteractions" in html
+    assert "monthly-card daily-bi-month-card" in html
+    assert "daily-bi-month-metrics" in html
+    assert "日报详细版" in html
+    assert "历史趋势 · dashboard source TSV" not in html
+    assert "dashboard source TSV</div>" not in html
+    assert 'IS_BUSINESS_MODE ? "" : `<span>${escapeHtml(step.key)}</span>`' in html
+    assert 'const funnelConversion = IS_BUSINESS_MODE ? "" : `<div class="funnel-conversion">${escapeHtml(conversion)}</div>`;' in html
+    assert 'const qualityStrip = IS_BUSINESS_MODE ? "" :' in html
     assert "未提供" in html
     assert 'fmtWan(metricValue(daily))' in html
     assert 'method: "GET"' in html
@@ -151,6 +165,17 @@ def test_render_feishu_link_dashboard_html_exposes_business_workbench_without_en
     assert 'class="bar-value"' in html
     assert 'body[data-dashboard-mode="business"] .bar-metric' in html
     assert "N7 V0 READ-ONLY BI" not in html
+    assert "车型 / EX7" not in html
+    assert "EX7 / 不含 EX7 对比" not in html
+    assert "EX7 专项" not in html
+    assert "EX7 组" not in html
+    assert "EX7 线索数" not in html
+    assert "EX7 成交数" not in html
+    assert "EX7 成交率" not in html
+    assert "到店数" in html
+    assert "到店率" in html
+    assert "到店成交率" in html
+    assert "字段未接入" not in html
     assert "Source path" not in html
     assert "Source rows" not in html
     assert "GET only" not in html
@@ -170,7 +195,7 @@ def test_render_trend_dashboard_html_is_business_presentation_without_governance
     html = render_trend_dashboard_html(api_path="/dashboard/daily/trends")
 
     assert "经营趋势看板" in html
-    assert "查看近期核心经营指标变化、车型结构、账号表现、主播表现与种草曝光情况，辅助日常经营复盘。" in html
+    assert "查看近期核心经营指标变化、账号表现、主播表现与种草曝光情况，辅助日常经营复盘。" in html
     assert "N8 V1 · READ-ONLY FILE TREND" not in html
     assert "READ-ONLY FILE TREND" not in html
     assert "文件级趋势视图" not in html
@@ -239,7 +264,6 @@ def test_render_trend_dashboard_html_is_business_presentation_without_governance
     assert "核心经营表现" in html
     assert "历史趋势" in html
     assert "月度对比" in html
-    assert "车型结构对比" in html
     assert "账号表现" in html
     assert "主播表现" in html
     assert "种草曝光表现" in html
@@ -247,9 +271,13 @@ def test_render_trend_dashboard_html_is_business_presentation_without_governance
     assert "本页仅供内部经营复盘参考，最终以原始日报与人工确认为准。" in html
     assert "真实 0 保持 0" in html
     assert "缺失值显示未提供" in html
-    assert "字段未接入显示未接入" in html
     assert "缺失趋势点不补 0" in html
     assert "未提供" in html
+    assert "车型结构对比" not in html
+    assert "车型结构" not in html
+    assert "EX7" not in html
+    assert "到店" in html
+    assert "字段未接入" not in html
     assert 'const DATA_URL = "/dashboard/daily/trends"' in html
     assert 'method: "GET"' in html
     assert 'method: "POST"' not in html
@@ -264,7 +292,6 @@ def test_render_trend_dashboard_html_is_business_presentation_without_governance
     assert "Authorization" not in html
     assert "cookie" not in html.lower()
     assert "kpi-card" in html
-    assert "model-compare-card" in html
     assert "account-card" in html
     assert "anchor-card" in html
     assert "seed-card" in html
@@ -348,8 +375,8 @@ def test_render_trend_dashboard_html_exposes_n12a_filter_toolbar_state() -> None
 def test_render_trend_dashboard_html_exposes_n12a_kpi_card_copy_rules() -> None:
     html = dashboard_html.render_trend_dashboard_html(api_path="/dashboard/daily/trends?end_date=2026-05-22")
 
-    assert 'const CORE_KPI_KEYS = ["impressions", "leads", "deals", "spend", "cpl", "cps"];' in html
-    assert "coreSummary.slice(0, 6)" in html
+    assert 'const CORE_KPI_KEYS = ["impressions", "leads", "douyin_laike_orders", "deals", "spend", "cpl", "cps"];' in html
+    assert "coreSummary.slice(0, 7)" in html
     assert 'data-kpi-key="${escapeHtml(metric?.key || "")}"' in html
     assert "费用" in html
     assert "目标参考：" in html
@@ -599,10 +626,14 @@ def test_render_trend_dashboard_html_exposes_n121c1_account_toolbar_controls() -
     assert 'id="account-search-input"' in html
     assert 'placeholder="搜索账号名称"' in html
     assert 'id="account-sort-select"' in html
-    for label in ["默认排序", "线索数", "到店数", "成交数", "费用", "CPL", "CPS", "当前 / 目标", "EX7 线索数", "EX7 成交数"]:
+    for label in ["默认排序", "线索数", "成交数", "费用", "CPL", "CPS", "当前 / 目标"]:
         assert label in html
-    for label in ["全部账号", "有目标参考", "目标未提供", "有成交", "有费用", "EX7 有成交", "字段未接入", "比率超过 100%"]:
+    for label in ["全部账号", "有目标参考", "目标未提供", "有成交", "有费用", "比率超过 100%"]:
         assert label in html
+    for label in ["到店数", "到店率", "到店成交率"]:
+        assert label in html
+    for forbidden in ["EX7 线索数", "EX7 成交数", "EX7 有成交", "字段未接入"]:
+        assert forbidden not in html
     assert "清除条件" in html
     assert "当前条件：全部账号" in html
     assert "无匹配账号" in html
@@ -673,22 +704,24 @@ def test_render_trend_dashboard_html_exposes_n121c1_account_summary_and_expand_d
         "收起详情",
     ]:
         assert marker in html
-    for label in ["线索数", "到店数", "成交数", "费用", "CPL", "CPS", "当前 / 目标"]:
+    for label in ["线索数", "成交数", "费用", "CPL", "CPS", "当前 / 目标"]:
         assert label in html
-    for group in ["线索组", "到店组", "成交组", "成本组", "EX7 组", "趋势"]:
+    for group in ["线索组", "到店组", "成交组", "成本组", "趋势"]:
         assert group in html
     for label in [
         "唯一线索数",
-        "到店率",
         "线索成交率",
+        "到店数",
+        "到店率",
         "到店成交率",
-        "EX7 线索数",
-        "EX7 成交数",
-        "EX7 成交率",
     ]:
         assert label in html
+    for forbidden in ["EX7 组", "EX7 线索数", "EX7 成交数", "EX7 成交率"]:
+        assert forbidden not in html
     assert "function bindAccountDetailToggles" in html
     assert "account-detail-panel.is-expanded" in html
+    assert "max-height: 2200px" not in html
+    assert "overflow: visible;" in html
     assert "比率超过 100%" in html
     assert "Math.min(progressRate * 100, 100)" in html
     assert "口径待确认" not in html
@@ -747,7 +780,7 @@ def test_render_trend_dashboard_html_exposes_n121c1_focused_acceptance_contracts
 
     assert "function accountMatchesFilter(entity, filterKey = accountListState.filter)" in html
     assert 'if (filterKey === "over_100") return accountHasOver100Ratio(entity);' in html
-    assert 'if (filterKey === "not_connected") return accountHasNotConnectedField(entity);' in html
+    assert 'if (filterKey === "not_connected") return accountHasNotConnectedField(entity);' not in html
     assert "accountHasOver100Ratio" in html
     assert "口径待确认" not in html
 
@@ -786,10 +819,14 @@ def test_render_trend_dashboard_html_exposes_n121c2_anchor_toolbar_controls() ->
     ]:
         assert marker in html
 
-    for label in ["默认排序", "线索数", "到店数", "成交数", "费用", "CPL", "CPS", "当前 / 目标", "EX7 线索数", "EX7 成交数"]:
+    for label in ["默认排序", "线索数", "成交数", "费用", "CPL", "CPS", "当前 / 目标"]:
         assert label in html
-    for label in ["全部主播", "有目标参考", "目标未提供", "有成交", "有费用", "EX7 有成交", "字段未接入", "比率超过 100%"]:
+    for label in ["全部主播", "有目标参考", "目标未提供", "有成交", "有费用", "比率超过 100%"]:
         assert label in html
+    for label in ["到店数", "到店率", "到店成交率"]:
+        assert label in html
+    for forbidden in ["EX7 线索数", "EX7 成交数", "EX7 有成交", "字段未接入"]:
+        assert forbidden not in html
     assert "清除条件" in html
     assert "当前条件：全部主播" in html
     assert '<div class="anchor-empty-state"><strong>无匹配主播</strong><span>可尝试清除搜索词或筛选条件。</span></div>' in html
@@ -811,8 +848,8 @@ def test_render_trend_dashboard_html_exposes_n121c2_anchor_search_filter_sort_lo
     assert 'if (filterKey === "target_missing") return !anchorHasTarget(entity);' in html
     assert 'if (filterKey === "has_deals") return (anchorMetricNumber(metric(entity, "deals")) || 0) > 0;' in html
     assert 'if (filterKey === "has_spend") return (anchorMetricNumber(metric(entity, "spend")) || 0) !== 0;' in html
-    assert 'if (filterKey === "ex7_has_deals") return (anchorMetricNumber(metric(entity, "ex7_deals")) || 0) > 0;' in html
-    assert 'if (filterKey === "not_connected") return anchorHasNotConnectedField(entity);' in html
+    assert 'if (filterKey === "ex7_has_deals") return (anchorMetricNumber(metric(entity, "ex7_deals")) || 0) > 0;' not in html
+    assert 'if (filterKey === "not_connected") return anchorHasNotConnectedField(entity);' not in html
     assert 'if (filterKey === "over_100") return anchorHasOver100Ratio(entity);' in html
     assert "function compareAnchorsByState" in html
     assert "visibleAnchors.sort((a, b) => compareAnchorsByState(a, b, anchorOrder));" in html
@@ -847,12 +884,14 @@ def test_render_trend_dashboard_html_exposes_n121c2_anchor_summary_and_expand_de
     ]:
         assert marker in html
 
-    for label in ["线索数", "到店数", "成交数", "费用", "CPL", "CPS", "当前 / 目标"]:
+    for label in ["线索数", "成交数", "费用", "CPL", "CPS", "当前 / 目标"]:
         assert label in html
-    for group in ["线索组", "到店组", "成交组", "成本组", "EX7 组", "趋势"]:
+    for group in ["线索组", "到店组", "成交组", "成本组", "趋势"]:
         assert group in html
-    for label in ["唯一线索数", "到店率", "线索成交率", "到店成交率", "EX7 线索数", "EX7 成交数", "EX7 成交率"]:
+    for label in ["唯一线索数", "线索成交率", "到店数", "到店率", "到店成交率"]:
         assert label in html
+    for forbidden in ["EX7 组", "EX7 线索数", "EX7 成交数", "EX7 成交率"]:
+        assert forbidden not in html
 
     assert 'class="${panelClass}"${expanded ? "" : " hidden"} aria-hidden="${expanded ? "false" : "true"}"' in html
     assert "panel.hidden = false;" in html
@@ -886,8 +925,9 @@ def test_render_trend_dashboard_html_exposes_n121c3_seed_toolbar_controls() -> N
 
     for label in ["默认排序", "曝光", "目标参考", "当前 / 目标", "最新曝光", "名称"]:
         assert label in html
-    for label in ["全部种草", "账号总曝光", "主播曝光", "有目标参考", "目标未提供", "曝光大于 0", "当前 / 目标超过 100%", "字段未接入"]:
+    for label in ["全部种草", "账号总曝光", "主播曝光", "有目标参考", "目标未提供", "曝光大于 0", "当前 / 目标超过 100%"]:
         assert label in html
+    assert "字段未接入" not in html
     assert "清除条件" in html
     assert "当前条件：全部种草" in html
     assert '<div class="seed-empty-state"><strong>无匹配种草项</strong><span>可尝试清除搜索词或筛选条件。</span></div>' in html
@@ -912,7 +952,7 @@ def test_render_trend_dashboard_html_exposes_n121c3_seed_search_filter_sort_logi
     assert 'if (filterKey === "target_missing") return !seedHasTarget(entity);' in html
     assert 'if (filterKey === "positive_exposure") return (seedMetricNumber(seedImpressionsMetric(entity)) || 0) > 0;' in html
     assert 'if (filterKey === "over_100") return seedHasOver100Ratio(entity);' in html
-    assert 'if (filterKey === "not_connected") return seedHasNotConnectedField(entity);' in html
+    assert 'if (filterKey === "not_connected") return seedHasNotConnectedField(entity);' not in html
     assert "function compareSeedsByState" in html
     assert "visibleAccounts.sort((a, b) => compareSeedsByState(a, b, seedOrder));" in html
     assert "visibleAnchors.sort((a, b) => compareSeedsByState(a, b, seedOrder));" in html

@@ -35,9 +35,7 @@ def test_get_daily_dashboard_returns_read_only_bi_payload(tmp_path: Path) -> Non
     assert payload["overview"]["pending_day"]["target"] is None
     assert payload["funnel"][0]["label"] == "曝光"
     assert payload["funnel"][1]["key"] == "raw_leads"
-    assert payload["segments"]["ex7"]["label"] == "EX7 专项"
-    assert payload["segments"]["non_ex7"]["label"] == "不含 EX7"
-    assert payload["segments"]["deltas"]["cps_delta"] == 46542.242
+    assert "segments" not in payload
     assert payload["lead_anchors"][0]["name"] == "徐幻"
     assert payload["lead_anchors"][0]["metrics"]["mtd_unique_leads"]["actual"] == 2634
     assert payload["seed_account"]["actual"] == 7221796
@@ -47,9 +45,9 @@ def test_get_daily_dashboard_returns_read_only_bi_payload(tmp_path: Path) -> Non
     assert payload["interactions"]["module_anchors"] == [
         "overview",
         "funnel",
-        "segment-compare",
         "lead-anchors",
         "seed-exposure",
+        "daily-bi-trends",
     ]
     assert "mtd_douyin_laike_orders" in payload["interactions"]["lead_anchor_sort_keys"]
     assert "mtd_impressions" in payload["interactions"]["seed_anchor_sort_keys"]
@@ -216,8 +214,8 @@ def test_get_daily_dashboard_trends_aggregates_dashboard_sources_by_date(tmp_pat
     ]
     assert [point["actual"] for point in payload["core_kpis"]["mtd_unique_leads"]["points"]] == [12000, 13323]
     assert payload["core_kpis"]["mtd_spend"]["points"][0]["target"] is None
-    assert payload["segments"]["ex7"]["metrics"]["mtd_unique_leads"]["points"][0]["actual"] == 9219
-    assert payload["segments"]["non_ex7"]["metrics"]["mtd_deals"]["points"][1]["actual"] == 35
+    assert "segments" not in payload
+    assert "model_segment_summary" not in payload
     assert payload["accounts"][0]["name"] == "星途汽车官方直播间"
     assert payload["accounts"][0]["metrics"]["mtd_unique_leads"]["points"][1]["actual"] == 10045
     seed_daily = payload["seed_anchors"][0]["metrics"]["daily_impressions"]["points"][0]
@@ -485,7 +483,7 @@ def test_get_daily_dashboard_trends_monthly_comparison_uses_latest_source_mtd_fo
     assert may["cpl"]["value"] == 10.0
 
 
-def test_get_daily_dashboard_trends_supplements_visit_and_ex7_entity_metrics_from_history(tmp_path: Path) -> None:
+def test_get_daily_dashboard_trends_supplements_visit_metrics_without_ex7_from_detail_sources(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
     reports_dir = repo_root / "output" / "sql_reports"
     _write_tsv(
@@ -525,25 +523,94 @@ def test_get_daily_dashboard_trends_supplements_visit_and_ex7_entity_metrics_fro
     account = next(item for item in payload["account_summary"] if item["name"] == "星途汽车官方直播间")
     assert account["metrics"]["visits"]["actual"] == 1.0
     assert account["metrics"]["visit_rate"]["actual"] == pytest.approx(0.5)
-    assert account["metrics"]["ex7_leads"]["actual"] == 1.0
-    assert account["metrics"]["ex7_deals"]["actual"] == 1.0
-    assert account["metrics"]["ex7_deal_rate"]["actual"] == 1.0
-    assert account["metric_groups"]["到店"]["visits"]["source_status"] == "available"
-    assert account["metric_groups"]["EX7"]["ex7_leads"]["source_status"] == "available"
+    assert account["metrics"]["visit_deal_rate"]["actual"] == pytest.approx(1.0)
+    assert account["metrics"]["visits"]["source"] == "fact_attribution + 总部新媒体线索到店日期"
+    assert "到店" in account["metric_groups"]
+    assert {"ex7_leads", "ex7_deals", "ex7_deal_rate"}.isdisjoint(account["metrics"])
+    assert "EX7" not in account["metric_groups"]
 
     line_summary = next(item for item in payload["account_summary"] if item["name"] == "线索组汇总")
     assert line_summary["metrics"]["visits"]["actual"] == 1.0
     assert line_summary["metrics"]["visit_rate"]["actual"] == pytest.approx(0.5)
-    assert line_summary["metrics"]["ex7_leads"]["actual"] == 1.0
-    assert line_summary["metrics"]["ex7_deals"]["actual"] == 1.0
+    assert line_summary["metrics"]["visit_deal_rate"]["actual"] == pytest.approx(1.0)
+    assert "到店" in line_summary["metric_groups"]
+    assert {"ex7_leads", "ex7_deals", "ex7_deal_rate"}.isdisjoint(line_summary["metrics"])
+    assert "EX7" not in line_summary["metric_groups"]
 
     anchor = next(item for item in payload["anchor_summary"] if item["name"] == "丁俐佳")
     assert anchor["metrics"]["visits"]["actual"] == 1.0
-    assert anchor["metrics"]["ex7_leads"]["actual"] == 1.0
-    assert anchor["metrics"]["ex7_deals"]["actual"] == 1.0
+    assert anchor["metrics"]["visit_rate"]["actual"] == pytest.approx(0.5)
+    assert anchor["metrics"]["visit_deal_rate"]["actual"] == pytest.approx(1.0)
+    assert "到店" in anchor["metric_groups"]
+    assert {"ex7_leads", "ex7_deals", "ex7_deal_rate"}.isdisjoint(anchor["metrics"])
+    assert "EX7" not in anchor["metric_groups"]
+    assert payload["metric_source_status"] == [
+        {
+            "metric": "曝光/唯一线索/来客订单/实销/费用/CPL/CPS/账号/主播/种草曝光/月度对比",
+            "status": "available",
+            "source": "output/sql_reports/feishu_dashboard_source_latest_*.tsv",
+        },
+        {
+            "metric": "到店数/到店率/到店成交率",
+            "status": "available",
+            "source": "output/fact_attribution.csv + 源文件/总部新媒体线索*.csv",
+        },
+    ]
 
 
-def test_get_daily_dashboard_trends_supplements_monthly_comparison_from_history_when_source_months_are_missing(tmp_path: Path) -> None:
+def test_get_daily_dashboard_trends_keeps_zero_visit_metrics_when_visit_source_has_no_rows(tmp_path: Path) -> None:
+    repo_root, runs_root = build_temp_repo(tmp_path)
+    reports_dir = repo_root / "output" / "sql_reports"
+    _write_tsv(
+        reports_dir / "feishu_dashboard_source_latest_2026-05-30.tsv",
+        _minimal_dashboard_source_rows(
+            "2026-05-30",
+            accounts=[
+                {"name": "线索组汇总", "leads": 2, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
+                {"name": "星途汽车官方直播间", "leads": 2, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
+            ],
+            anchors=[
+                {"name": "丁俐佳", "parent_scope": "星途汽车官方直播间", "leads": 2, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
+            ],
+        ),
+    )
+    _write_fact_csv(
+        repo_root / "output" / "fact_attribution.csv",
+        [
+            _fact_row("L1", date="2026-05-30", account="抖音-星途汽车官方直播间", model="TXL", host="丁俐佳", deal_time="2026-05-30 12:00:00"),
+            _fact_row("L2", date="2026-05-30", account="抖音-星途汽车官方直播间", model="TXL", host="丁俐佳"),
+        ],
+    )
+    _write_raw_leads_csv(
+        repo_root / "源文件" / "总部新媒体线索2026-05-30.csv",
+        [
+            {"线索ID": "L1", "创建日期": "2026-05-30", "到店日期": "", "成交车型": "TXL"},
+            {"线索ID": "L2", "创建日期": "2026-05-30", "到店日期": "", "成交车型": "TXL"},
+        ],
+    )
+    app = create_test_app(repo_root, runs_root)
+
+    with TestClient(app) as client:
+        response = client.get("/dashboard/daily/trends?start_date=2026-05-30&end_date=2026-05-30")
+
+    assert response.status_code == 200
+    payload = response.json()
+    for collection_name, entity_name in [
+        ("account_summary", "星途汽车官方直播间"),
+        ("account_summary", "线索组汇总"),
+        ("anchor_summary", "丁俐佳"),
+    ]:
+        entity = next(item for item in payload[collection_name] if item["name"] == entity_name)
+        assert entity["metrics"]["visits"]["actual"] == 0.0
+        assert entity["metrics"]["visit_rate"]["actual"] == 0.0
+        assert entity["metrics"]["visit_deal_rate"]["actual"] is None
+        assert entity["metrics"]["visits"]["source_status"] == "available"
+        assert entity["metrics"]["visits"]["source"] == "fact_attribution + 总部新媒体线索到店日期"
+        assert "到店" in entity["metric_groups"]
+        assert "EX7" not in entity["metric_groups"]
+
+
+def test_get_daily_dashboard_trends_monthly_comparison_ignores_history_when_source_months_are_missing(tmp_path: Path) -> None:
     repo_root, runs_root = build_temp_repo(tmp_path)
     reports_dir = repo_root / "output" / "sql_reports"
     _write_tsv(
@@ -647,17 +714,13 @@ def test_get_daily_dashboard_trends_supplements_monthly_comparison_from_history_
 
     assert response.status_code == 200
     payload = response.json()
-    assert [month["label"] for month in payload["monthly_comparison"]] == ["2026年3月", "2026年4月", "2026年5月"]
-    march = payload["monthly_comparison"][0]["metrics"]
-    april = payload["monthly_comparison"][1]["metrics"]
-    may = payload["monthly_comparison"][2]["metrics"]
-    assert march["leads"]["value"] == 1.0
-    assert march["douyin_laike_orders"]["value"] == 2.0
-    assert march["deals"]["value"] == 1.0
-    assert april["leads"]["value"] == 1.0
-    assert april["douyin_laike_orders"]["value"] == 2.0
+    assert [month["label"] for month in payload["monthly_comparison"]] == ["2026年5月"]
+    may = payload["monthly_comparison"][0]["metrics"]
+    assert may["impressions"]["value"] == 500.0
     assert may["leads"]["value"] == 5.0
     assert may["douyin_laike_orders"]["value"] == 5.0
+    assert may["deals"]["value"] == 1.0
+    assert may["spend"]["value"] == 50.0
 
 
 def test_get_daily_dashboard_trends_filters_cancelled_accounts_from_account_summary(tmp_path: Path) -> None:
@@ -716,19 +779,18 @@ def test_get_daily_dashboard_trends_derives_source_conversion_rates_above_100_pe
     assert account["metrics"]["deals"]["actual"] == 10.0
     assert account["metrics"]["lead_deal_rate"]["actual"] == pytest.approx(10 / 3)
     assert account["metrics"]["lead_deal_rate"]["source_status"] == "available"
-    assert account["metrics"]["visit_rate"]["source_status"] == "not_connected"
-    assert account["metrics"]["ex7_deal_rate"]["source_status"] == "not_connected"
+    assert {"visits", "visit_rate", "visit_deal_rate", "ex7_leads", "ex7_deals", "ex7_deal_rate"}.isdisjoint(account["metrics"])
 
     featured = next(item for item in response.json()["account_summary"] if item["name"] == "快手-EXEED星途")
     assert featured["metrics"]["deals"]["actual"] == 3.0
     assert featured["metrics"]["lead_deal_rate"]["actual"] == pytest.approx(1.5)
-    assert featured["metrics"]["visit_deal_rate"]["source_status"] == "not_connected"
+    assert {"visits", "visit_rate", "visit_deal_rate", "ex7_leads", "ex7_deals", "ex7_deal_rate"}.isdisjoint(featured["metrics"])
 
 
 def test_get_daily_dashboard_trends_keeps_zero_denominator_rates_missing() -> None:
     metric = DashboardDailyService._metric_summary(
-        "visit_rate",
-        "到店率",
+        "lead_deal_rate",
+        "线索成交率",
         DashboardDailyService._safe_div_value(10, 0),
         None,
         "比例",
@@ -937,11 +999,15 @@ def test_get_daily_dashboard_trends_prototype_returns_read_only_html(tmp_path: P
     html = response.text
     assert "经营趋势看板" in html
     assert "核心经营表现" in html
-    assert "车型结构对比" in html
     assert "账号表现" in html
     assert "主播表现" in html
     assert "种草曝光表现" in html
-    assert "查看近期核心经营指标变化、车型结构、账号表现、主播表现与种草曝光情况，辅助日常经营复盘。" in html
+    assert "查看近期核心经营指标变化、账号表现、主播表现与种草曝光情况，辅助日常经营复盘。" in html
+    assert "车型结构对比" not in html
+    assert "车型结构" not in html
+    assert "EX7" not in html
+    assert "到店" in html
+    assert "字段未接入" not in html
     assert "READ-ONLY FILE TREND" not in html
     assert "文件级趋势视图" not in html
     assert '<span>API</span>' not in html
@@ -974,7 +1040,6 @@ def test_get_daily_dashboard_trends_prototype_returns_read_only_html(tmp_path: P
     assert 'function isTrendDataPath(path)' in html
     assert 'url.pathname === "/dashboard/daily/trends"' in html
     assert "kpi-card" in html
-    assert "model-compare-card" in html
     assert "account-card" in html
     assert "anchor-card" in html
     assert "seed-card" in html
@@ -1016,7 +1081,6 @@ def test_get_daily_dashboard_trends_prototype_returns_read_only_html(tmp_path: P
     assert "指标说明" in html
     assert "真实 0 保持 0" in html
     assert "缺失值显示未提供" in html
-    assert "字段未接入显示未接入" in html
     assert "缺失趋势点不补 0" in html
     assert "--color-bg" in html
     assert "--color-surface" in html
@@ -1109,11 +1173,11 @@ def test_get_latest_daily_dashboard_feishu_link_returns_read_only_trial_html(tmp
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
     html = response.text
-    assert "运营日报看板" in html
+    assert "运营日报 BI" in html
     assert "经营链路" in html
     assert "维度工作台" in html
     assert "数据新鲜度" in html
-    assert "本地预览边界" in html
+    assert "BI 数据口径" in html
     assert "曝光" in html
     assert "线索" in html
     assert "唯一线索" in html
@@ -1122,10 +1186,21 @@ def test_get_latest_daily_dashboard_feishu_link_returns_read_only_trial_html(tmp
     assert "CPL" in html
     assert "CPS" in html
     assert "总览" in html
-    assert "车型 / EX7" in html
     assert "主播" in html
     assert "账号 / 渠道" in html
     assert "成本效率" in html
+    assert "历史趋势" in html
+    assert "月度对比" in html
+    assert 'id="daily-bi-trends"' in html
+    assert 'id="daily-bi-monthly-comparison"' in html
+    assert "daily-bi-history-grid history-chart-grid" in html
+    assert "function dailyBiLineChart" in html
+    assert "dailyBiHistoryPanel(series, previousByKey)" in html
+    assert "function bindDailyBiChartInteractions" in html
+    assert "monthly-card daily-bi-month-card" in html
+    assert "日报详细版" in html
+    assert "历史趋势 · dashboard source TSV" not in html
+    assert "dashboard source TSV</div>" not in html
     assert "每日经营结果" in html
     assert 'id="decision"' in html
     assert 'id="workbench"' in html
@@ -1133,10 +1208,10 @@ def test_get_latest_daily_dashboard_feishu_link_returns_read_only_trial_html(tmp
     assert "核心 KPI" in html
     assert "达成状态" in html
     assert "重点关注" in html
-    assert "EX7 专项" in html
     assert "主播线索" in html
     assert "种草曝光" in html
     assert "renderDecision(payload)" in html
+    assert "loadDailyBiTrends(payload)" in html
     assert 'const API_PATH = "/dashboard/daily/latest"' in html
     assert 'data-api-path="/dashboard/daily/latest"' in html
     assert 'data-dashboard-mode="business"' in html
@@ -1149,6 +1224,16 @@ def test_get_latest_daily_dashboard_feishu_link_returns_read_only_trial_html(tmp
     assert "/dashboard/daily/latest/feishu-link" not in html
     assert "N9-B READ-ONLY LINK TRIAL" not in html
     assert "飞书链接试用" not in html
+    assert "车型 / EX7" not in html
+    assert "EX7 专项" not in html
+    assert "EX7 组" not in html
+    assert "EX7 线索数" not in html
+    assert "EX7 成交数" not in html
+    assert "EX7 成交率" not in html
+    assert "到店数" in html
+    assert "到店率" in html
+    assert "到店成交率" in html
+    assert "字段未接入" not in html
     assert "Source path" not in html
     assert "Source rows" not in html
     assert "GET only" not in html
@@ -1171,20 +1256,26 @@ def test_get_dated_daily_dashboard_feishu_link_returns_read_only_trial_html(tmp_
 
     assert response.status_code == 200
     html = response.text
-    assert "运营日报看板" in html
+    assert "运营日报 BI" in html
     assert "经营链路" in html
     assert "维度工作台" in html
-    assert "车型 / EX7" in html
     assert "主播贡献" in html
     assert "账号 / 渠道" in html
     assert "成本效率" in html
+    assert "历史趋势" in html
+    assert "月度对比" in html
     assert 'id="decision"' in html
     assert 'id="workbench"' in html
+    assert 'id="daily-bi-trends"' in html
     assert "今日判断" in html
     assert "核心 KPI" in html
     assert "重点关注" in html
     assert 'const API_PATH = "/dashboard/daily/2026-05-14"' in html
     assert 'data-api-path="/dashboard/daily/2026-05-14"' in html
+    assert "车型 / EX7" not in html
+    assert "EX7 专项" not in html
+    assert "到店数" in html
+    assert "字段未接入" not in html
     assert 'data-dashboard-mode="business"' in html
     assert 'method: "GET"' in html
     assert "N9-B READ-ONLY LINK TRIAL" not in html
