@@ -78,6 +78,7 @@ def main() -> None:
         resolved_inputs["monthly_targets"],
         explicit_report_date=args.report_date,
     )
+    seed_workbook_path = resolved_inputs.get("seed_live_ledger")
     manual_override_source_summary = inspect_manual_attribution_overrides(
         resolved_inputs["manual_attribution_overrides"],
         run_id=run_id,
@@ -310,6 +311,8 @@ def main() -> None:
         "--output-dashboard-source-tsv",
         str(reports_dir / f"feishu_dashboard_source_latest_{report_date_tag}.tsv"),
     ]
+    if seed_workbook_path:
+        export_step.extend(["--seed-workbook-file", str(seed_workbook_path)])
     subprocess.run(export_step, cwd=workspace, check=True, env=env)
     completed_steps.append(export_step)
 
@@ -338,6 +341,8 @@ def main() -> None:
         "--seed-targets-file",
         str(workspace / "config" / "seed_monthly_targets.csv"),
     ]
+    if seed_workbook_path:
+        verify_step.extend(["--seed-workbook-file", str(seed_workbook_path)])
     subprocess.run(verify_step, cwd=workspace, check=True, env=env)
     completed_steps.append(verify_step)
 

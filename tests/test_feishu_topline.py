@@ -37,3 +37,21 @@ def test_load_live_metrics_accepts_current_exposure_count_column() -> None:
     metrics = _load_live_metrics(live_df, {"ex7_rules": {"live_model_field_candidates": ["车型"]}})
 
     assert metrics["impressions"].tolist() == [2000]
+
+
+def test_load_live_metrics_prefers_exposure_person_when_count_and_people_both_exist() -> None:
+    live_df = pd.DataFrame(
+        [
+            {
+                "日期": "2026-06-07",
+                "消耗": 123.45,
+                "曝光次数": 2000,
+                "曝光人数": 1000,
+                "车型": "EX7",
+            }
+        ]
+    )
+
+    metrics = _load_live_metrics(live_df, {"ex7_rules": {"live_model_field_candidates": ["车型"]}})
+
+    assert metrics["impressions"].tolist() == [1000]

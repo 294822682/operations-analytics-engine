@@ -108,6 +108,37 @@
         "Sheet1"
       ]
     },
+    "seed_live_ledger": {
+      "label": "EXEED 星途台账",
+      "kind": "dynamic",
+      "directory": "源文件",
+      "glob_patterns": [
+        "*EXEED星途台账*.xlsx",
+        "*EXEED星途台账*.xls"
+      ],
+      "naming_regex": "",
+      "file_types": [
+        ".xlsx",
+        ".xls"
+      ],
+      "business_date_type": "none",
+      "allow_multiple_versions": true,
+      "selection_rule": "按文件修改时间优先",
+      "required_alias_keys": [
+        "live_date",
+        "live_account",
+        "live_host"
+      ],
+      "required_exact_fields": [
+        "曝光人数"
+      ],
+      "optional_alias_keys": [],
+      "recommended_exact_fields": [],
+      "preferred_sheets": [
+        "拆分",
+        "Sheet1"
+      ]
+    },
     "monthly_targets": {
       "label": "月目标配置",
       "kind": "fixed",

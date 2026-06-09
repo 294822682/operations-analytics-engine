@@ -179,6 +179,11 @@ def _check_naming(path: Path, contract: InputSourceContract) -> dict[str, object
 
 
 def _pick_latest_candidate(contract: InputSourceContract, candidates: list[Path]) -> tuple[Path, str]:
+    if contract.business_date_type == "none":
+        latest = sorted(candidates, key=lambda item: item.stat().st_mtime, reverse=True)[0]
+        selection_basis = contract.selection_rule or "按文件修改时间优先"
+        return latest, f"{selection_basis}；本次按文件修改时间选中"
+
     by_business_date: dict[str, list[Path]] = {}
     for path in candidates:
         business_date = _extract_business_date(path, contract)

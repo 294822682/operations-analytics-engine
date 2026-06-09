@@ -256,6 +256,16 @@ def _allocate_spend_to_anchors(leads_daily: pd.DataFrame, spend_month: pd.DataFr
     return spend_alloc[["date", "parent_account", "scope_name", "daily_spend"]].copy()
 
 
+def _spend_from_live_anchor_accounts(live_anchor_accounts: pd.DataFrame) -> pd.DataFrame:
+    columns = ["date", "parent_account", "scope_name", "daily_spend"]
+    if live_anchor_accounts.empty or "daily_spend" not in live_anchor_accounts.columns:
+        return pd.DataFrame(columns=columns)
+
+    spend = live_anchor_accounts[columns].copy()
+    spend["daily_spend"] = pd.to_numeric(spend["daily_spend"], errors="coerce").fillna(0.0)
+    return spend.groupby(["date", "parent_account", "scope_name"], as_index=False)["daily_spend"].sum()
+
+
 def _build_anchor_labels(
     leads_daily: pd.DataFrame,
     deals_daily: pd.DataFrame,
@@ -325,9 +335,11 @@ def build_anchor_panel(
 
     leads_daily = _explode_leads_by_anchor(fact, month_start, month_end)
     deals_daily = _explode_deals_by_anchor(fact, month_start, month_end)
-    spend_alloc = _allocate_spend_to_anchors(leads_daily, spend_month)
 
     live_anchor_accounts = live_anchor_accounts.copy() if live_anchor_accounts is not None else pd.DataFrame(columns=["date", "scope_name", "parent_account"])
+    spend_alloc = _spend_from_live_anchor_accounts(live_anchor_accounts)
+    if spend_alloc.empty:
+        spend_alloc = _allocate_spend_to_anchors(leads_daily, spend_month)
     schedule_keys = (
         live_anchor_accounts[["date", "scope_name", "parent_account"]].drop_duplicates()
         if not live_anchor_accounts.empty
