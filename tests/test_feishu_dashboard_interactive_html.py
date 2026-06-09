@@ -138,6 +138,14 @@ def test_render_feishu_link_dashboard_html_exposes_business_workbench_without_en
     assert "monthly-card daily-bi-month-card" in html
     assert "daily-bi-month-metrics" in html
     assert "日报详细版" in html
+    assert "范围查询" in html
+    assert 'id="business-range-query" action="/dashboard/daily/trends/prototype" method="get"' in html
+    assert 'id="business-start-date" name="start_date" type="date" required' in html
+    assert 'id="business-end-date" name="end_date" type="date" required' in html
+    assert "三个月内任意时间段，单次查看上限 92 天。" in html
+    assert "function bindBusinessRangeQuery(payload)" in html
+    assert "businessTrendPrototypePath(startInput.value, endInput.value)" in html
+    assert "单次查看范围建议不超过一个季度，请缩小日期范围。" in html
     assert "历史趋势 · dashboard source TSV" not in html
     assert "dashboard source TSV</div>" not in html
     assert 'IS_BUSINESS_MODE ? "" : `<span>${escapeHtml(step.key)}</span>`' in html

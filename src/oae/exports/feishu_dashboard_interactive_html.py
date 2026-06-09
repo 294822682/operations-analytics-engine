@@ -290,10 +290,20 @@ def render_api_connected_dashboard_html(
           <option value="latest">latest</option>
         </select>
       </label>
-      <div class="business-scope-note">
-        <span>工作台范围</span>
-        <strong>现有日报数据</strong>
-      </div>
+      <form class="business-range-query" id="business-range-query" action="/dashboard/daily/trends/prototype" method="get" aria-label="范围查询">
+        <div class="business-range-fields">
+          <label for="business-start-date">
+            <span>开始日期</span>
+            <input id="business-start-date" name="start_date" type="date" required>
+          </label>
+          <label for="business-end-date">
+            <span>结束日期</span>
+            <input id="business-end-date" name="end_date" type="date" required>
+          </label>
+          <button type="submit">查询范围</button>
+        </div>
+        <p id="business-range-summary">三个月内任意时间段，单次查看上限 92 天。</p>
+      </form>
     </div>
         """
         if business_view
@@ -1636,6 +1646,68 @@ function dashboardPathForSelection(value) {{
   return value === "latest" ? "/dashboard/daily/latest" : `/dashboard/daily/${{value}}`;
 }}
 
+function businessPadDate(value) {{
+  return value.toISOString().slice(0, 10);
+}}
+
+function businessQuarterWindowStart(endDate) {{
+  const end = new Date(`${{endDate}}T00:00:00`);
+  if (Number.isNaN(end.getTime())) return "";
+  return businessPadDate(new Date(end.getFullYear(), end.getMonth() - 2, 1));
+}}
+
+function businessRangeDays(startDate, endDate) {{
+  if (!startDate || !endDate) return 0;
+  const start = new Date(`${{startDate}}T00:00:00`);
+  const end = new Date(`${{endDate}}T00:00:00`);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0;
+  return Math.floor((end - start) / 86400000) + 1;
+}}
+
+function businessTrendPrototypePath(startDate, endDate) {{
+  const url = new URL("/dashboard/daily/trends/prototype", window.location.origin);
+  url.searchParams.set("start_date", startDate);
+  url.searchParams.set("end_date", endDate);
+  return `${{url.pathname}}${{url.search}}`;
+}}
+
+function bindBusinessRangeQuery(payload) {{
+  const form = document.getElementById("business-range-query");
+  if (!form) return;
+  const startInput = document.getElementById("business-start-date");
+  const endInput = document.getElementById("business-end-date");
+  const summary = document.getElementById("business-range-summary");
+  const reportDate = payload?.report_date || "";
+  if (reportDate && !endInput.value) endInput.value = reportDate;
+  if (reportDate && !startInput.value) startInput.value = businessQuarterWindowStart(reportDate);
+  if (reportDate) {{
+    startInput.max = reportDate;
+    endInput.max = reportDate;
+  }}
+  const updateSummary = () => {{
+    const days = businessRangeDays(startInput.value, endInput.value);
+    summary.textContent = days > 0 ? `当前范围：${{startInput.value}} 至 ${{endInput.value}}；查看天数：${{days}} / 92` : "三个月内任意时间段，单次查看上限 92 天。";
+  }};
+  updateSummary();
+  if (form.dataset.bound) return;
+  form.addEventListener("submit", (event) => {{
+    event.preventDefault();
+    const days = businessRangeDays(startInput.value, endInput.value);
+    if (days <= 0) {{
+      summary.textContent = "请选择有效的开始日期和结束日期。";
+      return;
+    }}
+    if (days > 92) {{
+      summary.textContent = "单次查看范围建议不超过一个季度，请缩小日期范围。";
+      return;
+    }}
+    window.location.href = businessTrendPrototypePath(startInput.value, endInput.value);
+  }});
+  startInput.addEventListener("change", updateSummary);
+  endInput.addEventListener("change", updateSummary);
+  form.dataset.bound = "true";
+}}
+
 function isDashboardReadOnlyPath(path) {{
   return path === "/dashboard/daily/latest" || /^\\/dashboard\\/daily\\/\\d{{4}}-\\d{{2}}-\\d{{2}}$/.test(path);
 }}
@@ -1949,6 +2021,7 @@ function renderDashboard(payload) {{
   document.querySelector("h1").textContent = `${{PAGE_TITLE_PREFIX}} · ${{payload.report_date}}`;
   renderMetadata(payload);
   populateDateSelect(payload);
+  bindBusinessRangeQuery(payload);
   renderDecision(payload);
   renderOverview(payload);
   renderFunnel(payload);
@@ -4679,12 +4752,14 @@ body[data-dashboard-mode="business"] .subtitle {
 }
 body[data-dashboard-mode="business"] .dashboard-meta div,
 body[data-dashboard-mode="business"] .date-switch,
+body[data-dashboard-mode="business"] .business-range-query,
 body[data-dashboard-mode="business"] .business-scope-note {
   border: 1px solid var(--line);
   background: #ffffff;
 }
 body[data-dashboard-mode="business"] .dashboard-meta span,
 body[data-dashboard-mode="business"] .date-switch span,
+body[data-dashboard-mode="business"] .business-range-query span,
 body[data-dashboard-mode="business"] .business-scope-note span {
   color: var(--muted);
 }
@@ -4693,9 +4768,56 @@ body[data-dashboard-mode="business"] .business-scope-note strong {
   color: var(--ink);
 }
 body[data-dashboard-mode="business"] .topbar-tools {
-  min-width: 420px;
-  grid-template-columns: minmax(180px, 220px) minmax(160px, 220px);
+  min-width: 640px;
+  grid-template-columns: minmax(170px, 210px) minmax(420px, 1fr);
   align-content: end;
+}
+.business-range-query {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+}
+.business-range-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(135px, 1fr)) auto;
+  gap: 8px;
+  align-items: end;
+}
+.business-range-fields label {
+  display: grid;
+  gap: 6px;
+}
+.business-range-fields span {
+  font-size: 12px;
+  font-weight: 800;
+}
+.business-range-fields input,
+.business-range-fields button {
+  min-height: 34px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+}
+.business-range-fields input {
+  padding: 0 9px;
+}
+.business-range-fields button {
+  padding: 0 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.business-range-fields button:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: var(--soft-teal);
+}
+.business-range-query p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 .business-scope-note {
   display: block;
@@ -6532,6 +6654,8 @@ body[data-dashboard-mode="trend"] .trend-spark .spark-gap {
 	  .range-message { grid-column: 1 / -1; }
   .topbar-tools { display: grid; grid-template-columns: 1fr; margin-top: 18px; }
   body[data-dashboard-mode="business"] .topbar-tools { min-width: 0; grid-template-columns: 1fr; }
+  .business-range-fields { grid-template-columns: 1fr; }
+  .business-range-fields button { width: 100%; }
   .source-pill,
   .trend-boundary-card { margin-top: 18px; min-width: 0; max-width: none; }
   .nav { padding: 0 12px; overflow-x: auto; }

@@ -1233,6 +1233,14 @@ def test_get_latest_daily_dashboard_feishu_link_returns_read_only_trial_html(tmp
     assert 'const API_PATH = "/dashboard/daily/latest"' in html
     assert 'data-api-path="/dashboard/daily/latest"' in html
     assert 'data-dashboard-mode="business"' in html
+    assert "范围查询" in html
+    assert 'id="business-range-query" action="/dashboard/daily/trends/prototype" method="get"' in html
+    assert 'id="business-start-date" name="start_date" type="date" required' in html
+    assert 'id="business-end-date" name="end_date" type="date" required' in html
+    assert "三个月内任意时间段，单次查看上限 92 天。" in html
+    assert "function bindBusinessRangeQuery(payload)" in html
+    assert "businessTrendPrototypePath(startInput.value, endInput.value)" in html
+    assert "单次查看范围建议不超过一个季度，请缩小日期范围。" in html
     assert 'method: "GET"' in html
     assert 'method: "POST"' not in html
     assert 'function isDashboardReadOnlyPath(path)' in html
@@ -1295,6 +1303,11 @@ def test_get_dated_daily_dashboard_feishu_link_returns_read_only_trial_html(tmp_
     assert "到店数" in html
     assert "字段未接入" not in html
     assert 'data-dashboard-mode="business"' in html
+    assert "范围查询" in html
+    assert 'id="business-range-query" action="/dashboard/daily/trends/prototype" method="get"' in html
+    assert 'id="business-start-date" name="start_date" type="date" required' in html
+    assert 'id="business-end-date" name="end_date" type="date" required' in html
+    assert "三个月内任意时间段，单次查看上限 92 天。" in html
     assert 'method: "GET"' in html
     assert "N9-B READ-ONLY LINK TRIAL" not in html
     assert "Source path" not in html
