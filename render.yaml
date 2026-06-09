@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: operations-analytics-engine-bi
+    runtime: python
+    plan: starter
+    buildCommand: python -m pip install --upgrade pip && python -m pip install -r requirements-fastapi.txt
+    startCommand: uvicorn oae.api.dashboard_app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHONPATH
+        value: src
+      - key: OAE_REPO_ROOT
+        value: /opt/render/project/src
+      - key: OAE_RUNS_ROOT
+        value: /opt/render/project/src/artifacts/runs
+    disk:
+      name: oae-dashboard-output
+      mountPath: /opt/render/project/src/output
+      sizeGB: 1
