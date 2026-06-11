@@ -1,6 +1,7 @@
 # Local Python/tooling state
 .venv/
 .pytest_cache/
+.codegraph/
 __pycache__/
 *.py[cod]
 
