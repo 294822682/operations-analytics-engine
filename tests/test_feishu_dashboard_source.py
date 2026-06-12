@@ -14,6 +14,7 @@ from oae.exports.feishu_dashboard_source import (
     dashboard_source_tsv,
 )
 from oae.exports.feishu_manifest import write_feishu_manifests
+from oae.exports.feishu_report import _build_visit_dashboard_source_tables
 from oae.exports.feishu_topline import FullAccountTopline, SegmentTopline, ToplineSummary
 
 
@@ -28,9 +29,13 @@ def test_build_dashboard_source_rows_preserves_release_metrics_for_trends_contra
     assert rows
     assert set(rows[0]) == set(DASHBOARD_SOURCE_COLUMNS)
     assert _find(rows, "topline", "department", "全量", "impressions")["actual"] == "24286300"
+    assert _find(rows, "topline", "department", "全量", "mtd_unique_leads")["actual"] == "22361"
+    assert _find(rows, "topline", "department", "全量", "mtd_unique_leads")["metric_name"] == "风车线索（去重）"
+    assert _find(rows, "topline", "department", "全量", "mtd_deals")["actual"] == "69"
     assert _find(rows, "topline", "department", "全量", "mtd_spend")["actual"] == "784252.48"
-    assert _find(rows, "topline", "department", "全量", "mtd_cpl")["actual"] == "34.58"
-    assert _find(rows, "topline", "department", "全量", "mtd_cps")["actual"] == "8618.16"
+    assert _find(rows, "topline", "department", "全量", "mtd_cpl")["actual"] == "35.07"
+    assert _find(rows, "topline", "department", "全量", "mtd_cps")["actual"] == "11365.98"
+    assert _find(rows, "topline", "department", "全量", "mtd_cpl")["source_column"] == "账号层（母集）.线索组汇总.实际CPL"
 
     account_cpl = _find(rows, "lead_account", "account", "星途汽车直播营销中心", "mtd_cpl")
     assert account_cpl["actual"] == "41.22"
@@ -58,6 +63,25 @@ def test_dashboard_source_tsv_uses_stable_header_and_utf8_tsv_roundtrip() -> Non
     assert _find(parsed, "lead_anchor", "anchor", "徐欣悦", "mtd_cps")["actual"] == "10076.77"
 
 
+def test_build_dashboard_source_rows_keeps_blank_summary_unit_costs_from_topline_fallback() -> None:
+    account_table = _release_account_table()
+    summary_mask = account_table["账号"].astype(str).eq("线索组汇总")
+    account_table.loc[summary_mask, "累计线索"] = "0"
+    account_table.loc[summary_mask, "实际CPL"] = ""
+
+    rows = build_dashboard_source_rows(
+        report_date="2026-05-01",
+        topline_summary=_release_topline_summary(),
+        account_table=account_table,
+        anchor_table=_release_anchor_table(),
+    )
+
+    cpl = _find(rows, "topline", "department", "全量", "mtd_cpl")
+    assert cpl["actual"] == ""
+    assert cpl["target"] == "30.51"
+    assert cpl["source_column"] == "账号层（母集）.线索组汇总.实际CPL"
+
+
 def test_build_dashboard_source_rows_includes_seed_quality_and_order_contract_rows() -> None:
     rows = build_dashboard_source_rows(
         report_date="2026-05-28",
@@ -71,7 +95,7 @@ def test_build_dashboard_source_rows_includes_seed_quality_and_order_contract_ro
 
     topline_laike = _find(rows, "topline", "department", "全量", "mtd_douyin_laike_orders")
     assert topline_laike["actual"] == "90"
-    assert topline_laike["metric_name"] == "抖音-来客线索（手机号去重）"
+    assert topline_laike["metric_name"] == "抖音来客订单（去重）"
     assert topline_laike["unit"] == "条"
     assert _find(rows, "lead_account", "account", "星途汽车直播营销中心", "mtd_douyin_laike_orders")["actual"] == "38"
     assert _find(rows, "lead_anchor", "anchor", "徐欣悦", "mtd_douyin_laike_orders")["actual"] == "20"
@@ -80,6 +104,120 @@ def test_build_dashboard_source_rows_includes_seed_quality_and_order_contract_ro
     assert _find(rows, "lead_quality", "department", "全量", "raw_leads")["actual"] == "24759"
     assert _find(rows, "lead_quality", "department", "全量", "unique_rate")["actual"] == "0.9161"
     assert _find(rows, "lead_quality", "department", "全量", "manual_affected_rows")["actual"] == "19"
+
+
+def test_build_dashboard_source_rows_includes_visit_contract_rows_when_supplied() -> None:
+    rows = build_dashboard_source_rows(
+        report_date="2026-05-28",
+        topline_summary=_release_topline_summary(),
+        account_table=_release_account_table_with_orders(),
+        anchor_table=_release_anchor_table_with_orders(),
+        visit_account_table=_release_visit_account_table(),
+        visit_anchor_table=_release_visit_anchor_table(),
+    )
+
+    account_visits = _find(rows, "lead_account", "account", "星途汽车直播营销中心", "visits")
+    assert account_visits["actual"] == "12"
+    assert account_visits["metric_name"] == "到店数"
+    assert account_visits["unit"] == "条"
+    assert account_visits["source_column"] == "到店补充.星途汽车直播营销中心.到店数"
+    assert _find(rows, "lead_account", "account", "星途汽车直播营销中心", "visit_deals")["actual"] == "6"
+    assert _find(rows, "lead_account", "account", "星途汽车直播营销中心", "visit_rate")["actual"] == "0.24"
+    assert _find(rows, "lead_account", "account", "星途汽车直播营销中心", "visit_deal_rate")["actual"] == "0.5"
+
+    anchor_visits = _find(rows, "lead_anchor", "anchor", "徐欣悦", "visits")
+    assert anchor_visits["actual"] == "3"
+    assert anchor_visits["parent_scope"] == "星途汽车直播营销中心"
+    assert _find(rows, "lead_anchor", "anchor", "徐欣悦", "visit_deals")["actual"] == "2"
+    assert _find(rows, "lead_anchor", "anchor", "徐欣悦", "visit_rate")["actual"] == "0.15"
+    assert _find(rows, "lead_anchor", "anchor", "徐欣悦", "visit_deal_rate")["actual"] == "0.6667"
+
+
+def test_visit_account_rows_use_dashboard_account_names_and_include_summary() -> None:
+    account_table = _release_account_table_with_orders()
+    account_table.loc[0, "累计线索"] = "50"
+    account_table.loc[0, "累计实销"] = "6"
+    account_table.loc[1, "累计线索"] = "50"
+    account_table.loc[1, "累计实销"] = "6"
+    visit_account_table = pd.DataFrame(
+        [
+            {
+                "账号": "抖音-星途汽车直播营销中心",
+                "到店数": "12",
+                "到店成交数": "6",
+                "到店率": "24.00%",
+                "到店成交率": "50.00%",
+            },
+            {
+                "账号": "快手-EXEED星途",
+                "到店数": "7",
+                "到店成交数": "1",
+                "到店率": "10.00%",
+                "到店成交率": "20.00%",
+            },
+        ]
+    )
+
+    rows = build_dashboard_source_rows(
+        report_date="2026-05-28",
+        topline_summary=_release_topline_summary(),
+        account_table=account_table,
+        anchor_table=_release_anchor_table_with_orders(),
+        visit_account_table=visit_account_table,
+    )
+
+    account_visits = _find(rows, "lead_account", "account", "星途汽车直播营销中心", "visits")
+    assert account_visits["actual"] == "12"
+    assert account_visits["source_column"] == "到店补充.星途汽车直播营销中心.到店数"
+    assert _find(rows, "lead_account", "account", "星途汽车直播营销中心", "visit_deals")["actual"] == "6"
+    assert _find(rows, "lead_account", "account", "星途汽车直播营销中心", "visit_rate")["actual"] == "0.24"
+    assert _find(rows, "lead_account", "account", "星途汽车直播营销中心", "visit_deal_rate")["actual"] == "0.5"
+    assert _maybe_find(rows, "lead_account", "account", "抖音-星途汽车直播营销中心", "visits") is None
+    assert _maybe_find(rows, "lead_account", "account", "快手-EXEED星途", "visits") is None
+    assert _find(rows, "lead_account", "account", "线索组汇总", "visits")["actual"] == "12"
+    assert _find(rows, "lead_account", "account", "线索组汇总", "visit_deals")["actual"] == "6"
+    assert _find(rows, "lead_account", "account", "线索组汇总", "visit_rate")["actual"] == "0.24"
+    assert _find(rows, "lead_account", "account", "线索组汇总", "visit_deal_rate")["actual"] == "0.5"
+
+
+def test_visit_dashboard_source_tables_use_same_lead_visit_and_raw_deal_intersection() -> None:
+    fact = pd.DataFrame(
+        [
+            _visit_fact_row("L1", "2026-05-29", account="抖音-星途汽车官方直播间"),
+            _visit_fact_row("L2", "2026-05-29", account="抖音-星途汽车官方直播间"),
+            _visit_fact_row("L3", "2026-05-29", account="抖音-星途汽车官方直播间"),
+        ]
+    )
+    leads_source = pd.DataFrame(
+        [
+            {"线索ID": "L1", "创建日期": "2026-05-29", "到店日期": "2026-05-29", "成交车型": "TXL"},
+            {"线索ID": "L2", "创建日期": "2026-05-29", "到店日期": "", "成交车型": "TXL"},
+            {"线索ID": "L3", "创建日期": "2026-05-29", "到店日期": "", "成交车型": "TXL"},
+        ]
+    )
+    deals_source = pd.DataFrame(
+        [
+            {"线索ID": "L1", "下订日期": "2026-05-29", "成交车型": "TXL"},
+            {"线索ID": "L3", "下订日期": "2026-05-29", "成交车型": "TXL"},
+        ]
+    )
+
+    account_table, anchor_table = _build_visit_dashboard_source_tables(
+        fact=fact,
+        leads_source=leads_source,
+        deals_source=deals_source,
+        report_date=pd.Timestamp("2026-05-29"),
+    )
+
+    account = account_table[account_table["账号"].astype(str).eq("抖音-星途汽车官方直播间")].iloc[0]
+    anchor = anchor_table[anchor_table["主播"].astype(str).eq("丁俐佳")].iloc[0]
+    assert account["到店数"] == 1.0
+    assert account["到店成交数"] == 1.0
+    assert account["到店率"] == 1 / 3
+    assert account["到店成交率"] == 1.0
+    assert anchor["到店数"] == 1.0
+    assert anchor["到店成交数"] == 1.0
+    assert anchor["到店成交率"] == 1.0
 
 
 def test_write_feishu_manifests_includes_dashboard_source_contract(tmp_path: Path) -> None:
@@ -270,6 +408,53 @@ def _release_seed_anchor_table() -> pd.DataFrame:
     )
 
 
+def _release_visit_account_table() -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "账号": "星途汽车直播营销中心",
+                "到店数": "12",
+                "到店成交数": "6",
+                "到店率": "24.00%",
+                "到店成交率": "50.00%",
+            }
+        ]
+    )
+
+
+def _release_visit_anchor_table() -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "主播": "徐欣悦",
+                "归属账号": "星途汽车直播营销中心",
+                "到店数": "3",
+                "到店成交数": "2",
+                "到店率": "15.00%",
+                "到店成交率": "66.67%",
+            }
+        ]
+    )
+
+
+def _visit_fact_row(lead_id: str, date: str, *, account: str, host: str = "丁俐佳") -> dict[str, str]:
+    return {
+        "线索ID": lead_id,
+        "线索ID_norm": lead_id,
+        "手机号": f"137{abs(hash(lead_id)) % 100000000:08d}",
+        "线索创建时间": f"{date} 10:00:00",
+        "date": date,
+        "标准账号": account,
+        "本场主播": host,
+        "订单状态": "",
+        "成交时间": "",
+        "is_order": "0",
+        "is_deal": "0",
+        "成交车型": "TXL",
+        "is_perf_lead_scope": "1",
+    }
+
+
 def _find(
     rows: list[dict[str, str]],
     source_table: str,
@@ -277,6 +462,19 @@ def _find(
     scope_name: str,
     metric_key: str,
 ) -> dict[str, str]:
+    row = _maybe_find(rows, source_table, scope_type, scope_name, metric_key)
+    if row is not None:
+        return row
+    raise AssertionError(f"missing row: {source_table}/{scope_type}/{scope_name}/{metric_key}")
+
+
+def _maybe_find(
+    rows: list[dict[str, str]],
+    source_table: str,
+    scope_type: str,
+    scope_name: str,
+    metric_key: str,
+) -> dict[str, str] | None:
     for row in rows:
         if (
             row["source_table"] == source_table
@@ -285,4 +483,4 @@ def _find(
             and row["metric_key"] == metric_key
         ):
             return row
-    raise AssertionError(f"missing row: {source_table}/{scope_type}/{scope_name}/{metric_key}")
+    return None

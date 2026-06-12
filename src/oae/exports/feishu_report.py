@@ -54,6 +54,7 @@ from oae.exports.feishu_topline import (
     resolve_latest_source_file,
 )
 from oae.overrides import load_fact_with_manual_overrides
+from oae.services.dashboard_daily_service import DashboardDailyService
 from oae.version import METRIC_VERSION, SCHEMA_VERSION, TEMPLATE_VERSION, build_run_id
 
 
@@ -131,6 +132,99 @@ def _attach_douyin_laike_order_metrics(
     anc = _merge_metric_by_scope(anchor_panel, anchor_orders)
     anc = _attach_order_attain(anc)
     return acc, anc, float(total_orders)
+
+
+def _build_visit_dashboard_source_tables(
+    *,
+    fact: pd.DataFrame,
+    leads_source: pd.DataFrame,
+    deals_source: pd.DataFrame,
+    report_date: pd.Timestamp,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    visit_source_available = any(column in fact.columns for column in ("到店日期", "到店时间")) or any(
+        column in leads_source.columns for column in ("到店日期", "到店时间")
+    )
+    if fact.empty or not visit_source_available:
+        return pd.DataFrame(), pd.DataFrame()
+
+    service = DashboardDailyService(repo_root=Path.cwd())
+    report_date_str = report_date.strftime("%Y-%m-%d")
+    prepared_fact = service._prepare_fact_for_trends(fact, raw_leads=leads_source, raw_deals=deals_source)
+    window = service._month_to_date_window(report_date_str)
+    context = service._business_window_context(
+        fact=prepared_fact,
+        raw_deals=deals_source,
+        live_sessions=pd.DataFrame(),
+        seed_sessions=pd.DataFrame(),
+        start_date=window["start_date"],
+        end_date=window["end_date"],
+    )
+    if context["lead_rows"].empty and context["visit_rows"].empty and context["deal_rows"].empty:
+        return pd.DataFrame(), pd.DataFrame()
+
+    empty_targets = pd.DataFrame()
+    accounts = service._entity_summaries(
+        "account",
+        context["date_strings"],
+        lead_rows=context["lead_rows"],
+        visit_rows=context["visit_rows"],
+        deal_rows=context["deal_rows"],
+        spend_rows=pd.DataFrame(),
+        targets=empty_targets,
+        window=window,
+    )
+    anchors = service._entity_summaries(
+        "anchor",
+        context["date_strings"],
+        lead_rows=context["lead_rows"],
+        visit_rows=context["visit_rows"],
+        deal_rows=context["deal_rows"],
+        spend_rows=pd.DataFrame(),
+        targets=empty_targets,
+        window=window,
+    )
+    return _visit_table_from_entities(accounts, name_column="账号"), _visit_table_from_entities(
+        anchors,
+        name_column="主播",
+        parent_column="归属账号",
+    )
+
+
+def _visit_table_from_entities(
+    entities: list[dict[str, object]],
+    *,
+    name_column: str,
+    parent_column: str = "",
+) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+    for entity in entities:
+        name = str(entity.get("name") or "").strip()
+        if not name:
+            continue
+        metrics = entity.get("metrics", {})
+        if not isinstance(metrics, dict):
+            continue
+        row: dict[str, object] = {name_column: name}
+        if parent_column:
+            row[parent_column] = str(entity.get("parent_scope") or "").strip()
+        has_visit_metric = False
+        for column, metric_key in [
+            ("到店数", "visits"),
+            ("到店成交数", "visit_deals"),
+            ("到店率", "visit_rate"),
+            ("到店成交率", "visit_deal_rate"),
+        ]:
+            metric = metrics.get(metric_key)
+            if not isinstance(metric, dict):
+                continue
+            actual = metric.get("actual")
+            if actual is None:
+                continue
+            row[column] = actual
+            has_visit_metric = True
+        if has_visit_metric:
+            rows.append(row)
+    return pd.DataFrame(rows)
 
 
 def _expand_search_dirs(base_dirs: list[Path]) -> list[Path]:
@@ -321,6 +415,12 @@ def main() -> None:
         live_file_label=(live_path.stem if live_path.exists() else "直播进度表"),
         manual_override_summary=manual_override_summary,
     )
+    visit_acc_tsv_out, visit_anc_tsv_out = _build_visit_dashboard_source_tables(
+        fact=fact,
+        leads_source=leads_source,
+        deals_source=deals_source,
+        report_date=report_date,
+    )
 
     acc_out = account_table(acc, target_accounts=target_accounts)
     anc_out = anchor_table(anc)
@@ -361,6 +461,8 @@ def main() -> None:
         anchor_table=anc_tsv_out,
         seed_account_table=seed_acc_tsv_out,
         seed_anchor_table=seed_anc_tsv_out,
+        visit_account_table=visit_acc_tsv_out,
+        visit_anchor_table=visit_anc_tsv_out,
         lead_quality_line=lead_quality_line,
     )
     dashboard_source_content = dashboard_source_tsv(dashboard_source_rows)

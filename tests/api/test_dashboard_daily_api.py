@@ -509,11 +509,11 @@ def test_get_daily_dashboard_trends_supplements_visit_metrics_without_ex7_from_d
         _minimal_dashboard_source_rows(
             "2026-05-29",
             accounts=[
-                {"name": "线索组汇总", "leads": 2, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
-                {"name": "星途汽车官方直播间", "leads": 2, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
+                {"name": "线索组汇总", "leads": 3, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
+                {"name": "星途汽车官方直播间", "leads": 3, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
             ],
             anchors=[
-                {"name": "丁俐佳", "parent_scope": "星途汽车官方直播间", "leads": 2, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
+                {"name": "丁俐佳", "parent_scope": "星途汽车官方直播间", "leads": 3, "deals": 1, "spend": 100, "cpl": 50, "cps": 100},
             ],
         ),
     )
@@ -522,6 +522,7 @@ def test_get_daily_dashboard_trends_supplements_visit_metrics_without_ex7_from_d
         [
             _fact_row("L1", date="2026-05-29", account="抖音-星途汽车官方直播间", model="EX7", host="丁俐佳", deal_time="2026-05-29 12:00:00"),
             _fact_row("L2", date="2026-05-29", account="抖音-星途汽车官方直播间", model="TXL", host="丁俐佳"),
+            _fact_row("L3", date="2026-05-29", account="抖音-星途汽车官方直播间", model="TXL", host="丁俐佳", deal_time="2026-05-29 14:00:00"),
         ],
     )
     _write_raw_leads_csv(
@@ -529,6 +530,7 @@ def test_get_daily_dashboard_trends_supplements_visit_metrics_without_ex7_from_d
         [
             {"线索ID": "L1", "创建日期": "2026-05-29", "到店日期": "2026-05-29", "成交车型": "EX7"},
             {"线索ID": "L2", "创建日期": "2026-05-29", "到店日期": "", "成交车型": "TXL"},
+            {"线索ID": "L3", "创建日期": "2026-05-29", "到店日期": "", "成交车型": "TXL"},
         ],
     )
     app = create_test_app(repo_root, runs_root)
@@ -540,7 +542,7 @@ def test_get_daily_dashboard_trends_supplements_visit_metrics_without_ex7_from_d
     payload = response.json()
     account = next(item for item in payload["account_summary"] if item["name"] == "星途汽车官方直播间")
     assert account["metrics"]["visits"]["actual"] == 1.0
-    assert account["metrics"]["visit_rate"]["actual"] == pytest.approx(0.5)
+    assert account["metrics"]["visit_rate"]["actual"] == pytest.approx(1 / 3)
     assert account["metrics"]["visit_deal_rate"]["actual"] == pytest.approx(1.0)
     assert account["metrics"]["visits"]["source"] == "fact_attribution + 总部新媒体线索到店日期"
     assert "到店" in account["metric_groups"]
@@ -549,7 +551,7 @@ def test_get_daily_dashboard_trends_supplements_visit_metrics_without_ex7_from_d
 
     line_summary = next(item for item in payload["account_summary"] if item["name"] == "线索组汇总")
     assert line_summary["metrics"]["visits"]["actual"] == 1.0
-    assert line_summary["metrics"]["visit_rate"]["actual"] == pytest.approx(0.5)
+    assert line_summary["metrics"]["visit_rate"]["actual"] == pytest.approx(1 / 3)
     assert line_summary["metrics"]["visit_deal_rate"]["actual"] == pytest.approx(1.0)
     assert "到店" in line_summary["metric_groups"]
     assert {"ex7_leads", "ex7_deals", "ex7_deal_rate"}.isdisjoint(line_summary["metrics"])
@@ -557,7 +559,7 @@ def test_get_daily_dashboard_trends_supplements_visit_metrics_without_ex7_from_d
 
     anchor = next(item for item in payload["anchor_summary"] if item["name"] == "丁俐佳")
     assert anchor["metrics"]["visits"]["actual"] == 1.0
-    assert anchor["metrics"]["visit_rate"]["actual"] == pytest.approx(0.5)
+    assert anchor["metrics"]["visit_rate"]["actual"] == pytest.approx(1 / 3)
     assert anchor["metrics"]["visit_deal_rate"]["actual"] == pytest.approx(1.0)
     assert "到店" in anchor["metric_groups"]
     assert {"ex7_leads", "ex7_deals", "ex7_deal_rate"}.isdisjoint(anchor["metrics"])

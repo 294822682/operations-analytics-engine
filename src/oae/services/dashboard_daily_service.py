@@ -742,10 +742,11 @@ class DashboardDailyService:
             return None
         metrics = source_entity.get("metrics", {})
         leads = cls._json_number(metrics.get("leads", {}).get("actual"))
-        deals = cls._json_number(metrics.get("deals", {}).get("actual"))
+        visit_deals = cls._sum_metric_actuals(supplemental_entities, "visit_deals")
         return {
             "metrics": {
                 "visits": cls._metric_summary("visits", "到店数", visits, None, "条", source=VISIT_DETAIL_SOURCE_LABEL),
+                "visit_deals": cls._metric_summary("visit_deals", "到店成交数", visit_deals, None, "台", source=VISIT_DETAIL_SOURCE_LABEL),
                 "visit_rate": cls._metric_summary(
                     "visit_rate",
                     "到店率",
@@ -757,7 +758,7 @@ class DashboardDailyService:
                 "visit_deal_rate": cls._metric_summary(
                     "visit_deal_rate",
                     "到店成交率",
-                    cls._safe_div_value(deals, visits),
+                    cls._safe_div_value(visit_deals, visits),
                     None,
                     "比例",
                     source=VISIT_DETAIL_SOURCE_LABEL,
@@ -1357,6 +1358,9 @@ class DashboardDailyService:
             return cls._empty_deal_rows()
         combined = pd.concat(frames, ignore_index=True, sort=False)
         combined["deal_date"] = pd.to_datetime(combined["deal_date"], errors="coerce").dt.normalize()
+        if "visit_date" not in combined.columns:
+            combined["visit_date"] = pd.NaT
+        combined["visit_date"] = pd.to_datetime(combined["visit_date"], errors="coerce").dt.normalize()
         combined["线索ID_norm"] = combined.get("线索ID_norm", pd.Series("", index=combined.index)).astype(str).str.strip()
         combined = combined[combined["deal_date"].notna() & combined["线索ID_norm"].ne("")]
         if combined.empty:
@@ -1371,6 +1375,7 @@ class DashboardDailyService:
         return pd.DataFrame(
             columns=[
                 "deal_date",
+                "visit_date",
                 "线索ID_norm",
                 "_perf_lead_key",
                 "is_deal",
@@ -1389,7 +1394,7 @@ class DashboardDailyService:
         source = raw_deals.copy()
         source.columns = [str(column).strip() for column in source.columns]
         deal_date = pd.Series(pd.NaT, index=source.index, dtype="datetime64[ns]")
-        for column in ("成交日期", "成交时间"):
+        for column in ("成交日期", "成交时间", "下订日期", "下订时间"):
             if column in source.columns:
                 deal_date = deal_date.where(deal_date.notna(), pd.to_datetime(source[column], errors="coerce").dt.normalize())
         lead_ids = source["线索ID"].astype(str).str.strip()
@@ -1412,11 +1417,15 @@ class DashboardDailyService:
         if fact_lookup.empty:
             out["标准账号"] = cls._raw_deal_account_series(source.loc[out["_raw_row_index"]])
             out["本场主播"] = ""
+            out["visit_date"] = pd.NaT
         else:
             out = out.merge(fact_lookup, how="left", on="线索ID_norm")
             fallback_account = cls._raw_deal_account_series(source.loc[out["_raw_row_index"]])
             out["标准账号"] = out["标准账号"].where(out["标准账号"].astype(str).str.strip().ne(""), fallback_account.values)
             out["本场主播"] = out["本场主播"].fillna("").map(normalize_text)
+            if "visit_date" not in out.columns:
+                out["visit_date"] = pd.NaT
+        out["visit_date"] = pd.to_datetime(out["visit_date"], errors="coerce").dt.normalize()
         out["标准账号"] = out["标准账号"].fillna("").map(normalize_account)
         out["本场主播"] = out["本场主播"].fillna("").map(normalize_text)
         out["is_ex7_partition"] = cls._contains_ex7(out["成交车型"])
@@ -1446,12 +1455,24 @@ class DashboardDailyService:
                 "线索ID_norm": ids,
                 "标准账号": fact.get("标准账号", pd.Series("", index=fact.index)).fillna("").map(normalize_account),
                 "本场主播": fact.get("本场主播", pd.Series("", index=fact.index)).fillna("").map(normalize_text),
+                "visit_date": pd.to_datetime(fact.get("visit_date", pd.Series(pd.NaT, index=fact.index)), errors="coerce").dt.normalize(),
             }
         )
         lookup = lookup[lookup["线索ID_norm"].ne("")]
         if lookup.empty:
             return lookup
         return lookup.drop_duplicates(subset=["线索ID_norm"], keep="first")
+
+    @staticmethod
+    def _visit_deal_rows_for_window(deal_rows: pd.DataFrame, window: dict[str, Any]) -> pd.DataFrame:
+        if deal_rows.empty or "visit_date" not in deal_rows.columns:
+            return DashboardDailyService._empty_deal_rows()
+        data = deal_rows.copy()
+        data["visit_date"] = pd.to_datetime(data["visit_date"], errors="coerce").dt.normalize()
+        start_ts = pd.Timestamp(window["start_date"]).normalize()
+        end_ts = pd.Timestamp(window["end_date"]).normalize()
+        scoped = data[data["visit_date"].notna() & data["visit_date"].between(start_ts, end_ts)].copy()
+        return scoped if not scoped.empty else DashboardDailyService._empty_deal_rows()
 
     @staticmethod
     def _contains_ex7(series: pd.Series) -> pd.Series:
@@ -1691,10 +1712,12 @@ class DashboardDailyService:
         targets: pd.DataFrame,
         window: dict[str, Any],
     ) -> list[dict[str, Any]]:
+        visit_deal_rows = cls._visit_deal_rows_for_window(deal_rows, window)
         if scope_type == "account":
             lead_daily = cls._entity_daily_count(lead_rows, "date", "标准账号", "_perf_lead_key")
             visit_daily = cls._entity_daily_count(visit_rows, "visit_date", "标准账号", "_perf_lead_key")
             deal_daily = cls._entity_daily_count(deal_rows, "deal_date", "标准账号", "线索ID_norm")
+            visit_deal_daily = cls._entity_daily_count(visit_deal_rows, "deal_date", "标准账号", "线索ID_norm")
             ex7_lead_daily = cls._entity_daily_count(lead_rows[lead_rows["is_ex7_partition"]], "date", "标准账号", "_perf_lead_key")
             ex7_deal_daily = cls._entity_daily_count(deal_rows[deal_rows["is_ex7_partition"]], "deal_date", "标准账号", "线索ID_norm")
             spend_daily = cls._entity_session_daily(spend_rows, scope_type="account", value_col="spend")
@@ -1703,6 +1726,7 @@ class DashboardDailyService:
             lead_daily = cls._anchor_daily_count(lead_rows, "date", "_perf_lead_key")
             visit_daily = cls._anchor_daily_count(visit_rows, "visit_date", "_perf_lead_key")
             deal_daily = cls._anchor_daily_count(deal_rows, "deal_date", "线索ID_norm")
+            visit_deal_daily = cls._anchor_daily_count(visit_deal_rows, "deal_date", "线索ID_norm")
             ex7_lead_daily = cls._anchor_daily_count(lead_rows[lead_rows["is_ex7_partition"]], "date", "_perf_lead_key")
             ex7_deal_daily = cls._anchor_daily_count(deal_rows[deal_rows["is_ex7_partition"]], "deal_date", "线索ID_norm")
             spend_daily = cls._entity_session_daily(spend_rows, scope_type="anchor", value_col="spend")
@@ -1712,6 +1736,7 @@ class DashboardDailyService:
             set(lead_daily)
             | set(visit_daily)
             | set(deal_daily)
+            | set(visit_deal_daily)
             | set(ex7_lead_daily)
             | set(ex7_deal_daily)
             | set(spend_daily),
@@ -1729,6 +1754,7 @@ class DashboardDailyService:
             visits_raw = cls._sum_present(visit_daily.get(name, {}))
             visits = 0.0 if visits_raw is None else visits_raw
             deals = cls._sum_present(deal_daily.get(name, {}))
+            visit_deals = cls._sum_present(visit_deal_daily.get(name, {}))
             spend = cls._sum_present(spend_daily.get(name, {}))
             ex7_leads = cls._sum_present(ex7_lead_daily.get(name, {}))
             ex7_deals = cls._sum_present(ex7_deal_daily.get(name, {}))
@@ -1741,6 +1767,7 @@ class DashboardDailyService:
                 "leads": cls._metric_summary("leads", "线索数", leads, lead_target, "条"),
                 "unique_leads": cls._metric_summary("unique_leads", "唯一线索数", leads, lead_target, "条"),
                 "visits": cls._metric_summary("visits", "到店数", visits, None, "条", source=VISIT_DETAIL_SOURCE_LABEL),
+                "visit_deals": cls._metric_summary("visit_deals", "到店成交数", visit_deals, None, "台", source=VISIT_DETAIL_SOURCE_LABEL),
                 "visit_rate": cls._metric_summary(
                     "visit_rate",
                     "到店率",
@@ -1754,7 +1781,7 @@ class DashboardDailyService:
                 "visit_deal_rate": cls._metric_summary(
                     "visit_deal_rate",
                     "到店成交率",
-                    cls._safe_div_value(deals, visits),
+                    cls._safe_div_value(visit_deals, visits),
                     None,
                     "比例",
                     source=VISIT_DETAIL_SOURCE_LABEL,
