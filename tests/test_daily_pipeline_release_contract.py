@@ -78,6 +78,7 @@ def test_daily_report_required_artifacts_include_static_dashboard_visuals() -> N
     assert paths == [
         reports_dir / "feishu_report_latest_2026-06-05.md",
         reports_dir / "feishu_dashboard_source_latest_2026-06-05.tsv",
+        reports_dir / "source_truth_latest_2026-06-05.tsv",
         reports_dir / "feishu_dashboard_visual_p1_p5_long_compact_latest_2026-06-05.svg",
         reports_dir / "feishu_dashboard_visual_p1_p5_long_compact_latest_2026-06-05.png",
     ]

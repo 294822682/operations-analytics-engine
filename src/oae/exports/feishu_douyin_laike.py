@@ -45,7 +45,11 @@ def _build_douyin_laike_live_windows(live_df: pd.DataFrame, report_date: pd.Time
     raw.columns = [str(col).strip() for col in raw.columns]
 
     date_col = pick_col(raw, COLUMN_ALIASES["live_date"], required=False)
-    platform_col = pick_col(raw, ["平台&挂载组建", "平台& 挂载组建"], required=False)
+    platform_col = pick_col(
+        raw,
+        ["平台&挂载组件", "平台& 挂载组件", "平台&挂载组建", "平台& 挂载组建"],
+        required=False,
+    )
     if not date_col or not platform_col:
         return pd.DataFrame()
 

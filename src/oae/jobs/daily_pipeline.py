@@ -346,6 +346,36 @@ def main() -> None:
     subprocess.run(verify_step, cwd=workspace, check=True, env=env)
     completed_steps.append(verify_step)
 
+    source_truth_report_path = runs_dir / f"source_truth_report_{run_id}.json"
+    source_truth_tsv_path = reports_dir / f"source_truth_latest_{report_date_tag}.tsv"
+    source_truth_step = [
+        sys.executable,
+        "-m",
+        "oae.cli.verify_source_truth",
+        "--report-date",
+        report_date_tag,
+        "--live-file",
+        str(resolved_inputs["live_schedule"]),
+        "--leads-file",
+        str(resolved_inputs["leads_detail"]),
+        "--deals-file",
+        str(resolved_inputs["deals_detail"]),
+        "--dashboard-source-tsv",
+        str(reports_dir / f"feishu_dashboard_source_latest_{report_date_tag}.tsv"),
+        "--topline-config",
+        str(workspace / "config" / "report_topline_config.json"),
+        "--seed-targets-file",
+        str(workspace / "config" / "seed_monthly_targets.csv"),
+        "--output-json",
+        str(source_truth_report_path),
+        "--output-tsv",
+        str(source_truth_tsv_path),
+    ]
+    if seed_workbook_path:
+        source_truth_step.extend(["--seed-workbook-file", str(seed_workbook_path)])
+    subprocess.run(source_truth_step, cwd=workspace, check=True, env=env)
+    completed_steps.append(source_truth_step)
+
     output_files = [
         output_dir / "fact_attribution.csv",
         _pick_latest(reports_dir, "daily_goal_account_latest_*.csv"),
@@ -482,6 +512,8 @@ def main() -> None:
         "manual_override_issues": manual_override_issue_manifest,
         "manual_override_daily_digest_manifest": str(manual_override_daily_digest_path),
         "manual_override_daily_digest": manual_override_daily_digest,
+        "source_truth_report": str(source_truth_report_path),
+        "source_truth_tsv": str(source_truth_tsv_path),
         "steps": completed_steps,
     }
     doctor_manifest_path = runs_dir / f"doctor_manifest_{run_id}.json"
@@ -492,6 +524,7 @@ def main() -> None:
             *output_files,
             _pick_latest(reports_dir, "daily_goal_anchor_latest_*.csv"),
             *_daily_report_required_artifacts(reports_dir, report_date_tag),
+            source_truth_report_path,
             snapshot_csv,
             ledger_csv,
             analysis_snapshot_csv,
@@ -532,6 +565,7 @@ def _daily_report_required_artifacts(reports_dir: Path, report_date_tag: str) ->
     return [
         reports_dir / f"feishu_report_latest_{report_date_tag}.md",
         reports_dir / f"feishu_dashboard_source_latest_{report_date_tag}.tsv",
+        reports_dir / f"source_truth_latest_{report_date_tag}.tsv",
         reports_dir / f"feishu_dashboard_visual_p1_p5_long_compact_latest_{report_date_tag}.svg",
         reports_dir / f"feishu_dashboard_visual_p1_p5_long_compact_latest_{report_date_tag}.png",
     ]

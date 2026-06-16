@@ -11,6 +11,7 @@ import pandas as pd
 
 from oae.exports.feishu_panel_utils import ACCOUNT_LABEL_MAP
 from oae.performance.loader_utils import pick_live_column
+from oae.rules.account_mapping import normalize_account, remap_douyin_laike_channel3
 from oae.rules.file_discovery import pick_latest_file
 
 
@@ -198,6 +199,24 @@ def _parse_date_series(df: pd.DataFrame, field: str) -> pd.Series:
     return pd.to_datetime(df[field], errors="coerce").dt.normalize()
 
 
+def _pending_source_account_series(df: pd.DataFrame) -> pd.Series:
+    account = pd.Series("", index=df.index, dtype="object")
+    if "渠道2" in df.columns:
+        channel2_raw = df["渠道2"].fillna("").astype(str).str.strip()
+        account = channel2_raw.map(normalize_account)
+        if "渠道3" in df.columns:
+            channel3_account = df["渠道3"].map(remap_douyin_laike_channel3)
+            laike_mask = channel2_raw.eq("抖音来客直播") & channel3_account.ne("")
+            account = account.where(~laike_mask, channel3_account)
+
+    for field in ["账号", "开播账号", "成交_账号", "渠道"]:
+        if field not in df.columns:
+            continue
+        fallback = df[field].map(normalize_account)
+        account = account.where(account.astype(str).str.strip().ne(""), fallback)
+    return account.fillna("").astype(str).str.strip()
+
+
 def build_pending_account_summary(
     fact: pd.DataFrame,
     deals_source: pd.DataFrame,
@@ -221,14 +240,24 @@ def build_pending_account_summary(
         fallback_date = _parse_date_series(pending_source, field)
         order_date = order_date.where(order_date.notna(), fallback_date)
     pending_source["order_date"] = order_date
+    pending_source["source_account"] = _pending_source_account_series(pending_source)
     pending_source = pending_source[pending_source["订单状态"].astype(str).str.strip() == "待交车"].copy()
     if pending_source.empty:
         return 0, 0, "无", "无", "无"
 
-    base = fact[["线索ID_norm", "标准账号"]].drop_duplicates().copy()
-    pending = base.merge(pending_source[["线索ID_norm", "order_date"]], on="线索ID_norm", how="inner")
+    if {"线索ID_norm", "标准账号"}.issubset(set(fact.columns)):
+        base = fact[["线索ID_norm", "标准账号"]].drop_duplicates().copy()
+        base["线索ID_norm"] = _normalize_id(base["线索ID_norm"])
+        base["标准账号"] = base["标准账号"].fillna("").astype(str).str.strip()
+    else:
+        base = pd.DataFrame(columns=["线索ID_norm", "标准账号"])
+
+    pending = pending_source[["线索ID_norm", "order_date", "source_account"]].merge(base, on="线索ID_norm", how="left")
     if pending.empty:
         return 0, 0, "无", "无", "无"
+    pending["标准账号"] = pending["标准账号"].fillna("").astype(str).str.strip()
+    pending["source_account"] = pending["source_account"].fillna("").astype(str).str.strip()
+    pending["标准账号"] = pending["标准账号"].where(pending["标准账号"].ne(""), pending["source_account"])
 
     current_month_start = report_date.to_period("M").to_timestamp().normalize()
     previous_month_start = (current_month_start - pd.DateOffset(months=1)).normalize()
