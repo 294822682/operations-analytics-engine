@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import pandas as pd
 
 from oae.exports.feishu_topline import ToplineSummary, build_markdown_topline_lines, build_tsv_topline_lines
-from oae.exports.feishu_formatters import tsv_table
+from oae.exports.feishu_formatters import num_trim, tsv_table
 
 
 @dataclass
@@ -25,6 +25,7 @@ class ReportContext:
     anc_out: pd.DataFrame
     acc_tsv_out: pd.DataFrame
     anc_tsv_out: pd.DataFrame
+    seed_anchor_tsv_out: pd.DataFrame | None = None
 
 
 def build_markdown_content(ctx: ReportContext) -> str:
@@ -32,6 +33,7 @@ def build_markdown_content(ctx: ReportContext) -> str:
         f"日报日期：{ctx.report_date_str}",
         *build_markdown_topline_lines(ctx.topline_summary),
         *_build_markdown_order_breakdown_lines(ctx),
+        *_build_markdown_seed_a3_lines(ctx),
     ]
     return "\n".join(lines)
 
@@ -40,6 +42,7 @@ def build_tsv_content(ctx: ReportContext) -> str:
     lines = [
         *build_tsv_topline_lines(ctx.report_date_str, ctx.topline_summary),
         *_build_tsv_order_breakdown_lines(ctx),
+        *_build_tsv_seed_a3_lines(ctx),
         "",
         "成交账号\t结果",
         f"当日成交账号（线索组目标账号）\t{ctx.day_target_deal_accounts}",
@@ -65,6 +68,32 @@ def _build_markdown_order_breakdown_lines(ctx: ReportContext) -> list[str]:
 
 def _build_tsv_order_breakdown_lines(ctx: ReportContext) -> list[str]:
     return build_tsv_order_breakdown_lines(ctx.topline_summary, ctx.acc_tsv_out, ctx.anc_tsv_out)
+
+
+def _build_markdown_seed_a3_lines(ctx: ReportContext) -> list[str]:
+    return build_markdown_seed_a3_lines(ctx.seed_anchor_tsv_out)
+
+
+def _build_tsv_seed_a3_lines(ctx: ReportContext) -> list[str]:
+    return build_tsv_seed_a3_lines(ctx.seed_anchor_tsv_out)
+
+
+def build_markdown_seed_a3_lines(seed_anchor_tsv_out: pd.DataFrame | None) -> list[str]:
+    rows = _seed_anchor_a3_rows(seed_anchor_tsv_out)
+    if not rows:
+        return []
+    return ["种草主播A3人群增长", *[f"{name}：{value}" for name, value in rows]]
+
+
+def build_tsv_seed_a3_lines(seed_anchor_tsv_out: pd.DataFrame | None) -> list[str]:
+    rows = _seed_anchor_a3_rows(seed_anchor_tsv_out)
+    if not rows:
+        return []
+    return [
+        "种草主播A3人群增长",
+        "主播\t累计A3人群增长",
+        *[f"{name}\t{value}" for name, value in rows],
+    ]
 
 
 def build_markdown_order_breakdown_lines(
@@ -135,6 +164,24 @@ def _format_order_breakdown(df: pd.DataFrame, name_col: str) -> str:
             continue
         items.append(f"{name_text}({_format_count(count)})")
     return "、".join(items) if items else "暂无"
+
+
+def _seed_anchor_a3_rows(seed_anchor_tsv_out: pd.DataFrame | None) -> list[tuple[str, str]]:
+    if seed_anchor_tsv_out is None or seed_anchor_tsv_out.empty:
+        return []
+    if "主播" not in seed_anchor_tsv_out.columns or "累计A3人群增长" not in seed_anchor_tsv_out.columns:
+        return []
+    values = pd.to_numeric(seed_anchor_tsv_out["累计A3人群增长"], errors="coerce").fillna(0.0)
+    if float(values.sum()) <= 0:
+        return []
+
+    rows: list[tuple[str, str]] = []
+    for name, value in zip(seed_anchor_tsv_out["主播"], values):
+        name_text = str(name).strip()
+        if not name_text:
+            continue
+        rows.append((name_text, num_trim(value, 2)))
+    return rows
 
 
 def _parse_count(value) -> float:

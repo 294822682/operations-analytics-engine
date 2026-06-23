@@ -12,6 +12,7 @@ import pandas as pd
 from oae.contracts.models import ManualAttributionOverride, ManualOverrideIssue
 from oae.rules.account_mapping import normalize_account
 from oae.rules.common import normalize_text
+from oae.rules.hosts import count_hosts_in_text
 
 from .override_loader import inspect_manual_attribution_overrides, load_manual_attribution_overrides
 
@@ -132,6 +133,8 @@ def apply_manual_attribution_overrides(
         out.loc[mask, "专项归属确认时间"] = row["confirmed_at"]
         out.loc[mask, "专项归属目标账号"] = target_account
         out.loc[mask, "专项归属目标主播"] = target_host
+        if target_host:
+            _recompute_single_consumer_contributions(out, mask)
 
         applied_override_count += 1
         applied_row_count += int(mask.sum())
@@ -196,6 +199,28 @@ def apply_manual_attribution_overrides(
         "issue_summary": issue_summary,
     }
     return out, summary
+
+
+def _recompute_single_consumer_contributions(out: pd.DataFrame, mask: pd.Series) -> None:
+    host_counts = out.loc[mask, "最终本场主播"].map(count_hosts_in_text).astype(float)
+    matched = out.loc[mask, "最终归属状态"].astype(str).eq("匹配成功") & host_counts.gt(0)
+    lead_weight = pd.Series(0.0, index=host_counts.index)
+    lead_weight.loc[matched] = 1.0 / host_counts.loc[matched]
+
+    out.loc[mask, "主播人数"] = host_counts.astype(int)
+    out.loc[mask, "权重"] = lead_weight
+
+    if "is_order" in out.columns and "orders_contrib" in out.columns:
+        is_order = pd.to_numeric(out.loc[mask, "is_order"], errors="coerce").fillna(0.0)
+        out.loc[mask, "orders_contrib"] = is_order * lead_weight
+    if "is_deal" in out.columns and "成交分摊权重" in out.columns:
+        is_deal = pd.to_numeric(out.loc[mask, "is_deal"], errors="coerce").fillna(0.0)
+        deal_weight = pd.Series(0.0, index=host_counts.index)
+        deal_mask = matched & is_deal.eq(1)
+        deal_weight.loc[deal_mask] = 1.0 / host_counts.loc[deal_mask]
+        out.loc[mask, "成交分摊权重"] = deal_weight
+        if "deals_contrib" in out.columns:
+            out.loc[mask, "deals_contrib"] = is_deal * deal_weight
 
 
 def build_manual_override_manifest(

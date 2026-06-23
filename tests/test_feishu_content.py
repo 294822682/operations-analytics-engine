@@ -43,6 +43,30 @@ def test_tsv_content_includes_standalone_douyin_laike_order_breakdown() -> None:
     assert content.index("EX7 专项") < content.index("抖音-来客线索数（手机号去重）") < content.index("成交账号\t结果")
 
 
+def test_content_includes_seed_anchor_a3_growth_without_daily_zero_text() -> None:
+    ctx = _report_context()
+    ctx.seed_anchor_tsv_out = pd.DataFrame(
+        [
+            {"主播": "刘花旗", "累计A3人群增长": 44199.5},
+            {"主播": "桂婕", "累计A3人群增长": 38575.5},
+            {"主播": "曹嘉洋", "累计A3人群增长": 0},
+        ]
+    )
+
+    markdown = build_markdown_content(ctx)
+    tsv = build_tsv_content(ctx)
+
+    assert "种草主播A3人群增长\n刘花旗：44199.5\n桂婕：38575.5\n曹嘉洋：0" in markdown
+    assert "当日 0" not in markdown
+    assert (
+        "种草主播A3人群增长\n"
+        "主播\t累计A3人群增长\n"
+        "刘花旗\t44199.5\n"
+        "桂婕\t38575.5\n"
+        "曹嘉洋\t0"
+    ) in tsv
+
+
 def _report_context() -> ReportContext:
     summary = ToplineSummary(
         full_account=FullAccountTopline(

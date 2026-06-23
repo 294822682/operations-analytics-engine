@@ -13,7 +13,7 @@ from pathlib import Path
 import pandas as pd
 
 import oae.exports.feishu_report as g
-from oae.exports.feishu_content import build_tsv_order_breakdown_lines
+from oae.exports.feishu_content import build_tsv_order_breakdown_lines, build_tsv_seed_a3_lines
 from oae.exports.feishu_seed_dashboard import (
     build_seed_dashboard_tables,
     load_seed_sessions_from_workbooks,
@@ -201,7 +201,7 @@ def main() -> int:
     seed_workbook_paths = resolve_seed_workbook_paths(args.seed_workbook_file, search_dirs)
     seed_targets = g.load_report_seed_monthly_targets(seed_targets_path, month=report_date_str[:7])
     seed_sessions = load_seed_sessions_from_workbooks(seed_workbook_paths)
-    seed_acc_tsv_out, _ = build_seed_dashboard_tables(
+    seed_acc_tsv_out, seed_anc_tsv_out = build_seed_dashboard_tables(
         report_date=report_date_str,
         seed_sessions=seed_sessions,
         seed_targets=seed_targets,
@@ -240,6 +240,7 @@ def main() -> int:
     expected_top_lines = [
         *build_tsv_topline_lines(report_date_str, topline_summary),
         *build_tsv_order_breakdown_lines(topline_summary, exp_acc_tsv, exp_anc_tsv),
+        *build_tsv_seed_a3_lines(seed_anc_tsv_out),
         "",
     ]
     if "成交账号\t结果" not in lines:

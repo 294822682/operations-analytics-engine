@@ -403,7 +403,8 @@ def build_anchor_panel(
     spend_sched_num = pd.to_numeric(out["daily_spend_sched"], errors="coerce").fillna(0.0)
     spend_all_num = pd.to_numeric(out["daily_spend_all"], errors="coerce").fillna(0.0)
     out["daily_leads"] = np.where(has_schedule, leads_sched_num, leads_all_num)
-    out["daily_deals"] = np.where(has_schedule, deals_sched_num, deals_all_num)
+    # Deals are already final attribution results; do not drop cross-account manual overrides.
+    out["daily_deals"] = deals_all_num
     out["daily_spend"] = np.where(has_schedule, spend_sched_num, spend_all_num)
 
     out = out.drop(

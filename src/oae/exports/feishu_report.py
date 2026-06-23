@@ -450,6 +450,7 @@ def main() -> None:
         anc_out=anc_out,
         acc_tsv_out=acc_tsv_out,
         anc_tsv_out=anc_tsv_out,
+        seed_anchor_tsv_out=seed_anc_tsv_out,
     )
 
     md_content = build_markdown_content(ctx)

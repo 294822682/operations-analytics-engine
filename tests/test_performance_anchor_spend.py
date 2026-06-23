@@ -99,3 +99,63 @@ def test_anchor_spend_uses_live_row_host_not_lead_share(tmp_path) -> None:
     assert latest.at["何雯", "mtd_spend"] == 0
     assert latest.at["徐欣悦", "daily_spend"] == 1525.09
     assert latest.at["徐欣悦", "mtd_spend"] == 1525.09
+
+
+def test_anchor_deals_use_all_final_attribution_when_schedule_account_differs() -> None:
+    report_date = pd.Timestamp("2026-06-06")
+    fact = pd.DataFrame(
+        [
+            {
+                "date": pd.Timestamp("2026-06-01"),
+                "deal_date": report_date,
+                "is_deal": 1,
+                "标准账号": "抖音-星途汽车直播营销中心",
+                "本场主播": "侯翩翩",
+                "线索ID_norm": "HOU-MARKETING-1",
+            },
+            {
+                "date": pd.Timestamp("2026-06-02"),
+                "deal_date": report_date,
+                "is_deal": 1,
+                "标准账号": "抖音-星途汽车官方直播间",
+                "本场主播": "侯翩翩",
+                "线索ID_norm": "HOU-OFFICIAL-1",
+            },
+        ]
+    )
+    targets_month = pd.DataFrame(
+        [
+            {
+                "scope_type": "anchor",
+                "scope_name": "侯翩翩",
+                "lead_target_month": 0,
+                "deal_target_month": 17,
+                "lead_cost_target_month": 25000,
+                "cpl_target": float("nan"),
+                "cps_target": 1470.59,
+            }
+        ]
+    )
+    live_anchor_accounts = pd.DataFrame(
+        [
+            {
+                "date": report_date,
+                "scope_name": "侯翩翩",
+                "parent_account": "抖音-星途汽车官方直播间",
+                "daily_spend": 0,
+            }
+        ]
+    )
+
+    panel = build_anchor_panel(
+        fact=fact,
+        targets_month=targets_month,
+        spend_month=pd.DataFrame(columns=["date", "account", "actual_spend"]),
+        month_start=pd.Timestamp("2026-06-01"),
+        month_end=pd.Timestamp("2026-06-30"),
+        live_anchor_accounts=live_anchor_accounts,
+    )
+    latest = panel[panel["date"].eq(report_date)].set_index("scope_name")
+
+    assert latest.at["侯翩翩", "daily_deals"] == 2
+    assert latest.at["侯翩翩", "mtd_deals"] == 2

@@ -163,16 +163,60 @@ def test_build_seed_dashboard_tables_uses_seed_target_pool_contract(tmp_path: Pa
         "当日曝光": 5000.0,
         "当日曝光目标": 285.7142857142857,
         "当日曝光达成率": 17.5,
-        "累计曝光": 6000.0,
-        "曝光目标": 9000.0,
-        "累计曝光达成率": 0.6666666666666666,
-    }
+            "累计曝光": 6000.0,
+            "曝光目标": 9000.0,
+            "累计曝光达成率": 0.6666666666666666,
+            "累计A3人群增长": 0.0,
+        }
 
     gui = seed_anchor[seed_anchor["主播"].eq("桂婕")].iloc[0].to_dict()
     assert gui["归属账号"] == "EXEED星途"
     assert gui["当日曝光"] == 0.0
     assert gui["累计曝光"] == 0.0
     assert gui["曝光目标"] == 6000.0
+    assert gui["累计A3人群增长"] == 0.0
+
+
+def test_build_seed_dashboard_tables_splits_a3_growth_across_multiple_hosts(tmp_path: Path) -> None:
+    targets_path = tmp_path / "seed_monthly_targets.csv"
+    targets_path.write_text(
+        "\n".join(
+            [
+                "month,scope_type,scope_name,parent_scope,parent_account,impression_target_month,spend_target_month,cpm_target,target_pool",
+                "2026-06,account,EXEED星途,,,28000,,,种草组目标池",
+                "2026-06,host,刘花旗,,EXEED星途,9000,,,种草组目标池",
+                "2026-06,host,桂婕,,EXEED星途,6000,,,种草组目标池",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    seed_workbook = tmp_path / "EXEED星途台账（六月）.xlsx"
+    pd.DataFrame(
+        [
+            {"创建时间": "2026-06-02", "开播账号": "抖音-EXEED星途", "本场主播": "刘花旗", "曝光人数": 1000, "A3人群增长": 100},
+            {
+                "创建时间": "2026-06-03",
+                "开播账号": "抖音-EXEED星途",
+                "本场主播": "刘花旗,桂婕",
+                "曝光人数": 1000,
+                "A3人群增长": 5,
+            },
+        ]
+    ).to_excel(seed_workbook, index=False)
+
+    targets = load_seed_monthly_targets(targets_path)
+    sessions = load_seed_sessions_from_workbooks([seed_workbook])
+    _, seed_anchor = build_seed_dashboard_tables(
+        report_date="2026-06-03",
+        seed_sessions=sessions,
+        seed_targets=targets,
+    )
+
+    liu = seed_anchor[seed_anchor["主播"].eq("刘花旗")].iloc[0]
+    gui = seed_anchor[seed_anchor["主播"].eq("桂婕")].iloc[0]
+    assert liu["累计A3人群增长"] == 102.5
+    assert gui["累计A3人群增长"] == 2.5
 
 
 def test_feishu_report_writes_seed_rows_to_dashboard_source(tmp_path: Path, monkeypatch) -> None:

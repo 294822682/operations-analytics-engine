@@ -12,8 +12,18 @@ from oae.performance.loader_utils import normalize_account, normalize_text, pick
 
 
 SEED_ACCOUNT_COLUMNS = ["账号", "当日曝光", "当日曝光目标", "当日曝光达成率", "累计曝光", "曝光目标", "累计曝光达成率"]
-SEED_ANCHOR_COLUMNS = ["主播", "归属账号", "当日曝光", "当日曝光目标", "当日曝光达成率", "累计曝光", "曝光目标", "累计曝光达成率"]
-SEED_SESSION_COLUMNS = ["date", "account", "hosts_raw", "impressions", "source_file"]
+SEED_ANCHOR_COLUMNS = [
+    "主播",
+    "归属账号",
+    "当日曝光",
+    "当日曝光目标",
+    "当日曝光达成率",
+    "累计曝光",
+    "曝光目标",
+    "累计曝光达成率",
+    "累计A3人群增长",
+]
+SEED_SESSION_COLUMNS = ["date", "account", "hosts_raw", "impressions", "a3_growth", "source_file"]
 SEED_TARGET_COLUMNS = [
     "month",
     "scope_type",
@@ -127,6 +137,7 @@ def _seed_sessions_from_raw(raw: pd.DataFrame, *, source_file: str) -> pd.DataFr
     account_col = pick_live_column(data, ["开播账号", "账号", "直播账号", "账号名称"], required=False)
     host_col = pick_live_column(data, ["本场主播", "主播", "主播名称"], required=False)
     exposure_col = pick_live_column(data, ["曝光人数", "曝光次数", "曝光", "展现", "曝光量"], required=False)
+    a3_col = pick_live_column(data, ["A3人群增长"], required=False)
     if not date_col or not exposure_col:
         return pd.DataFrame(columns=SEED_SESSION_COLUMNS)
     frame = pd.DataFrame(
@@ -135,6 +146,7 @@ def _seed_sessions_from_raw(raw: pd.DataFrame, *, source_file: str) -> pd.DataFr
             "account": data[account_col].map(normalize_account) if account_col else "",
             "hosts_raw": data[host_col].map(normalize_text) if host_col else "",
             "impressions": pd.to_numeric(data[exposure_col], errors="coerce"),
+            "a3_growth": pd.to_numeric(data[a3_col], errors="coerce").fillna(0.0) if a3_col else 0.0,
             "source_file": source_file,
         }
     )
@@ -159,6 +171,7 @@ def _sessions_for_month(seed_sessions: pd.DataFrame, month_start: pd.Timestamp, 
     out = seed_sessions.copy()
     out["date"] = pd.to_datetime(out["date"], errors="coerce").dt.normalize()
     out["impressions"] = pd.to_numeric(out.get("impressions", pd.Series(dtype="float64")), errors="coerce")
+    out["a3_growth"] = pd.to_numeric(out.get("a3_growth", pd.Series(dtype="float64")), errors="coerce").fillna(0.0)
     out = out[out["date"].between(month_start, report_ts) & out["impressions"].notna()].copy()
     if out.empty:
         return pd.DataFrame(columns=SEED_SESSION_COLUMNS)
@@ -202,6 +215,7 @@ def _build_seed_anchor_table(
     target_names = [_clean_text(name) for name in host_targets.get("scope_name", pd.Series(dtype="object")).tolist()]
     target_names = [name for name in target_names if name]
     anchor_daily = _anchor_daily_impressions(sessions)
+    anchor_daily_a3 = _anchor_daily_metric(sessions, "a3_growth")
     extra_names = sorted(name for name in anchor_daily if name and name not in set(target_names))
     names = target_names + extra_names
 
@@ -211,11 +225,23 @@ def _build_seed_anchor_table(
         values = anchor_daily.get(name, {})
         daily = float(values.get(report_ts.strftime("%Y-%m-%d"), 0.0))
         mtd = float(sum(values.values())) if values else 0.0
+        a3_values = anchor_daily_a3.get(name, {})
+        mtd_a3 = float(sum(a3_values.values())) if a3_values else 0.0
         previous = float(sum(value for date_key, value in values.items() if date_key < report_ts.strftime("%Y-%m-%d")))
         target = _target_value(host_targets, scope_type="host", scope_name=name)
         daily_target = _remaining_daily_target(target, previous, report_ts)
         parent = _target_parent(host_targets, name) or parent_map.get(name, "")
-        rows.append(_seed_row(name=name, parent=parent, daily=daily, mtd=mtd, daily_target=daily_target, mtd_target=target))
+        rows.append(
+            _seed_row(
+                name=name,
+                parent=parent,
+                daily=daily,
+                mtd=mtd,
+                daily_target=daily_target,
+                mtd_target=target,
+                mtd_a3_growth=mtd_a3,
+            )
+        )
     return pd.DataFrame(rows, columns=SEED_ANCHOR_COLUMNS)
 
 
@@ -233,23 +259,29 @@ def _scope_sessions_for_account(sessions: pd.DataFrame, target_name: str, *, sin
 
 
 def _anchor_daily_impressions(sessions: pd.DataFrame) -> dict[str, dict[str, float]]:
+    return _anchor_daily_metric(sessions, "impressions")
+
+
+def _anchor_daily_metric(sessions: pd.DataFrame, value_col: str) -> dict[str, dict[str, float]]:
     if sessions.empty:
         return {}
-    data = sessions[["date", "account", "hosts_raw", "impressions"]].copy()
+    if value_col not in sessions.columns:
+        return {}
+    data = sessions[["date", "account", "hosts_raw", value_col]].copy()
     data["date"] = pd.to_datetime(data["date"], errors="coerce").dt.strftime("%Y-%m-%d")
-    data["impressions"] = pd.to_numeric(data["impressions"], errors="coerce")
+    data[value_col] = pd.to_numeric(data[value_col], errors="coerce")
     data["hosts"] = data["hosts_raw"].apply(split_hosts)
     data["host_count"] = data["hosts"].apply(len)
-    data = data[data["date"].notna() & data["impressions"].notna() & (data["host_count"] > 0)].copy()
+    data = data[data["date"].notna() & data[value_col].notna() & (data["host_count"] > 0)].copy()
     if data.empty:
         return {}
-    data["weighted_impressions"] = data["impressions"] / data["host_count"]
+    data["weighted_value"] = data[value_col] / data["host_count"]
     data = data.explode("hosts", ignore_index=True)
     data["host"] = data["hosts"].map(normalize_text)
     data = data[data["host"].ne("")]
 
     out: dict[str, dict[str, float]] = {}
-    grouped = data.groupby(["host", "date"])["weighted_impressions"].sum()
+    grouped = data.groupby(["host", "date"])["weighted_value"].sum()
     for (host, date_key), value in grouped.items():
         out.setdefault(str(host), {})[str(date_key)] = float(value)
     return out
@@ -319,6 +351,7 @@ def _seed_row(
     mtd: float,
     daily_target: float | None,
     mtd_target: float | None,
+    mtd_a3_growth: float = 0.0,
 ) -> dict[str, float | str]:
     return {
         "账号": name if not parent else "",
@@ -330,6 +363,7 @@ def _seed_row(
         "累计曝光": mtd,
         "曝光目标": mtd_target,
         "累计曝光达成率": _safe_div(mtd, mtd_target),
+        "累计A3人群增长": mtd_a3_growth,
     }
 
 
