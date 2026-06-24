@@ -1,4 +1,4 @@
-"""CLI entrypoint for historical metrics SQLite builder."""
+"""CLI entrypoint for rebuilding the historical metrics SQLite database."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from oae.storage.historical_metrics import build_historical_metrics_db
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build historical metrics SQLite registry")
+    parser = argparse.ArgumentParser(description="Rebuild historical metrics SQLite database")
     parser.add_argument("--workspace", default=".", help="Repository workspace")
     parser.add_argument("--start-month", required=True, help="Start month, YYYY-MM")
     parser.add_argument("--end-month", required=True, help="End month, YYYY-MM")
